@@ -19,6 +19,8 @@ services:
       - db
     volumes:
       - .:/app
+    environment:
+      - RAILS_MASTER_KEY=${RAILS_MASTER_KEY}
 
 volumes:
   db-data:
