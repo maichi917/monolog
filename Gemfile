@@ -67,4 +67,3 @@ group :test do
 end
 
 gem "tailwindcss-rails"
-gem "sassc-rails"
