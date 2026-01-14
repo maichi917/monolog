@@ -1,0 +1,15 @@
+<!-- 仮ヘッダー -->
+<header class="bg-emerald-400 shadow-md">
+  <div class="container mx-auto px-4 py-4">
+    <div class="flex items-center justify-between">
+      <div class="text-2xl font-bold text-white">
+        <%= link_to "My Stocker", root_path, class: "hover:text-green-100 transition" %>
+      </div>
+      <div class="flex items-center space-x-6">
+        <%= link_to "アイテムリスト", "#", class: "text-white hover:text-green-100 transition" %>
+        <%= link_to "使い切りアイテム", "#", class: "text-white hover:text-green-100 transition" %>
+        <%= link_to "ログアウト", "#", data: { turbo_method: :delete }, class: "bg-white text-green-600 px-4 py-2 rounded hover:bg-green-50 transition font-semibold" %>
+      </div>
+    </div>
+  </div>
+</header>
