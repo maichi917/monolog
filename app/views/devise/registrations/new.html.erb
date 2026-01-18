@@ -1,34 +1,58 @@
-<h2>Sign up</h2>
+<div class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-md w-full space-y-8">
+    <!-- ヘッダー部分 -->
+    <div class="text-center">
+      <h2 class="text-3xl font-extrabold text-gray-900">
+        新規登録
+      </h2>
+      <p class="mt-2 text-sm text-gray-600">
+        アカウントを作成しましょう
+      </p>
+    </div>
 
-<%= form_for(resource, as: resource_name, url: registration_path(resource_name)) do |f| %>
-  <%= render "devise/shared/error_messages", resource: resource %>
+    <!-- フォーム部分 -->
+    <%= form_for(resource, as: resource_name, url: registration_path(resource_name), html: { class: "mt-8" }) do |f| %>
+      <%= render "devise/shared/error_messages", resource: resource %>
 
-  <div class="field">
-    <%= f.label :name %><br />
-    <%= f.text_field :name, autofocus: true, autocomplete: "name" %>
+      <div class="space-y-5">
+        <!-- 名前フィールド -->
+        <div>
+          <%= f.label :name, "ユーザー名", class: "block text-sm font-medium text-gray-700 mb-2" %>
+          <%= f.text_field :name, autofocus: true, autocomplete: "name", class: "appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" %>
+        </div>
+
+        <!-- メールアドレスフィールド -->
+        <div>
+          <%= f.label :email, "メールアドレス", class: "block text-sm font-medium text-gray-700 mb-2" %>
+          <%= f.email_field :email, autocomplete: "email", class: "appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" %>
+        </div>
+
+        <!-- パスワードフィールド -->
+        <div>
+          <div class="flex items-baseline justify-between mb-2">
+            <%= f.label :password, "パスワード", class: "block text-sm font-medium text-gray-700" %>
+            <% if @minimum_password_length %>
+              <span class="text-xs text-gray-500">
+                (<%= @minimum_password_length %>文字以上)
+              </span>
+            <% end %>
+          </div>
+          <%= f.password_field :password, autocomplete: "new-password", class: "appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" %>
+        </div>
+
+        <!-- パスワード確認フィールド -->
+        <div>
+          <%= f.label :password_confirmation, "パスワード（確認）", class: "block text-sm font-medium text-gray-700 mb-2" %>
+          <%= f.password_field :password_confirmation, autocomplete: "new-password", class: "appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" %>
+        </div>
+      </div>
+
+      <div class="actions mt-12">
+        <%= f.submit '新規登録', class: "inline-flex w-full items-center justify-center rounded-md bg-indigo-500 p-3 text-white duration-100 ease-in-out hover:bg-indigo-600 focus:outline-none cursor-pointer" %>
+      </div>
+    <% end %>
+
+    <%= render "devise/shared/links" %>
+
   </div>
-
-  <div class="field">
-    <%= f.label :email %><br />
-    <%= f.email_field :email, autofocus: true, autocomplete: "email" %>
-  </div>
-
-  <div class="field">
-    <%= f.label :password %>
-    <% if @minimum_password_length %>
-    <em>(<%= @minimum_password_length %> characters minimum)</em>
-    <% end %><br />
-    <%= f.password_field :password, autocomplete: "new-password" %>
-  </div>
-
-  <div class="field">
-    <%= f.label :password_confirmation %><br />
-    <%= f.password_field :password_confirmation, autocomplete: "new-password" %>
-  </div>
-
-  <div class="actions">
-    <%= f.submit "Sign up" %>
-  </div>
-<% end %>
-
-<%= render "devise/shared/links" %>
+</div>
