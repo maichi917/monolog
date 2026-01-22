@@ -11,6 +11,10 @@ ja:
         status: ステータス
         favorite: お気に入り
         memo: メモ
+    errors:
+      messages:
+        blank: "を入力してください"
+        not_a_number: "は数値で入力してください"
   enums:
     item:
       status:

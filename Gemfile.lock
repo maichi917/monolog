@@ -113,6 +113,9 @@ GEM
       railties (>= 4.1.0)
       responders
       warden (~> 1.2.3)
+    devise-i18n (1.15.0)
+      devise (>= 4.9.0)
+      rails-i18n
     drb (2.2.3)
     erb (6.0.1)
     erubi (1.13.1)
@@ -288,6 +291,7 @@ DEPENDENCIES
   capybara
   debug
   devise
+  devise-i18n
   importmap-rails
   jbuilder
   pg (~> 1.1)
