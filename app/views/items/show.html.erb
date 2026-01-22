@@ -1,0 +1,61 @@
+<div class="container mx-auto px-4 py-8">
+  <div class="max-w-2xl mx-auto">
+    <h1 class="text-2xl mb-6 text-center">アイテム詳細</h1>
+
+    <div class="bg-white rounded-lg shadow-lg p-8">
+      <div class="space-y-6">
+        <!-- アイテム名 -->
+        <div>
+          <label class="block text-gray-700 text-sm font-bold mb-2">アイテム名</label>
+          <p class="text-gray-900">
+            <%= @item.name %>
+          </p>
+        </div>
+
+        <!-- 画像プレビュー -->
+        <div>
+          <label class="block text-gray-700 text-sm font-bold mb-2">画像</label>
+          <div class="w-64 h-64 bg-gray-200 rounded-lg flex items-center justify-center mx-auto">
+            <span class="text-gray-500">画像プレビュー</span>
+          </div>
+        </div>
+
+        <!-- 価格と在庫数 -->
+        <div class="flex gap-4">
+          <div class="flex-1">
+            <label class="block text-gray-700 text-sm font-bold mb-2">価格</label>
+            <p class="text-gray-900">
+              <%= number_with_delimiter(@item.price) %>
+            </p>
+          </div>
+
+          <div class="flex-1">
+            <label class="block text-gray-700 text-sm font-bold mb-2">在庫数</label>
+            <p class="text-gray-900">
+              <%= @item.stock_quantity %>
+            </p>
+          </div>
+        </div>
+
+        <!-- メモ -->
+        <div>
+          <label class="block text-gray-700 text-sm font-bold mb-2">メモ</label>
+          <% if @item.memo.present? %>
+            <div class="shadow appearance-none border border-slate-300 rounded w-full py-2 px-3 text-gray-700 leading-tight bg-gray-50 whitespace-pre-wrap" style="min-height: 120px;">
+              <%= @item.memo %>
+            </div>
+          <% else %>
+            <p class="text-gray-500">メモはありません</p>
+          <% end %>
+        </div>
+
+        <!-- ボタン群 -->
+        <div class="flex gap-4 justify-center">
+          <%= link_to 'リストに戻る', items_path, class: "inline-block bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" %>
+          <%= link_to '編集', edit_item_path(@item), class: "inline-block bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" %>
+          <%= link_to '削除', item_path(@item), data: { turbo_method: :delete, turbo_confirm: '本当に削除しますか?' }, class: "inline-block bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
