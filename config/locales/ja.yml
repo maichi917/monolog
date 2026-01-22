@@ -1,0 +1,19 @@
+ja:
+  activerecord:
+    models:
+      item: アイテム
+    attributes:
+      item:
+        name: アイテム名
+        category_name: カテゴリー
+        price: 価格
+        stock_quantity: 在庫数
+        status: ステータス
+        favorite: お気に入り
+        memo: メモ
+  enums:
+    item:
+      status:
+        in_stock: '在庫あり'
+        in_use: '使用中'
+        used_up: '使い切り'
