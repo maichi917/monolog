@@ -23,6 +23,26 @@ class ItemsController < ApplicationController
     @item = current_user.items.find(params[:id]) # ログイン中のユーザーのアイテムを取得
   end
 
+  def edit
+    @item = current_user.items.find(params[:id]) # ログイン中のユーザーのアイテムを取得
+  end
+
+  def update
+    @item = current_user.items.find(params[:id])
+    if @item.update(item_params)
+      redirect_to items_path, success: 'アイテム情報が更新されました', item: Item.model_name.human
+    else
+      flash.now[:danger] = 'アイテム情報の更新に失敗しました'
+      render :edit, status: :unprocessable_entity
+    end
+  end
+
+  def destroy
+    item = current_user.items.find(params[:id])
+    item.destroy!
+    redirect_to items_path, success: 'アイテムが削除されました'
+  end
+
   private
 
   def item_params
