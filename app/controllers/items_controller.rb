@@ -2,7 +2,20 @@ class ItemsController < ApplicationController
   before_action :authenticate_user! # ユーザーがログインしていることを確認
 
   def index
-    @items = current_user.items.order(created_at: :desc) # ログイン中のユーザーのアイテムを取得
+    @page_title = "アイテムリスト"
+    @items = current_user.items.where(status: 'in_stock').order(created_at: :desc) # 在庫ありアイテムを取得
+  end
+
+  def in_use
+    @page_title = "使用中アイテム"
+    @items = current_user.items.where(status: 'in_use').order(created_at: :desc) # 使用中アイテムを取得
+    render :index
+  end
+
+  def used_up
+    @page_title = "使い切りアイテム"
+    @items = current_user.items.where(status: 'used_up').order(created_at: :desc) # 使用済みアイテムを取得
+    render :index
   end
 
   def new

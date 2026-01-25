@@ -10,7 +10,8 @@
         <% if user_signed_in? %>
           <!-- ログイン中 -->
           <%= link_to "アイテムリスト", items_path, class: "text-white hover:text-green-100 transition" %>
-          <%= link_to "使い切りアイテム", "#", class: "text-white hover:text-green-100 transition" %>
+          <%= link_to "使用中アイテム", in_use_items_path, class: "text-white hover:text-green-100 transition" %>
+          <%= link_to "使い切りアイテム", used_up_items_path, class: "text-white hover:text-green-100 transition" %>
           <%= link_to "ログアウト", destroy_user_session_path, data: { turbo_method: :delete }, class: "bg-white text-green-600 px-4 py-2 rounded hover:bg-green-50 transition font-semibold" %>
         <% else %>
           <!-- 非ログイン中 -->
