@@ -15,7 +15,7 @@
             <th class="px-4 py-3 text-center text-xs font-medium text-gray-400 uppercase tracking-wider">在庫数</th>
             <th class="px-4 py-3 text-center text-xs font-medium text-gray-400 uppercase tracking-wider">価格</th>
             <th class="px-4 py-3 text-center text-xs font-medium text-gray-400 uppercase tracking-wider">登録日</th>
-            <th class="px-4 py-3 text-center text-xs font-medium text-gray-400 uppercase tracking-wider">ステータス</th>
+            <th class="px-4 py-3 text-center text-xs font-medium text-gray-400 uppercase tracking-wider">状態</th>
             <th class="px-4 py-3 text-center text-xs font-medium text-gray-400 uppercase tracking-wider"></th>
           </tr>
         </thead>
@@ -42,13 +42,22 @@
                 <%= item.created_at.strftime('%Y/%-m/%-d') %>
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-center">
-                <% case item.status %>
-                <% when 'in_stock' %>
-                  <span class="inline-block w-28 px-4 py-2 border border-green-500 text-green-600 rounded cursor-default">在庫あり</span>
-                <% when 'in_use' %>
-                  <span class="inline-block w-28 px-4 py-2 border border-yellow-500 text-yellow-600 rounded cursor-default">使用中</span>
-                <% when 'used_up' %>
-                  <span class="inline-block w-28 px-4 py-2 border border-red-500 text-red-600 rounded cursor-default">使い切り</span>
+                <% if item.status == 'in_stock' %>
+                  <%= button_to '使い始める',
+                                item_path(item),
+                                method: :patch,
+                                params: { item: { status: 'in_use' } },
+                                class: 'inline-block w-28 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded transition duration-200',
+                                data: { turbo_confirm: '使用を開始しますか?' } %>
+                <% elsif item.status == 'in_use' %>
+                  <%= button_to '使い切り',
+                                item_path(item),
+                                method: :patch,
+                                params: { item: { status: 'used_up' } },
+                                class: 'inline-block w-28 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded transition duration-200',
+                                data: { turbo_confirm: '使い切りますか?' } %>
+                <% elsif item.status == 'used_up' %>
+                  <span class="inline-block w-36 px-4 py-2 border border-red-500 text-red-600 rounded cursor-default">使い切りました</span>
                 <% end %>
               </td>
               <td class="px-4 py-4 whitespace-nowrap text-sm text-center">
