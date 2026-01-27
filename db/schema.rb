@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_01_18_112336) do
+ActiveRecord::Schema[7.1].define(version: 2026_01_25_123251) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -24,6 +24,9 @@ ActiveRecord::Schema[7.1].define(version: 2026_01_18_112336) do
     t.text "memo"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.date "started_at"
+    t.date "finished_at"
+    t.date "predicted_end_at"
     t.index ["status"], name: "index_items_on_status"
     t.index ["user_id"], name: "index_items_on_user_id"
   end

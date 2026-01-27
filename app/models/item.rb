@@ -11,10 +11,9 @@ class Item < ApplicationRecord
     used_up: 2     # 使い切り
   }, _prefix: true
 
-  # スコープ：アイテムリスト用（在庫あり、使用中）
-  scope :active_items, -> { where(status: [:in_stock, :in_use]) }
-
-  # スコープ：使い切りアイテム用
+  # スコープ
+  scope :in_stock_items, -> { where(status: :in_stock) }
+  scope :in_use_items, -> { where(status: :in_use) }
   scope :used_up_items, -> { where(status: :used_up) }
 
   def status_i18n
@@ -31,5 +30,41 @@ class Item < ApplicationRecord
     when :used_up
       'badge-error'     # 赤：使い切り
     end
+  end
+
+  # 使用期間を計算（日数）
+  def usage_period
+    return nil unless status_in_use? && started_at.present?
+    (Date.today - started_at).to_i
+  end
+
+  # 使い切るまでの期間を計算（日数）
+  def total_usage_period
+    return nil unless status_in_use? && started_at.present? && expected_end_at.present?
+    (finished_at - started_at).to_i
+  end
+
+  # 🆕 1. 予測される使い切り日までの残り日数（使用中の場合）
+  def days_until_predicted_end
+    return nil unless status_in_use? && predicted_end_at
+    (predicted_end_at - Date.today).to_i
+  end
+
+  # 使い切り予想日を表示（使い始める時に実行）
+  def calculate_predicted_end_at!
+    # 過去の使い切ったアイテムから平均使用期間を計算
+    past_items = user.items
+                     .where(status: :used_up)
+                     .where.not(started_at: nil, finished_at: nil)
+
+    # 過去データがない場合は予測しない
+    return if past_items.empty?
+
+    # 平均使用期間を計算
+    total_days = past_items.sum { |item| (item.finished_at - item.started_at).to_i }
+    average_days = total_days / past_items.size
+
+    # 予測日を設定
+    self.predicted_end_at = started_at + average_days.days
   end
 end
