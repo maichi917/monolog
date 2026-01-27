@@ -37,6 +37,20 @@
           </div>
         </div>
 
+        <!-- ステータス表示 -->
+        <div>
+          <label class="block text-gray-700 text-sm font-bold mb-2">ステータス</label>
+          <p class="text-gray-900">
+            <% if @item.status == 'in_stock' %>
+              <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">在庫あり</span>
+            <% elsif @item.status == 'in_use' %>
+              <span class="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm">使用中</span>
+            <% elsif @item.status == 'used_up' %>
+              <span class="px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-sm">使い切り</span>
+            <% end %>
+          </p>
+        </div>
+
         <!-- メモ -->
         <div>
           <label class="block text-gray-700 text-sm font-bold mb-2">メモ</label>
@@ -46,6 +60,27 @@
             </div>
           <% else %>
             <p class="text-gray-500">メモはありません</p>
+          <% end %>
+        </div>
+
+        <!-- ステータス変更ボタン -->
+        <div class="flex gap-3 justify-center">
+          <% if @item.status == 'in_stock' %>
+            <%= button_to '使い始める',
+                          item_path(@item),
+                          method: :patch,
+                          params: { item: { status: 'in_use' } },
+                          class: 'px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded transition duration-200',
+                          data: { turbo_confirm: '使用を開始しますか?' } %>
+          <% elsif @item.status == 'in_use' %>
+            <%= button_to '使い切り',
+                          item_path(@item),
+                          method: :patch,
+                          params: { item: { status: 'used_up' } },
+                          class: 'px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded transition duration-200',
+                          data: { turbo_confirm: '使い切りますか?' } %>
+          <% elsif @item.status == 'used_up' %>
+            <span class="px-4 py-2 bg-gray-300 text-gray-600 rounded">使い切り済み</span>
           <% end %>
         </div>
 

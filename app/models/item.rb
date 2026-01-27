@@ -11,6 +11,14 @@ class Item < ApplicationRecord
     used_up: 2     # 使い切り
   }, _prefix: true
 
+  # MVP1段階では在庫は0または1のみ
+  validates :stock_quantity, inclusion: { in: [0, 1] }
+
+  # ✅ ステータスと日付の整合性をバリデーション
+  validates :started_at, presence: true, if: -> { status_in_use? || status_used_up? }
+  validates :finished_at, presence: true, if: :status_used_up?
+  validate :dates_must_be_nil_when_in_stock
+
   # スコープ
   scope :in_stock_items, -> { where(status: :in_stock) }
   scope :in_use_items, -> { where(status: :in_use) }
