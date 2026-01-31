@@ -33,24 +33,16 @@
           </div>
         </div>
 
-        <!-- 使用開始日 -->
-        <div>
-          <%= f.label :start_date, class: "block text-gray-700 text-sm font-bold mb-2" %>
-          <%= f.date_field :start_date, class: "shadow appearance-none border border-slate-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-blue-500" %>
-        </div>
-
-        <!-- 価格と個数 -->
+        <!-- 価格 -->
         <div class="flex gap-4">
           <div class="flex-1">
             <%= f.label :price, class: "block text-gray-700 text-sm font-bold mb-2" %>
             <%= f.text_field :price, class: "shadow appearance-none border border-slate-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-blue-500", placeholder: "例: 1000" %>
           </div>
-
-          <div class="flex-1">
-            <%= f.label :stock_quantity, class: "block text-gray-700 text-sm font-bold mb-2" %>
-            <%= f.text_field :stock_quantity, class: "shadow appearance-none border border-slate-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-blue-500", placeholder: "例: 50" %>
-          </div>
         </div>
+
+        <!-- 在庫数は1固定 -->
+        <%= f.hidden_field :stock_quantity, value: 1 %>
 
         <!-- メモ -->
         <div>
