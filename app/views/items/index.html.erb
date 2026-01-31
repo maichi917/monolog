@@ -14,7 +14,9 @@
             <th class="min-w-[250px] px-4 py-3 text-center text-xs font-medium text-gray-400 uppercase tracking-wider">名前</th>
             <th class="px-4 py-3 text-center text-xs font-medium text-gray-400 uppercase tracking-wider">在庫数</th>
             <th class="px-4 py-3 text-center text-xs font-medium text-gray-400 uppercase tracking-wider">価格</th>
-            <th class="px-4 py-3 text-center text-xs font-medium text-gray-400 uppercase tracking-wider">登録日</th>
+            <th class="px-4 py-3 text-center text-xs font-medium text-gray-400 uppercase tracking-wider">使い始め日</th>
+            <th class="px-4 py-3 text-center text-xs font-medium text-gray-400 uppercase tracking-wider">使い切り日</th>
+            <th class="px-4 py-3 text-center text-xs font-medium text-gray-400 uppercase tracking-wider">使用期間</th>
             <th class="px-4 py-3 text-center text-xs font-medium text-gray-400 uppercase tracking-wider">状態</th>
             <th class="px-4 py-3 text-center text-xs font-medium text-gray-400 uppercase tracking-wider"></th>
           </tr>
@@ -39,23 +41,28 @@
                 <%= number_with_delimiter(item.price) %>
               </td>
               <td class="px-4 py-4 whitespace-nowrap text-xs text-gray-400 text-center">
-                <%= item.created_at.strftime('%Y/%-m/%-d') %>
+                <%= item.started_at&.strftime('%Y/%-m/%-d') || '-' %>
               </td>
+              <td class="px-4 py-4 whitespace-nowrap text-xs text-gray-400 text-center">
+                <%= item.finished_at&.strftime('%Y/%-m/%-d') || '-' %>
+              </td>
+              <td class="px-4 py-4 whitespace-nowrap text-xs text-gray-400 text-center">
+                <%= item.usage_days ? "#{item.usage_days}日" : '-' %>
+              </td>
+              <!-- ボタンエリア -->
               <td class="px-6 py-4 whitespace-nowrap text-center">
                 <% if item.status == 'in_stock' %>
-                  <%= button_to '使い始める',
-                                item_path(item),
-                                method: :patch,
-                                params: { item: { status: 'in_use' } },
-                                class: 'inline-block w-28 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded transition duration-200',
-                                data: { turbo_confirm: '使用を開始しますか?' } %>
+                  <%= form_with model: item, url: item_path(item), method: :patch, local: true, class: 'inline-flex items-center gap-2' do |f| %>
+                    <%= f.date_field :started_at, value: Date.current, class: 'border rounded px-2 py-1 text-sm' %>
+                    <%= f.hidden_field :status, value: 'in_use' %>
+                    <%= f.submit '使い始める', class: 'px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded transition duration-200', data: { turbo_confirm: '使用を開始しますか?' } %>
+                  <% end %>
                 <% elsif item.status == 'in_use' %>
-                  <%= button_to '使い切り',
-                                item_path(item),
-                                method: :patch,
-                                params: { item: { status: 'used_up' } },
-                                class: 'inline-block w-28 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded transition duration-200',
-                                data: { turbo_confirm: '使い切りますか?' } %>
+                  <%= form_with model: item, url: item_path(item), method: :patch, local: true, class: 'inline-flex items-center gap-2' do |f| %>
+                    <%= f.date_field :finished_at, value: Date.current, class: 'border rounded px-2 py-1 text-sm' %>
+                    <%= f.hidden_field :status, value: 'used_up' %>
+                    <%= f.submit '使い切り', class: 'px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded transition duration-200', data: { turbo_confirm: '使い切りますか?' } %>
+                <% end %>
                 <% elsif item.status == 'used_up' %>
                   <span class="inline-block w-36 px-4 py-2 border border-red-500 text-red-600 rounded cursor-default">使い切りました</span>
                 <% end %>
