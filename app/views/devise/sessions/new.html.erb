@@ -13,10 +13,10 @@
     <!-- フォーム部分 -->
     <%= form_for(resource, as: resource_name, url: session_path(resource_name), html: { class: "mt-8" }) do |f| %>
       <div class="space-y-5">
-        <!-- 名前フィールド -->
+        <!-- メールアドレスフィールド -->
         <div>
-          <%= f.label :name, "ユーザー名", class: "block text-sm font-medium text-gray-700 mb-2" %>
-          <%= f.text_field :name, autofocus: true, autocomplete: "name", class: "appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" %>
+          <%= f.label :email, "メールアドレス", class: "block text-sm font-medium text-gray-700 mb-2" %>
+          <%= f.email_field :email, autofocus: true, autocomplete: "email", class: "appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" %>
         </div>
 
         <!-- パスワードフィールド -->
