@@ -6,8 +6,6 @@ Rails.application.routes.draw do
     member do
       patch :start_using
       patch :finish_using
-
-      patch :restock
     end
 
     collection do

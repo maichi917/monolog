@@ -13,10 +13,8 @@
             <th class="px-4 py-3 text-center text-xs font-medium text-gray-400 uppercase tracking-wider w-20">画像</th>
             <th class="min-w-[250px] px-4 py-3 text-center text-xs font-medium text-gray-400 uppercase tracking-wider">名前</th>
             <th class="px-4 py-3 text-center text-xs font-medium text-gray-400 uppercase tracking-wider">価格</th>
-            <th class="px-4 py-3 text-center text-xs font-medium text-gray-400 uppercase tracking-wider">使い始め日</th>
-            <th class="px-4 py-3 text-center text-xs font-medium text-gray-400 uppercase tracking-wider">使い切り日</th>
-            <th class="px-4 py-3 text-center text-xs font-medium text-gray-400 uppercase tracking-wider">使用期間</th>
-            <th class="px-4 py-3 text-center text-xs font-medium text-gray-400 uppercase tracking-wider">状態</th>
+            <th class="px-4 py-3 text-center text-xs font-medium text-gray-400 uppercase tracking-wider">在庫数</th>
+            <th class="px-4 py-3 text-center text-xs font-medium text-gray-400 uppercase tracking-wider">状態・操作</th>
             <th class="px-4 py-3 text-center text-xs font-medium text-gray-400 uppercase tracking-wider"></th>
           </tr>
         </thead>
@@ -36,31 +34,23 @@
               <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
                 <%= number_with_delimiter(item.price) %>
               </td>
-              <td class="px-4 py-4 whitespace-nowrap text-xs text-gray-400 text-center">
-                <%= item.started_at&.strftime('%Y/%-m/%-d') || '-' %>
-              </td>
-              <td class="px-4 py-4 whitespace-nowrap text-xs text-gray-400 text-center">
-                <%= item.finished_at&.strftime('%Y/%-m/%-d') || '-' %>
-              </td>
-              <td class="px-4 py-4 whitespace-nowrap text-xs text-gray-400 text-center">
-                <%= item.usage_days ? "#{item.usage_days}日" : '-' %>
+              <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                <%= item.stock_quantity %>
               </td>
               <!-- ボタンエリア -->
               <td class="px-6 py-4 whitespace-nowrap text-center">
-                <% if item.status == 'in_stock' %>
-                  <%= form_with model: item, url: item_path(item), method: :patch, local: true, class: 'inline-flex items-center gap-2' do |f| %>
-                    <%= f.date_field :started_at, value: Date.current, class: 'border rounded px-2 py-1 text-sm' %>
-                    <%= f.hidden_field :status, value: 'in_use' %>
-                    <%= f.submit '使い始める', class: 'px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded transition duration-200', data: { turbo_confirm: '使用を開始しますか?' } %>
+                <!-- 使用中なら状態を表示 -->
+                <% if item.using? %>
+                  <span class="inline-block w-36 px-4 py-2 border border-yellow-500 text-yellow-600 rounded cursor-default">使用中</span>
+                <!-- 在庫ありなら使い始めるボタン -->
+                <% elsif item.stock_available? %>
+                  <%= form_with url: start_using_item_path(item), method: :patch, local: true, class: 'inline-flex items-center gap-2' do %>
+                    <%= date_field_tag :started_at, Date.current, class: 'border rounded px-2 py-1 text-sm' %>
+                    <%= submit_tag '使い始める', class: 'px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded transition duration-200', data: { turbo_confirm: '使用を開始しますか?' } %>
                   <% end %>
-                <% elsif item.status == 'in_use' %>
-                  <%= form_with model: item, url: item_path(item), method: :patch, local: true, class: 'inline-flex items-center gap-2' do |f| %>
-                    <%= f.date_field :finished_at, value: Date.current, class: 'border rounded px-2 py-1 text-sm' %>
-                    <%= f.hidden_field :status, value: 'used_up' %>
-                    <%= f.submit '使い切り', class: 'px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded transition duration-200', data: { turbo_confirm: '使い切りますか?' } %>
-                <% end %>
-                <% elsif item.status == 'used_up' %>
-                  <span class="inline-block w-36 px-4 py-2 border border-red-500 text-red-600 rounded cursor-default">使い切りました</span>
+                <!-- 使用中でなく、在庫もなければ「在庫なし」 -->
+                <% else %>
+                  <span class="inline-block w-36 px-4 py-2 border border-gray-400 text-gray-500 rounded cursor-default">在庫なし</span>
                 <% end %>
               </td>
               <td class="px-4 py-4 whitespace-nowrap text-sm text-center">

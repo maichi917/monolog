@@ -2,20 +2,30 @@ class ItemsController < ApplicationController
   before_action :authenticate_user! # ユーザーがログインしていることを確認
 
   def index
-    @page_title = "アイテムリスト"
-    @items = current_user.items.where(status: 'in_stock').order(created_at: :desc) # 在庫ありアイテムを取得
+    @items = current_user.items.visible.order(created_at: :desc)
+
+    if params[:stock] == "available"
+      @page_title = "ストックBOX"
+      @items = @items.where("stock_quantity > 0")
+    else
+      @page_title = "アイテムDB"
+    end
   end
 
   def in_use
     @page_title = "使用中アイテム"
-    @items = current_user.items.where(status: 'in_use').order(created_at: :desc) # 使用中アイテムを取得
-    render :index
+    @usage_logs = current_user.usage_logs
+                              .in_use
+                              .includes(:item)
+                              .order(started_at: :desc)
   end
 
   def used_up
-    @page_title = "使い切りアイテム"
-    @items = current_user.items.where(status: 'used_up').order(created_at: :desc) # 使用済みアイテムを取得
-    render :index
+    @page_title = "使い切り履歴"
+    @usage_logs = current_user.usage_logs
+                              .finished
+                              .includes(:item)
+                              .order(finished_at: :desc)
   end
 
   def new
@@ -41,17 +51,7 @@ class ItemsController < ApplicationController
   end
 
   def update
-    @item = Item.find(params[:id])
-
-    # ステータスが in_use に変更される場合、started_at を設定
-    if item_params[:status] == 'in_use' && @item.in_stock?
-      @item.started_at = item_params[:started_at] || Time.current
-    end
-
-    # ステータスが used_up に変更される場合、finished_at を設定
-    if item_params[:status] == 'used_up' && @item.in_use?
-      @item.finished_at = item_params[:finished_at] || Time.current
-    end
+    @item = current_user.items.find(params[:id])
 
     if @item.update(item_params)
       redirect_to items_path, notice: 'アイテム情報を更新しました'
@@ -66,29 +66,48 @@ class ItemsController < ApplicationController
     redirect_to items_path, success: 'アイテムが削除されました'
   end
 
-  def restock
-    @item = Item.find(params[:id])
+  def start_using
+    @item = current_user.items.find(params[:id])
 
-    # 使い切り状態のアイテムを補充して在庫ありに戻す
-    unless @item.used_up?
-      redirect_to items_path, alert: 'このアイテムは補充できません'
+    if @item.using?
+      redirect_to items_path, alert: "すでに使用中です"
       return
     end
 
-    # ステータスをin_stockに戻し、在庫を`1`に設定
-    @item.status = 'in_stock'
-    @item.stock_quantity = 1
-
-    # 使用開始日・終了日をクリア
-    @item.started_at = nil
-    @item.finished_at = nil
-
-    if @item.save
-      redirect_to items_path, success: '在庫を補充しました'
-    else
-      redirect_to used_up_items_path, alert: '在庫の補充に失敗しました'
+    unless @item.stock_available?
+      redirect_to items_path, alert: "在庫がありません"
+      return
     end
+
+    ActiveRecord::Base.transaction do
+      @item.usage_logs.create!(
+        user: current_user,
+        started_at: params[:started_at].presence || Time.current
+      )
+      @item.decrement!(:stock_quantity)
+    end
+
+    redirect_to in_use_items_path, notice: "使用を開始しました"
   end
+
+  def finish_using
+    @item = current_user.items.find(params[:id])
+    usage_log = @item.current_usage_log
+
+    if usage_log.blank?
+      redirect_to in_use_items_path, alert: "使用中の履歴がありません"
+      return
+    end
+
+    usage_log.update!(
+      finished_at: params[:finished_at].presence || Time.current,
+      rating: params[:rating],
+      review: params[:review]
+    )
+
+    redirect_to used_up_items_path, notice: "使い切りを記録しました"
+  end
+
 
   private
 
@@ -97,6 +116,6 @@ class ItemsController < ApplicationController
   end
 
   def item_params
-    params.require(:item).permit(:name, :price, :stock_quantity, :status, :favorite, :memo, :image, :started_at, :finished_at)
+    params.require(:item).permit(:name, :price, :stock_quantity, :favorite, :memo, :image)
   end
 end
