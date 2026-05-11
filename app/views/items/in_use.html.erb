@@ -1,0 +1,62 @@
+<div class="container mx-auto px-4 py-8">
+  <div class="flex justify-between items-center mb-6">
+    <!-- ページタイトル -->
+    <h1 class="text-2xl text-gray-900"><%= @page_title %></h1>
+  </div>
+
+  <% if @usage_logs.any? %>
+    <div class="bg-white rounded-lg shadow overflow-hidden">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-4 py-3 text-center text-xs font-medium text-gray-400 uppercase tracking-wider w-20">画像</th>
+            <th class="px-4 py-3 text-center text-xs font-medium text-gray-400 uppercase tracking-wider">名前</th>
+            <th class="px-4 py-3 text-center text-xs font-medium text-gray-400 uppercase tracking-wider">使い始め日</th>
+            <th class="px-4 py-3 text-center text-xs font-medium text-gray-400 uppercase tracking-wider">使用日数</th>
+            <th class="px-4 py-3 text-center text-xs font-medium text-gray-400 uppercase tracking-wider">操作</th>
+            <th class="px-4 py-3 text-center text-xs font-medium text-gray-400 uppercase tracking-wider"></th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          <% @usage_logs.each do |usage_log| %>
+            <tr class="hover:bg-gray-50 transition duration-150">
+              <td class="px-4 py-4 text-center">
+                <div class="w-12 h-12 bg-gray-100 rounded flex items-center justify-center mx-auto">
+                  <svg class="w-6 h-6 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                  </svg>
+                </div>
+              </td>
+              <td class="px-4 py-4 text-center">
+                <%= link_to usage_log.item.name, item_path(usage_log.item), class: "text-blue-600 hover:text-blue-800 font-medium transition duration-150" %>
+              </td>
+              <td class="px-4 py-4 whitespace-nowrap text-xs text-gray-400 text-center">
+                <%= usage_log.started_at&.strftime('%Y/%-m/%-d') || '-' %>
+              </td>
+              <td class="px-4 py-4 whitespace-nowrap text-xs text-gray-400 text-center">
+                <% if usage_log.started_at.present? %>
+                  <%= "#{(Date.current - usage_log.started_at.to_date).to_i + 1}日目" %>
+                <% else %>
+                  -
+                <% end %>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-center">
+                <%= form_with url: finish_using_item_path(usage_log.item), method: :patch, local: true, class: 'inline-flex items-center gap-2' do %>
+                  <%= date_field_tag :finished_at, Date.current, class: 'border rounded px-2 py-1 text-sm' %>
+                  <%= submit_tag '使い切り', class: 'px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded transition duration-200', data: { turbo_confirm: '使い切りますか?' } %>
+                <% end %>
+              </td>
+              <td class="px-4 py-4 whitespace-nowrap text-sm text-center">
+                <%= link_to "詳細", item_path(usage_log.item), class: "text-blue-600 hover:text-blue-800 font-medium transition duration-150" %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% else %>
+    <div class="text-center py-12 bg-white rounded-lg shadow">
+      <p class="mt-4 text-gray-500 text-lg">使用中のアイテムがありません</p>
+    </div>
+  <% end %>
+</div>

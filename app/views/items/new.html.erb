@@ -41,8 +41,11 @@
           </div>
         </div>
 
-        <!-- 在庫数は1固定 -->
-        <%= f.hidden_field :stock_quantity, value: 1 %>
+        <!-- 在庫数 -->
+        <div>
+          <%= f.label :stock_quantity, "在庫数", class: "block text-gray-700 text-sm font-bold mb-2" %>
+          <%= f.number_field :stock_quantity, min: 0, value: @item.stock_quantity || 1, class: "shadow appearance-none border border-slate-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-blue-500" %>
+        </div>
 
         <!-- メモ -->
         <div>
