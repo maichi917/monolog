@@ -88,17 +88,17 @@ class ItemsController < ApplicationController
     usage_log = @item.current_usage_log
 
     if usage_log.blank?
-      redirect_to in_use_items_path, alert: "使用中の履歴がありません"
+      redirect_to in_use_items_path, alert: "使用中のアイテムがありません"
       return
     end
 
-    usage_log.update!(
-      finished_at: params[:finished_at].presence || Time.current,
+    @item.finish_using!(
+      params[:finished_at],
       rating: params[:rating],
       review: params[:review]
     )
 
-    redirect_to used_up_items_path, notice: "使い切りを記録しました"
+    redirect_to used_up_items_path, notice: "使い切りました🎉"
   end
 
   private
