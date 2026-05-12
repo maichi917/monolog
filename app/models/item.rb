@@ -25,4 +25,15 @@ class Item < ApplicationRecord
   def out_of_stock?
     stock_quantity.to_i.zero?
   end
+
+  def start_using!(user, started_at)
+    transaction do
+      usage_logs.create!(
+        user: user,
+        started_at: started_at.presence || Time.current
+      )
+
+      decrement!(:stock_quantity)
+    end
+  end
 end
