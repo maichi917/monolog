@@ -79,14 +79,7 @@ class ItemsController < ApplicationController
       return
     end
 
-    ActiveRecord::Base.transaction do
-      @item.usage_logs.create!(
-        user: current_user,
-        started_at: params[:started_at].presence || Time.current
-      )
-      @item.decrement!(:stock_quantity)
-    end
-
+    @item.start_using!(current_user, params[:started_at])
     redirect_to in_use_items_path, notice: "使用を開始しました"
   end
 
@@ -107,7 +100,6 @@ class ItemsController < ApplicationController
 
     redirect_to used_up_items_path, notice: "使い切りを記録しました"
   end
-
 
   private
 

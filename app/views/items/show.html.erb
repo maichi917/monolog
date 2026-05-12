@@ -30,23 +30,6 @@
           </div>
         </div>
 
-        <!-- ステータス表示 -->
-        <div>
-          <label class="block text-gray-700 text-sm font-bold mb-2">ステータス</label>
-          <p class="text-gray-900">
-            <!-- 使用中なら「使用中」 -->
-            <% if @item.using? %>
-              <span class="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm">使用中</span>
-            <!-- 在庫ありなら「在庫あり」 -->
-            <% elsif @item.stock_available? %>
-              <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">在庫あり</span>
-            <!-- 使用中でなく、在庫もなければ「在庫なし」 -->
-            <% else %>
-              <span class="px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-sm">在庫なし</span>
-            <% end %>
-          </p>
-        </div>
-
         <!-- メモ -->
         <div>
           <label class="block text-gray-700 text-sm font-bold mb-2">メモ</label>
