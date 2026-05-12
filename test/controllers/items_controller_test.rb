@@ -39,4 +39,20 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to items_path
     assert_equal 1, item.reload.stock_quantity
   end
+
+  test "finish_using finishes current usage log and redirects to used-up page" do
+    item = items(:one)
+    item.start_using!(@user, Time.zone.local(2026, 5, 10))
+
+    patch finish_using_item_path(item), params: {
+      finished_at: "2026-05-12",
+      rating: 5,
+      review: "使いやすい"
+    }
+
+    usage_log = item.usage_logs.finished.first
+    assert_redirected_to used_up_items_path
+    assert_equal 5, usage_log.rating
+    assert_equal "使いやすい", usage_log.review
+  end
 end

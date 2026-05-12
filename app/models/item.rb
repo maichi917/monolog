@@ -36,4 +36,12 @@ class Item < ApplicationRecord
       decrement!(:stock_quantity)
     end
   end
+
+  def finish_using!(finished_at, rating: nil, review: nil)
+    current_usage_log.update!(
+      finished_at: finished_at.presence || Time.current,
+      rating: rating.presence,
+      review: review.presence
+    )
+  end
 end
