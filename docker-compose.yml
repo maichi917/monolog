@@ -1,0 +1,26 @@
+version: '3'
+services:
+  db:
+    image: postgres:17.7
+    environment:
+      POSTGRES_DB: db
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    volumes:
+      - db-data:/var/lib/postgresql/data
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - '3000:3000'
+    depends_on:
+      - db
+    volumes:
+      - .:/app
+    environment:
+      - RAILS_MASTER_KEY=${RAILS_MASTER_KEY}
+
+volumes:
+  db-data:

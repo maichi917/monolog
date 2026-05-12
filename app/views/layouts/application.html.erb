@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>App</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+  </head>
+
+  <body>
+    <%= render 'shared/header' %>
+
+    <% flash.each do |message_type, message| %>
+      <%
+        # DeviseのキーをTailwind CSSのクラスにマッピング
+        if message_type.to_s == 'notice' || message_type.to_s == 'success'
+          alert_class = 'bg-green-100 border-green-400 text-green-700'
+        elsif message_type.to_s == 'alert' || message_type.to_s == 'danger'
+          alert_class = 'bg-red-100 border-red-400 text-red-700'
+        else
+          alert_class = 'bg-blue-100 border-blue-400 text-blue-700'
+        end
+      %>
+      <div class="<%= alert_class %> px-4 py-3 rounded relative mb-4 border" role="alert">
+        <span class="block sm:inline"><%= message %></span>
+      </div>
+    <% end %>
+
+    <%= yield %>
+    <%= render 'shared/footer' %>
+  </body>
+</html>

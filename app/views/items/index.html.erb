@@ -1,0 +1,75 @@
+<div class="container mx-auto px-4 py-8">
+  <div class="flex justify-between items-center mb-6">
+    <!-- ページタイトル　-->
+    <h1 class="text-2xl text-gray-900"><%= @page_title %></h1>
+    <%= link_to "新規登録", new_item_path, class: "bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-6 rounded-lg transition duration-200" %>
+  </div>
+
+  <% if @items.any? %>
+    <div class="bg-white rounded-lg shadow overflow-hidden">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-4 py-3 text-center text-xs font-medium text-gray-400 uppercase tracking-wider w-20">画像</th>
+            <th class="min-w-[250px] px-4 py-3 text-center text-xs font-medium text-gray-400 uppercase tracking-wider">名前</th>
+            <th class="px-4 py-3 text-center text-xs font-medium text-gray-400 uppercase tracking-wider">価格</th>
+            <th class="px-4 py-3 text-center text-xs font-medium text-gray-400 uppercase tracking-wider">在庫数</th>
+            <th class="px-4 py-3 text-center text-xs font-medium text-gray-400 uppercase tracking-wider">状態・操作</th>
+            <th class="px-4 py-3 text-center text-xs font-medium text-gray-400 uppercase tracking-wider"></th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          <% @items.each do |item| %>
+            <tr class="hover:bg-gray-50 transition duration-150">
+              <td class="px-4 py-4 text-center">
+                <div class="w-12 h-12 bg-gray-100 rounded flex items-center justify-center mx-auto">
+                  <svg class="w-6 h-6 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                  </svg>
+                </div>
+              </td>
+              <td class="min-w-[250px] px-6 py-4 text-center">
+                <div class="text-lg text-gray-900 break-words whitespace-normal"><%= item.name %></div>
+              </td>
+              <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                <%= number_with_delimiter(item.price) %>
+              </td>
+              <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                <%= item.stock_quantity %>
+              </td>
+              <!-- ボタンエリア -->
+              <td class="px-6 py-4 whitespace-nowrap text-center">
+                <!-- 使用中なら状態を表示 -->
+                <% if item.using? %>
+                  <span class="inline-block w-36 px-4 py-2 border border-yellow-500 text-yellow-600 rounded cursor-default">使用中</span>
+                <!-- 在庫ありなら使い始めるボタン -->
+                <% elsif item.stock_available? %>
+                  <%= form_with url: start_using_item_path(item), method: :patch, local: true, class: 'inline-flex items-center gap-2' do %>
+                    <%= date_field_tag :started_at, Date.current, class: 'border rounded px-2 py-1 text-sm' %>
+                    <%= submit_tag '使い始める', class: 'px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded transition duration-200', data: { turbo_confirm: '使用を開始しますか?' } %>
+                  <% end %>
+                <!-- 使用中でなく、在庫もなければ「在庫なし」 -->
+                <% else %>
+                  <span class="inline-block w-36 px-4 py-2 border border-gray-400 text-gray-500 rounded cursor-default">在庫なし</span>
+                <% end %>
+              </td>
+              <td class="px-4 py-4 whitespace-nowrap text-sm text-center">
+                <div class="flex gap-2 justify-center">
+                  <%= link_to "詳細", item_path(item), class: "text-blue-600 hover:text-blue-800 font-medium transition duration-150" %>
+                  <%= link_to "削除", item_path(item), data: { turbo_method: :delete, turbo_confirm: '本当に削除しますか?' }, class: "text-red-600 hover:text-red-800 font-medium transition duration-150" %>
+                </div>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% else %>
+    <div class="text-center py-12 bg-white rounded-lg shadow">
+      <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
+      </svg>
+      <p class="mt-4 text-gray-500 text-lg">アイテムがありません</p>
+    </div>
+  <% end %>
+</div>

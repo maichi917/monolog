@@ -1,0 +1,26 @@
+# 利用するイメージとバージョンを指定
+FROM ruby:3.2.2
+
+# 作業ディレクトリを指定
+WORKDIR /app
+
+# ホストマシンのファイルをコンテナ内の作業ディレクトリにコピー
+COPY Gemfile Gemfile.lock /app/
+
+# Gemfile内に書かれたgemを一括でインストール
+RUN bundle install
+
+# ホストマシンのファイルを全てコンテナ内の作業ディレクトリにコピー
+COPY . /app/
+
+# entrypoint.sh をコンテナ内の作業ディレクトリにコピー
+COPY entrypoint.sh /usr/bin/
+
+# entrypoint.shの実行権限を付与
+RUN chmod +x /usr/bin/entrypoint.sh
+
+# コンテナ起動時にentrypoint.shを実行するように設定
+ENTRYPOINT ["entrypoint.sh"]
+
+# コンテナ実行時に実行するコマンドを指定
+CMD ["rails", "server", "-b", "0.0.0.0"]

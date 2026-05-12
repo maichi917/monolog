@@ -1,0 +1,22 @@
+ja:
+  activerecord:
+    models:
+      item: アイテム
+      usage_log: 使用履歴
+    attributes:
+      item:
+        name: アイテム名
+        category_name: カテゴリー
+        price: 価格
+        stock_quantity: 在庫数
+        favorite: お気に入り
+        memo: メモ
+      usage_log:
+        started_at: 使い始め日
+        finished_at: 使い切り日
+        rating: 評価
+        review: レビュー
+    errors:
+      messages:
+        blank: "を入力してください"
+        not_a_number: "は数値で入力してください"

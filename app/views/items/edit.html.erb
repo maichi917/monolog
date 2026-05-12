@@ -1,0 +1,57 @@
+<div class="container mx-auto px-4 py-8">
+  <div class="max-w-2xl mx-auto">
+    <h1 class="text-2xl mb-6 text-center">アイテム編集</h1>
+
+    <%= form_with model: @item, class: "bg-white rounded-lg shadow-lg p-8" do |f| %>
+
+      <!-- エラーメッセージ表示 -->
+      <% if @item.errors.any? %>
+        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+          <h2 class="font-bold mb-2">
+            <%= @item.errors.count %>件のエラーがあります
+          </h2>
+          <ul class="list-disc list-inside">
+            <% @item.errors.full_messages.each do |message| %>
+              <li><%= message %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+
+      <div class="space-y-6">
+        <!-- アイテム名 -->
+        <div>
+          <%= f.label :name, class: "block text-gray-700 text-sm font-bold mb-2" %>
+          <%= f.text_field :name, class: "shadow appearance-none border border-slate-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-blue-500" %>
+        </div>
+
+        <!-- 画像プレビュー -->
+        <div>
+          <label class="block text-gray-700 text-sm font-bold mb-2">画像</label>
+          <div class="w-64 h-64 bg-gray-200 rounded-lg flex items-center justify-center mx-auto">
+            <span class="text-gray-500">画像プレビュー</span>
+          </div>
+        </div>
+
+        <!-- 価格 -->
+        <div class="flex gap-4">
+          <div class="flex-1">
+            <%= f.label :price, class: "block text-gray-700 text-sm font-bold mb-2" %>
+            <%= f.text_field :price, class: "shadow appearance-none border border-slate-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-blue-500", placeholder: "例: 1000" %>
+          </div>
+
+        <!-- メモ -->
+        <div>
+          <%= f.label :memo, class: "block text-gray-700 text-sm font-bold mb-2" %>
+          <%= f.text_area :memo, rows: "5", class: "shadow appearance-none border border-slate-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-blue-500" %>
+        </div>
+
+        <!-- ボタン群 -->
+        <div class="flex gap-4 justify-center">
+          <%= link_to 'キャンセル', item_path(@item), class: "inline-block bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" %>
+          <%= f.submit '更新する', class: "bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline cursor-pointer" %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>
