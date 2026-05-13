@@ -98,7 +98,7 @@ class ItemsController < ApplicationController
       review: params[:review]
     )
 
-    redirect_to used_up_items_path, notice: "使い切りました🎉"
+    redirect_to used_up_items_path, notice: "アイテムを使い切りました🎉"
   end
 
   private
