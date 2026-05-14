@@ -6,6 +6,7 @@ Rails.application.routes.draw do
     member do
       patch :start_using
       patch :finish_using
+      delete :image, action: :destroy_image
     end
 
     collection do

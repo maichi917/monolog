@@ -2,6 +2,8 @@ class Item < ApplicationRecord
   validates :name, presence: true, length: { maximum: 100 }
   validates :price, numericality: { only_integer: true, allow_blank: true, greater_than_or_equal_to: 0 }
   validates :stock_quantity, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
+  validate :image_content_type
+  validate :image_size
 
   belongs_to :user
   has_many :usage_logs, dependent: :destroy
@@ -44,5 +46,21 @@ class Item < ApplicationRecord
       rating: rating.presence,
       review: review.presence
     )
+  end
+
+  private
+
+  def image_content_type
+    return unless image.attached?
+    return if image.content_type.in?(%w[image/jpeg image/png])
+
+    errors.add(:image, "はJPEGまたはPNG形式でアップロードしてください")
+  end
+
+  def image_size
+    return unless image.attached?
+    return if image.byte_size <= 10.megabytes
+
+    errors.add(:image, "は10MB以下にしてください")
   end
 end

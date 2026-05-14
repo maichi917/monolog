@@ -2,7 +2,7 @@
 <% image_class = local_assigns.fetch(:image_class, "#{size_class} rounded object-cover") %>
 <% placeholder_icon_class = local_assigns.fetch(:placeholder_icon_class, "w-6 h-6") %>
 
-<% if item.image.attached? %>
+<% if item.image.attached? && item.image.blob.persisted? %>
   <%= image_tag item.image, class: image_class, alt: item.name %>
 <% else %>
   <div class="<%= size_class %> bg-gray-100 rounded flex items-center justify-center mx-auto">

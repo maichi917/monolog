@@ -38,7 +38,7 @@ class ItemsController < ApplicationController
       redirect_to items_path, success: 'アイテムが作成されました。'
     else
     flash.now[:danger] = 'アイテムの作成に失敗しました。'  # ← flash.nowを使う！
-    render :new, status: :unprocessable_entity
+    render :new, status: :unprocessable_content
     end
   end
 
@@ -56,7 +56,7 @@ class ItemsController < ApplicationController
     if @item.update(item_params)
       redirect_to items_path, notice: 'アイテム情報を更新しました'
     else
-      render :edit
+      render :edit, status: :unprocessable_content
     end
   end
 
@@ -64,6 +64,12 @@ class ItemsController < ApplicationController
     item = current_user.items.find(params[:id])
     item.destroy!
     redirect_to items_path, success: 'アイテムが削除されました'
+  end
+
+  def destroy_image
+    item = current_user.items.find(params[:id])
+    item.image.purge
+    redirect_to edit_item_path(item), notice: "画像を削除しました"
   end
 
   def start_using
