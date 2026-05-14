@@ -5,6 +5,7 @@ class Item < ApplicationRecord
 
   belongs_to :user
   has_many :usage_logs, dependent: :destroy
+  has_one_attached :image
 
   # スコープ
   scope :visible, -> { where(archived: false) }
