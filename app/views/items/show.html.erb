@@ -15,9 +15,11 @@
         <!-- 画像プレビュー -->
         <div>
           <label class="block text-gray-700 text-sm font-bold mb-2">画像</label>
-          <div class="w-64 h-64 bg-gray-200 rounded-lg flex items-center justify-center mx-auto">
-            <span class="text-gray-500">画像プレビュー</span>
-          </div>
+          <%= render "image",
+                     item: @item,
+                     size_class: "w-64 h-64",
+                     image_class: "w-64 h-64 rounded-lg object-cover mx-auto",
+                     placeholder_icon_class: "w-16 h-16" %>
         </div>
 
         <!-- 価格 -->
