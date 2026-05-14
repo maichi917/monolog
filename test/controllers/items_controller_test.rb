@@ -55,4 +55,36 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_equal 5, usage_log.rating
     assert_equal "使いやすい", usage_log.review
   end
+
+  test "destroy_image removes attached image and redirects to edit page" do
+    item = items(:one)
+    item.image.attach(
+      io: StringIO.new("image"),
+      filename: "item.png",
+      content_type: "image/png"
+    )
+
+    assert item.image.attached?
+
+    delete image_item_path(item)
+
+    assert_redirected_to edit_item_path(item)
+    assert_not item.reload.image.attached?
+  end
+
+  test "update with invalid image rerenders edit page" do
+    item = items(:one)
+
+    patch item_path(item), params: {
+      item: {
+        name: item.name,
+        price: item.price,
+        stock_quantity: item.stock_quantity,
+        image: fixture_file_upload("test_file.txt", "text/plain")
+      }
+    }
+
+    assert_response :unprocessable_content
+    assert_includes response.body, "JPEGまたはPNG形式"
+  end
 end
