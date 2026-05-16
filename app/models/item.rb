@@ -7,7 +7,10 @@ class Item < ApplicationRecord
 
   belongs_to :user
   has_many :usage_logs, dependent: :destroy
-  has_one_attached :image
+  has_one_attached :image do |attachable|
+    attachable.variant :thumbnail, resize_to_fill: [160, 160], format: :webp, saver: { quality: 80 }
+    attachable.variant :preview, resize_to_fill: [512, 512], format: :webp, saver: { quality: 82 }
+  end
 
   # スコープ
   scope :visible, -> { where(archived: false) }

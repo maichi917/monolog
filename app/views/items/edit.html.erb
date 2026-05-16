@@ -32,7 +32,8 @@
                      item: @item,
                      size_class: "w-64 h-64",
                      image_class: "w-64 h-64 rounded-lg object-cover mx-auto",
-                     placeholder_icon_class: "w-16 h-16" %>
+                     placeholder_icon_class: "w-16 h-16",
+                     variant_name: :preview %>
           <% if @item.image.attached? %>
             <div class="mt-3 text-center">
               <%= link_to "画像を削除",

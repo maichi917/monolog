@@ -65,6 +65,19 @@ class ItemTest < ActiveSupport::TestCase
     assert item.valid?
   end
 
+  test "item image has display variants" do
+    variants = Item.reflect_on_attachment(:image).named_variants
+
+    assert_equal [160, 160], variants[:thumbnail].transformations[:resize_to_fill]
+    assert_equal :webp, variants[:thumbnail].transformations[:format]
+    assert_equal [512, 512], variants[:preview].transformations[:resize_to_fill]
+    assert_equal :webp, variants[:preview].transformations[:format]
+  end
+
+  test "active storage uses vips for image processing" do
+    assert_equal :vips, Rails.application.config.active_storage.variant_processor
+  end
+
   test "item rejects non image file" do
     item = items(:one)
     item.image.attach(

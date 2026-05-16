@@ -4,6 +4,11 @@ FROM ruby:3.2.2
 # 作業ディレクトリを指定
 WORKDIR /app
 
+# 画像加工とDB接続に必要なライブラリをインストール
+RUN apt-get update -qq && \
+    apt-get install --no-install-recommends -y libvips libpq-dev && \
+    rm -rf /var/lib/apt/lists /var/cache/apt/archives
+
 # ホストマシンのファイルをコンテナ内の作業ディレクトリにコピー
 COPY Gemfile Gemfile.lock /app/
 
