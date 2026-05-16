@@ -16,10 +16,11 @@
         <div>
           <label class="block text-gray-700 text-sm font-bold mb-2">画像</label>
           <%= render "image",
-                     item: @item,
-                     size_class: "w-64 h-64",
-                     image_class: "w-64 h-64 rounded-lg object-cover mx-auto",
-                     placeholder_icon_class: "w-16 h-16" %>
+                      item: @item,
+                      size_class: "w-64 h-64",
+                      image_class: "w-64 h-64 rounded-lg object-cover mx-auto",
+                      placeholder_icon_class: "w-16 h-16",
+                      variant_name: :preview %>
         </div>
 
         <!-- 価格 -->

@@ -33,5 +33,8 @@ module App
 
     # i18nの読み込みパスを追加
     config.i18n.load_path += Dir[Rails.root.join('config', 'locales', '**', '*.{rb,yml}')]
+
+    # Active Storageの画像加工にlibvipsを使う
+    config.active_storage.variant_processor = :vips
   end
 end

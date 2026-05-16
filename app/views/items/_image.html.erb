@@ -1,9 +1,10 @@
 <% size_class = local_assigns.fetch(:size_class, "w-12 h-12") %>
 <% image_class = local_assigns.fetch(:image_class, "#{size_class} rounded object-cover") %>
 <% placeholder_icon_class = local_assigns.fetch(:placeholder_icon_class, "w-6 h-6") %>
+<% variant_name = local_assigns.fetch(:variant_name, :thumbnail) %>
 
 <% if item.image.attached? && item.image.blob.persisted? %>
-  <%= image_tag item.image, class: image_class, alt: item.name %>
+  <%= image_tag item.image.variant(variant_name), class: image_class, alt: item.name %>
 <% else %>
   <div class="<%= size_class %> bg-gray-100 rounded flex items-center justify-center mx-auto">
     <svg class="<%= placeholder_icon_class %> text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
