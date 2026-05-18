@@ -28,12 +28,15 @@
         <!-- 画像プレビュー -->
         <div>
           <label class="block text-gray-700 text-sm font-bold mb-2">画像</label>
-          <%= render "image",
-                     item: @item,
-                     size_class: "w-64 h-64",
-                     image_class: "w-64 h-64 rounded-lg object-cover mx-auto",
-                     placeholder_icon_class: "w-16 h-16",
-                     variant_name: :preview %>
+          <div data-image-preview-placeholder>
+            <%= render "image",
+                       item: @item,
+                       size_class: "w-64 h-64",
+                       image_class: "w-64 h-64 rounded-lg object-cover mx-auto",
+                       placeholder_icon_class: "w-16 h-16",
+                       variant_name: :preview %>
+          </div>
+          <img class="hidden w-64 h-64 rounded-lg object-cover mx-auto" data-image-preview>
           <% if @item.image.attached? %>
             <div class="mt-3 text-center">
               <%= link_to "画像を削除",
@@ -44,6 +47,7 @@
           <% end %>
           <%= f.file_field :image, accept: "image/jpeg,image/png", class: "mt-4 block w-full text-sm text-gray-700" %>
           <p class="mt-2 text-xs text-gray-500">JPEG / PNG、10MB以下の画像を選択してください</p>
+          <div class="hidden mt-2 rounded border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-700" data-upload-progress></div>
         </div>
 
         <!-- 価格 -->
