@@ -20,7 +20,10 @@ ja:
         finished_at: 使い切り日
         rating: 評価
         review: レビュー
+      user:
+        email: メールアドレス
     errors:
       messages:
         blank: "を入力してください"
         not_a_number: "は数値で入力してください"
+        invalid: "の形式が正しくありません"
