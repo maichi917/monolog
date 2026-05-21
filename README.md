@@ -1,4 +1,4 @@
-# final_project# my stocker（仮）
+# ものログ
 
 ##  サービス概要
 日用品のストック管理アプリ
