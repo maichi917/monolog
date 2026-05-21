@@ -1,4 +1,8 @@
 ja:
+  devise:
+    passwords:
+      send_instructions: "パスワード再設定用のメールを送信しました。メール内のリンクから手続きを進めてください。"
+
   activerecord:
     models:
       item: アイテム
