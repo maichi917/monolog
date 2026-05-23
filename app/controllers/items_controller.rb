@@ -89,6 +89,14 @@ class ItemsController < ApplicationController
     redirect_to in_use_items_path, notice: "使用を開始しました"
   end
 
+  def finish_using_form
+    @item = current_user.items.find(params[:id])
+
+    unless @item.using?
+      redirect_to in_use_items_path, alert: "使用中のアイテムがありません"
+    end
+  end
+
   def finish_using
     @item = current_user.items.find(params[:id])
     usage_log = @item.current_usage_log
@@ -98,13 +106,9 @@ class ItemsController < ApplicationController
       return
     end
 
-    @item.finish_using!(
-      params[:finished_at],
-      rating: params[:rating],
-      review: params[:review]
-    )
+    @item.finish_using!(params[:finished_at])
 
-    redirect_to used_up_items_path, notice: "アイテムを使い切りました🎉"
+    redirect_to edit_usage_log_path(usage_log), notice: "アイテムを使い切りました🎉"
   end
 
   private
