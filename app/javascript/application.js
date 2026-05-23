@@ -23,3 +23,16 @@ document.addEventListener("change", (event) => {
     }
   }
 })
+
+document.addEventListener("submit", (event) => {
+  const form = event.target
+  const submitLoading = form.querySelector("[data-submit-loading]")
+  const submitButton = form.querySelector("input[type='submit']")
+
+  if (!submitLoading) return
+
+  submitLoading.classList.remove("hidden")
+  if (submitButton) {
+    submitButton.disabled = true
+  }
+})

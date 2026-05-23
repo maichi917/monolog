@@ -72,6 +72,20 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_not item.reload.image.attached?
   end
 
+  test "new page has submit loading message" do
+    get new_item_path
+
+    assert_response :success
+    assert_select "[data-submit-loading]", text: "アイテムを登録しています..."
+  end
+
+  test "edit page has submit loading message" do
+    get edit_item_path(items(:one))
+
+    assert_response :success
+    assert_select "[data-submit-loading]", text: "アイテム情報を更新しています..."
+  end
+
   test "update with invalid image rerenders edit page" do
     item = items(:one)
 
