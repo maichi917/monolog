@@ -65,6 +65,10 @@
         </div>
 
         <!-- ボタン群 -->
+        <div class="hidden rounded border border-blue-200 bg-blue-50 px-3 py-2 text-center text-sm text-blue-700" data-submit-loading>
+          アイテム情報を更新しています...
+        </div>
+
         <div class="flex gap-4 justify-center">
           <%= link_to 'キャンセル', item_path(@item), class: "inline-block bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" %>
           <%= f.submit '更新する', class: "bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline cursor-pointer" %>
