@@ -45,15 +45,40 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     item.start_using!(@user, Time.zone.local(2026, 5, 10))
 
     patch finish_using_item_path(item), params: {
-      finished_at: "2026-05-12",
-      rating: 5,
-      review: "使いやすい"
+      finished_at: "2026-05-12"
     }
 
     usage_log = item.usage_logs.finished.first
-    assert_redirected_to used_up_items_path
-    assert_equal 5, usage_log.rating
-    assert_equal "使いやすい", usage_log.review
+    assert_redirected_to edit_usage_log_path(usage_log)
+    assert_equal Time.zone.local(2026, 5, 12), usage_log.finished_at
+    assert_nil usage_log.rating
+    assert_nil usage_log.review
+  end
+
+  test "finish_using_form shows date field" do
+    item = items(:one)
+    item.start_using!(@user, Time.zone.local(2026, 5, 10))
+
+    get finish_using_form_item_path(item)
+
+    assert_response :success
+    assert_select "input[name='finished_at']"
+  end
+
+  test "finish_using_form redirects when item is not in use" do
+    get finish_using_form_item_path(items(:one))
+
+    assert_redirected_to in_use_items_path
+  end
+
+  test "in_use page links to finish using form" do
+    item = items(:one)
+    item.start_using!(@user, Time.zone.local(2026, 5, 10))
+
+    get in_use_items_path
+
+    assert_response :success
+    assert_select "a[href='#{finish_using_form_item_path(item)}']", text: "使い切り"
   end
 
   test "destroy_image removes attached image and redirects to edit page" do

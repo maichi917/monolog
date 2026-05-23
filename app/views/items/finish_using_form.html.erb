@@ -1,0 +1,24 @@
+<div class="container mx-auto px-4 py-8">
+  <div class="max-w-2xl mx-auto">
+    <h1 class="text-2xl mb-6 text-center">使い切り日を入力</h1>
+
+    <div class="bg-white rounded-lg shadow-lg p-8">
+      <div class="mb-6">
+        <p class="text-sm text-gray-500 mb-1">アイテム</p>
+        <p class="text-lg text-gray-900"><%= @item.name %></p>
+      </div>
+
+      <%= form_with url: finish_using_item_path(@item), method: :patch, local: true, class: "space-y-6" do %>
+        <div>
+          <%= label_tag :finished_at, "使い切り日", class: "block text-gray-700 text-sm font-bold mb-2" %>
+          <%= date_field_tag :finished_at, Date.current, class: "border rounded w-full py-2 px-3 text-gray-700 leading-tight" %>
+        </div>
+
+        <div class="flex gap-4 justify-center">
+          <%= link_to "戻る", params[:return_to] == "show" ? item_path(@item) : in_use_items_path, class: "inline-block bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" %>
+          <%= submit_tag "使い切る", class: "inline-block bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline", data: { turbo_confirm: "使い切りますか?" } %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

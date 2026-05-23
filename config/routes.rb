@@ -7,6 +7,7 @@ Rails.application.routes.draw do
   resources :items, only: %i[index new create show edit update destroy] do
     member do
       patch :start_using
+      get :finish_using_form, path: :finish_using
       patch :finish_using
       delete :image, action: :destroy_image
     end
@@ -16,4 +17,6 @@ Rails.application.routes.draw do
       get :in_use
     end
   end
+
+  resources :usage_logs, only: %i[edit update]
 end
