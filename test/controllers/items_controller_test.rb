@@ -81,6 +81,18 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_select "a[href='#{finish_using_form_item_path(item)}']", text: "使い切り"
   end
 
+  test "used_up page links to edit usage log" do
+    item = items(:one)
+    item.start_using!(@user, Time.zone.local(2026, 5, 10))
+    item.finish_using!(Time.zone.local(2026, 5, 12), rating: 4, review: "また使いたい")
+    usage_log = item.usage_logs.finished.first
+
+    get used_up_items_path
+
+    assert_response :success
+    assert_select "a[href='#{edit_usage_log_path(usage_log)}']", text: "編集"
+  end
+
   test "destroy_image removes attached image and redirects to edit page" do
     item = items(:one)
     item.image.attach(
