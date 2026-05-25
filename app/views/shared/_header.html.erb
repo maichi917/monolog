@@ -13,6 +13,7 @@
           <%= link_to "ストックBOX", items_path(stock: "available"), class: "text-white hover:text-green-100 transition" %>
           <%= link_to "使用中アイテム", in_use_items_path, class: "text-white hover:text-green-100 transition" %>
           <%= link_to "使い切り履歴", used_up_items_path, class: "text-white hover:text-green-100 transition" %>
+          <%= link_to "評価・レビュー履歴", reviews_usage_logs_path, class: "text-white hover:text-green-100 transition" %>
           <%= link_to "ログアウト", destroy_user_session_path, data: { turbo_method: :delete }, class: "bg-white text-green-600 px-4 py-2 rounded hover:bg-green-50 transition font-semibold" %>
         <% else %>
           <!-- 非ログイン中 -->
