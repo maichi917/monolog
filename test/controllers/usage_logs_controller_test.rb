@@ -32,6 +32,24 @@ class UsageLogsControllerTest < ActionDispatch::IntegrationTest
     assert_select "a[href='#{edit_usage_log_path(@usage_log)}']", text: "編集"
   end
 
+  test "reviews shows rated usage log without review as no review" do
+    @usage_log.update!(rating: 4, review: "")
+
+    get reviews_usage_logs_path
+
+    assert_response :success
+    assert_includes response.body, @item.name
+    assert_includes response.body, "★★★★"
+    assert_includes response.body, "レビューなし"
+  end
+
+  test "reviews does not show unrated usage logs" do
+    get reviews_usage_logs_path
+
+    assert_response :success
+    assert_no_match @item.name, response.body
+  end
+
   test "reviews does not show other user's usage logs" do
     other_user = users(:two)
     other_item = other_user.items.create!(name: "他のアイテム", stock_quantity: 1)
