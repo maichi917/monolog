@@ -29,7 +29,7 @@
                 <%= usage_log.rating.present? ? "★" * usage_log.rating : "-" %>
               </td>
               <td class="px-4 py-4 text-sm text-gray-500 text-center">
-                <%= usage_log.review.presence || "-" %>
+                <%= usage_log.review.presence || "レビューなし" %>
               </td>
               <td class="px-4 py-4 whitespace-nowrap text-sm text-center">
                 <%= link_to "編集", edit_usage_log_path(usage_log), class: "text-blue-600 hover:text-blue-800 font-medium transition duration-150" %>

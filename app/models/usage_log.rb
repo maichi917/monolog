@@ -4,11 +4,13 @@ class UsageLog < ApplicationRecord
 
   scope :in_use, -> { where(finished_at: nil) }
   scope :finished, -> { where.not(finished_at: nil) }
+  scope :rated, -> { where.not(rating: nil) }
 
   validates :started_at, presence: true
   validates :rating, inclusion: { in: 1..5 }, allow_nil: true
 
   validate :finished_at_must_be_after_started_at
+  validate :review_requires_rating
 
   def in_use?
     finished_at.nil?
@@ -25,5 +27,11 @@ class UsageLog < ApplicationRecord
     return if finished_at >= started_at
 
     errors.add(:finished_at, "は使用開始日時以降にしてください")
+  end
+
+  def review_requires_rating
+    return if review.blank? || rating.present?
+
+    errors.add(:base, "レビューを入力する場合、星評価は必須です")
   end
 end

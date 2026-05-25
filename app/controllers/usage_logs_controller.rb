@@ -9,6 +9,7 @@ class UsageLogsController < ApplicationController
     @page_title = "評価・レビュー履歴"
     @usage_logs = current_user.usage_logs
                               .finished
+                              .rated
                               .includes(:item)
                               .order(finished_at: :desc)
   end
