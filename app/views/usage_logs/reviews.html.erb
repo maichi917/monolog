@@ -1,0 +1,47 @@
+<div class="container mx-auto px-4 py-8">
+  <div class="flex justify-between items-center mb-6">
+    <!-- ページタイトル -->
+    <h1 class="text-2xl text-gray-900"><%= @page_title %></h1>
+  </div>
+
+  <% if @usage_logs.any? %>
+    <div class="bg-white rounded-lg shadow overflow-hidden">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-4 py-3 text-center text-xs font-medium text-gray-400 uppercase tracking-wider">名前</th>
+            <th class="px-4 py-3 text-center text-xs font-medium text-gray-400 uppercase tracking-wider">使い切り日</th>
+            <th class="px-4 py-3 text-center text-xs font-medium text-gray-400 uppercase tracking-wider">評価</th>
+            <th class="px-4 py-3 text-center text-xs font-medium text-gray-400 uppercase tracking-wider">レビュー</th>
+            <th class="px-4 py-3 text-center text-xs font-medium text-gray-400 uppercase tracking-wider">操作</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          <% @usage_logs.each do |usage_log| %>
+            <tr class="hover:bg-gray-50 transition duration-150">
+              <td class="px-4 py-4 text-center">
+                <%= link_to usage_log.item.name, item_path(usage_log.item), class: "text-blue-600 hover:text-blue-800 font-medium transition duration-150" %>
+              </td>
+              <td class="px-4 py-4 whitespace-nowrap text-xs text-gray-400 text-center">
+                <%= usage_log.finished_at&.strftime('%Y/%-m/%-d') || '-' %>
+              </td>
+              <td class="px-4 py-4 whitespace-nowrap text-sm text-yellow-500 text-center">
+                <%= usage_log.rating.present? ? "★" * usage_log.rating : "-" %>
+              </td>
+              <td class="px-4 py-4 text-sm text-gray-500 text-center">
+                <%= usage_log.review.presence || "-" %>
+              </td>
+              <td class="px-4 py-4 whitespace-nowrap text-sm text-center">
+                <%= link_to "編集", edit_usage_log_path(usage_log), class: "text-blue-600 hover:text-blue-800 font-medium transition duration-150" %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% else %>
+    <div class="text-center py-12 bg-white rounded-lg shadow">
+      <p class="mt-4 text-gray-500 text-lg">評価・レビュー履歴がありません</p>
+    </div>
+  <% end %>
+</div>

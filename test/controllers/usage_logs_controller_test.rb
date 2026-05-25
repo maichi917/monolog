@@ -20,6 +20,38 @@ class UsageLogsControllerTest < ActionDispatch::IntegrationTest
     assert_select "a[href='#{used_up_items_path}']", text: "レビューしない"
   end
 
+  test "reviews shows finished usage logs with rating and review" do
+    @usage_log.update!(rating: 4, review: "また使いたい")
+
+    get reviews_usage_logs_path
+
+    assert_response :success
+    assert_includes response.body, @item.name
+    assert_includes response.body, "★★★★"
+    assert_includes response.body, "また使いたい"
+    assert_select "a[href='#{edit_usage_log_path(@usage_log)}']", text: "編集"
+  end
+
+  test "reviews does not show other user's usage logs" do
+    other_user = users(:two)
+    other_item = other_user.items.create!(name: "他のアイテム", stock_quantity: 1)
+    other_item.start_using!(other_user, Time.zone.local(2026, 5, 10))
+    other_item.finish_using!(Time.zone.local(2026, 5, 12), rating: 5, review: "他ユーザー")
+
+    get reviews_usage_logs_path
+
+    assert_response :success
+    assert_no_match "他のアイテム", response.body
+    assert_no_match "他ユーザー", response.body
+  end
+
+  test "header links to reviews page" do
+    get reviews_usage_logs_path
+
+    assert_response :success
+    assert_select "a[href='#{reviews_usage_logs_path}']", text: "評価・レビュー履歴"
+  end
+
   test "update saves rating and review" do
     patch usage_log_path(@usage_log), params: {
       usage_log: {

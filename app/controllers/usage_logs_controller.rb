@@ -1,8 +1,16 @@
 class UsageLogsController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_usage_log
+  before_action :set_usage_log, only: %i[edit update]
 
   def edit
+  end
+
+  def reviews
+    @page_title = "評価・レビュー履歴"
+    @usage_logs = current_user.usage_logs
+                              .finished
+                              .includes(:item)
+                              .order(finished_at: :desc)
   end
 
   def update
