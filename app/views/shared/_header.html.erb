@@ -1,24 +1,23 @@
-<!-- 仮ヘッダー -->
-<header class="bg-emerald-400 shadow-md">
-  <div class="container mx-auto px-4 py-4">
-    <div class="flex items-center justify-between">
-      <div class="text-2xl font-bold text-white">
-        <%= link_to "My Stocker", root_path, class: "hover:text-green-100 transition" %>
-      </div>
+<header class="border-b border-emerald-100 bg-white/95 shadow-sm">
+  <div class="mx-auto w-full max-w-5xl px-4 py-3">
+    <div class="flex flex-col gap-3">
+      <div class="flex items-center justify-between gap-3">
+        <%= link_to "My Stocker", root_path, class: "text-xl font-bold text-emerald-700 transition hover:text-emerald-800" %>
 
-      <div class="flex items-center space-x-6">
         <% if user_signed_in? %>
-          <!-- ログイン中 -->
-          <%= link_to "アイテムDB", items_path, class: "text-white hover:text-green-100 transition" %>
-          <%= link_to "ストックBOX", items_path(stock: "available"), class: "text-white hover:text-green-100 transition" %>
-          <%= link_to "使用中アイテム", in_use_items_path, class: "text-white hover:text-green-100 transition" %>
-          <%= link_to "使い切り履歴", used_up_items_path, class: "text-white hover:text-green-100 transition" %>
-          <%= link_to "評価・レビュー履歴", reviews_usage_logs_path, class: "text-white hover:text-green-100 transition" %>
-          <%= link_to "ログアウト", destroy_user_session_path, data: { turbo_method: :delete }, class: "bg-white text-green-600 px-4 py-2 rounded hover:bg-green-50 transition font-semibold" %>
-        <% else %>
-          <!-- 非ログイン中 -->
+          <%= link_to "ログアウト", destroy_user_session_path, data: { turbo_method: :delete }, class: "btn-secondary px-3 py-1.5" %>
         <% end %>
       </div>
+
+      <% if user_signed_in? %>
+        <nav class="flex flex-wrap gap-2 text-sm" aria-label="メインメニュー">
+          <%= link_to "アイテムDB", items_path, class: "rounded-full bg-emerald-50 px-3 py-1.5 font-medium text-emerald-700 transition hover:bg-emerald-100" %>
+          <%= link_to "ストックBOX", items_path(stock: "available"), class: "rounded-full bg-slate-100 px-3 py-1.5 font-medium text-slate-700 transition hover:bg-slate-200" %>
+          <%= link_to "使用中アイテム", in_use_items_path, class: "rounded-full bg-slate-100 px-3 py-1.5 font-medium text-slate-700 transition hover:bg-slate-200" %>
+          <%= link_to "使い切り履歴", used_up_items_path, class: "rounded-full bg-slate-100 px-3 py-1.5 font-medium text-slate-700 transition hover:bg-slate-200" %>
+          <%= link_to "評価・レビュー履歴", reviews_usage_logs_path, class: "rounded-full bg-slate-100 px-3 py-1.5 font-medium text-slate-700 transition hover:bg-slate-200" %>
+        </nav>
+      <% end %>
     </div>
   </div>
 </header>

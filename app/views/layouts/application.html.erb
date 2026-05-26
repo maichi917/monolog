@@ -9,26 +9,34 @@
     <%= javascript_importmap_tags %>
   </head>
 
-  <body>
+  <body class="min-h-screen bg-slate-50 text-slate-900">
     <%= render 'shared/header' %>
 
-    <% flash.each do |message_type, message| %>
-      <%
-        # DeviseのキーをTailwind CSSのクラスにマッピング
-        if message_type.to_s == 'notice' || message_type.to_s == 'success'
-          alert_class = 'bg-green-100 border-green-400 text-green-700'
-        elsif message_type.to_s == 'alert' || message_type.to_s == 'danger'
-          alert_class = 'bg-red-100 border-red-400 text-red-700'
-        else
-          alert_class = 'bg-blue-100 border-blue-400 text-blue-700'
-        end
-      %>
-      <div class="<%= alert_class %> px-4 py-3 rounded relative mb-4 border" role="alert">
-        <span class="block sm:inline"><%= message %></span>
-      </div>
-    <% end %>
+    <main class="min-h-[calc(100vh-9rem)]">
+      <% if flash.any? %>
+        <div class="ui-container pb-0">
+          <% flash.each do |message_type, message| %>
+            <%
+              # Deviseのキーを共通の通知スタイルにマッピングする
+              alert_class =
+                if message_type.to_s == 'notice' || message_type.to_s == 'success'
+                  'alert-success'
+                elsif message_type.to_s == 'alert' || message_type.to_s == 'danger'
+                  'alert-error'
+                else
+                  'alert-info'
+                end
+            %>
+            <div class="<%= alert_class %>" role="alert">
+              <%= message %>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
 
-    <%= yield %>
+      <%= yield %>
+    </main>
+
     <%= render 'shared/footer' %>
   </body>
 </html>
