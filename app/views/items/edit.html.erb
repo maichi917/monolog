@@ -1,13 +1,13 @@
-<div class="container mx-auto px-4 py-8">
-  <div class="max-w-2xl mx-auto">
-    <h1 class="text-2xl mb-6 text-center">アイテム編集</h1>
+<div class="ui-container">
+  <div class="space-y-5">
+    <h1 class="text-center text-2xl font-bold text-slate-900">アイテム編集</h1>
 
-    <%= form_with model: @item, class: "bg-white rounded-lg shadow-lg p-8" do |f| %>
+    <%= form_with model: @item, class: "ui-card space-y-6" do |f| %>
 
       <!-- エラーメッセージ表示 -->
       <% if @item.errors.any? %>
-        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-          <h2 class="font-bold mb-2">
+        <div class="alert-error">
+          <h2 class="mb-2 font-bold">
             <%= @item.errors.count %>件のエラーがあります
           </h2>
           <ul class="list-disc list-inside">
@@ -21,13 +21,13 @@
       <div class="space-y-6">
         <!-- アイテム名 -->
         <div>
-          <%= f.label :name, class: "block text-gray-700 text-sm font-bold mb-2" %>
-          <%= f.text_field :name, class: "shadow appearance-none border border-slate-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-blue-500" %>
+          <%= f.label :name, class: "form-label" %>
+          <%= f.text_field :name, class: "form-input" %>
         </div>
 
         <!-- 画像プレビュー -->
         <div>
-          <label class="block text-gray-700 text-sm font-bold mb-2">画像</label>
+          <label class="form-label">画像</label>
           <div data-image-preview-placeholder>
             <%= render "image",
                        item: @item,
@@ -42,36 +42,36 @@
               <%= link_to "画像を削除",
                           image_item_path(@item),
                           data: { turbo_method: :delete, turbo_confirm: "画像を削除しますか?" },
-                          class: "text-red-600 hover:text-red-800 font-medium transition duration-150" %>
+                          class: "font-medium text-red-600 transition duration-150 hover:text-red-800" %>
             </div>
           <% end %>
-          <%= f.file_field :image, accept: "image/jpeg,image/png", class: "mt-4 block w-full text-sm text-gray-700" %>
-          <p class="mt-2 text-xs text-gray-500">JPEG / PNG、10MB以下の画像を選択してください</p>
-          <div class="hidden mt-2 rounded border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-700" data-upload-progress></div>
+          <%= f.file_field :image, accept: "image/jpeg,image/png", class: "mt-4 block w-full text-sm text-slate-700" %>
+          <p class="form-help">JPEG / PNG、10MB以下の画像を選択してください</p>
+          <div class="alert-success hidden" data-upload-progress></div>
         </div>
 
         <!-- 価格 -->
         <div class="flex gap-4">
           <div class="flex-1">
-            <%= f.label :price, class: "block text-gray-700 text-sm font-bold mb-2" %>
-            <%= f.text_field :price, class: "shadow appearance-none border border-slate-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-blue-500", placeholder: "例: 1000" %>
+            <%= f.label :price, class: "form-label" %>
+            <%= f.text_field :price, class: "form-input", placeholder: "例: 1000" %>
           </div>
         </div>
 
         <!-- メモ -->
         <div>
-          <%= f.label :memo, class: "block text-gray-700 text-sm font-bold mb-2" %>
-          <%= f.text_area :memo, rows: "5", class: "shadow appearance-none border border-slate-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-blue-500" %>
+          <%= f.label :memo, class: "form-label" %>
+          <%= f.text_area :memo, rows: "5", class: "form-input" %>
         </div>
 
         <!-- ボタン群 -->
-        <div class="hidden rounded border border-blue-200 bg-blue-50 px-3 py-2 text-center text-sm text-blue-700" data-submit-loading>
+        <div class="alert-info hidden text-center" data-submit-loading>
           アイテム情報を更新しています...
         </div>
 
-        <div class="flex gap-4 justify-center">
-          <%= link_to 'キャンセル', item_path(@item), class: "inline-block bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" %>
-          <%= f.submit '更新する', class: "bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline cursor-pointer" %>
+        <div class="grid gap-3 sm:grid-cols-2">
+          <%= link_to 'キャンセル', item_path(@item), class: "btn-secondary" %>
+          <%= f.submit '更新する', class: "btn-primary cursor-pointer" %>
         </div>
       </div>
     <% end %>
