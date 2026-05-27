@@ -1,17 +1,17 @@
-<div class="container mx-auto px-4 py-8">
-  <div class="max-w-2xl mx-auto">
-    <h1 class="text-2xl mb-6 text-center">評価・レビューを入力</h1>
+<div class="ui-container">
+  <div class="space-y-5">
+    <h1 class="brand-font text-center text-2xl font-bold text-slate-900">評価・レビューを入力</h1>
 
-    <div class="bg-white rounded-lg shadow-lg p-8">
-      <div class="mb-6">
-        <p class="text-sm text-gray-500 mb-1">アイテム</p>
-        <p class="text-lg text-gray-900"><%= @usage_log.item.name %></p>
+    <div class="ui-card space-y-6">
+      <div>
+        <p class="text-xs text-slate-500">アイテム</p>
+        <p class="brand-font mt-1 text-lg font-bold text-slate-900"><%= @usage_log.item.name %></p>
       </div>
 
       <% if @usage_log.errors.any? %>
-        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
+        <div class="alert-error">
           <p class="font-bold">入力内容を確認してください</p>
-          <ul class="list-disc pl-5 mt-2">
+          <ul class="mt-2 list-disc pl-5">
             <% @usage_log.errors.full_messages.each do |message| %>
               <li><%= message %></li>
             <% end %>
@@ -21,24 +21,24 @@
 
       <%= form_with model: @usage_log, local: true, class: "space-y-6" do |form| %>
         <div>
-          <%= form.label :rating, "星評価（レビューする場合は必須）", class: "block text-gray-700 text-sm font-bold mb-2" %>
+          <%= form.label :rating, "星評価（レビューする場合は必須）", class: "form-label" %>
           <%= form.select :rating,
                           [["評価なし", ""]] + (1..5).map { |rating| ["#{rating} ★", rating] },
                           {},
-                          class: "border rounded w-full py-2 px-3 text-gray-700 leading-tight" %>
+                          class: "form-input" %>
         </div>
 
         <div>
-          <%= form.label :review, "レビュー", class: "block text-gray-700 text-sm font-bold mb-2" %>
+          <%= form.label :review, "レビュー", class: "form-label" %>
           <%= form.text_area :review,
                              rows: 6,
-                             class: "shadow appearance-none border border-slate-300 rounded w-full py-2 px-3 text-gray-700 leading-tight",
+                             class: "form-input",
                              placeholder: "レビュー本文は任意です" %>
         </div>
 
-        <div class="flex gap-4 justify-center">
-          <%= link_to "レビューしない", used_up_items_path, class: "inline-block bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" %>
-          <%= form.submit "保存する", class: "inline-block bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" %>
+        <div class="grid gap-3 sm:grid-cols-2">
+          <%= link_to "レビューしない", used_up_items_path, class: "btn-secondary" %>
+          <%= form.submit "保存する", class: "btn-primary cursor-pointer" %>
         </div>
       <% end %>
     </div>
