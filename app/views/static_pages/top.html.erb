@@ -1,24 +1,39 @@
-<div class="min-h-screen bg-white flex items-center justify-center">
-  <div class="text-center">
+<div class="ui-container">
+  <div class="space-y-8 py-10 text-center">
+    <div class="space-y-4">
+      <%# アプリタイトル %>
+      <h1 class="brand-font text-6xl font-medium tracking-wide text-emerald-700">
+        ものログ
+      </h1>
 
-    <%# アプリタイトル %>
-    <h1 class="brand-font text-6xl font-light text-gray-800 mb-4 tracking-wide">
-      ものログ
-    </h1>
+      <%# サブタイトル %>
+      <p class="text-lg leading-relaxed text-slate-600">
+        在庫とレビューを記録して、<br>
+        次の買い物でもう迷わない。
+      </p>
+    </div>
 
-    <%# サブタイトル %>
-    <p class="text-2xl text-gray-600 mb-8 font-light">
-      ストック管理&レビュー記録でもう迷わない
-    </p>
-
-    <%# ボタンエリア %>
-    <% if user_signed_in? %>
-      <p class="text-xl text-gray-600">ようこそ、<%= current_user.name %> さん</p>
-    <% else %>
-      <div class="space-x-4">
-        <%= link_to "ログイン", new_user_session_path, class: "bg-white text-gray-700 px-8 py-3 rounded-lg font-medium hover:bg-gray-50 transition inline-block border-2 border-gray-300" %>
-        <%= link_to "新規登録", new_user_registration_path, class: "bg-emerald-400 text-white px-8 py-3 rounded-lg font-medium hover:bg-emerald-500 transition inline-block shadow-sm" %>
+    <div class="ui-card space-y-5 text-left">
+      <div>
+        <p class="brand-font text-xl font-bold text-slate-900">これ、どうだっけ…をなくす</p>
+        <p class="mt-2 text-sm leading-relaxed text-slate-600">
+          在庫管理をしながらレビュー記録を残すことで、
+          過去の記録が自分の未来の買い物を楽にしてくれるアプリです。
+        </p>
       </div>
-    <% end %>
+
+      <% if user_signed_in? %>
+        <div class="rounded-lg bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+          ようこそ、<%= current_user.name %> さん
+        </div>
+
+        <%= link_to "アイテム一覧へ", items_path, class: "btn-primary w-full" %>
+      <% else %>
+        <div class="grid gap-3">
+          <%= link_to "新規登録", new_user_registration_path, class: "btn-primary w-full" %>
+          <%= link_to "ログイン", new_user_session_path, class: "btn-secondary w-full" %>
+        </div>
+      <% end %>
+    </div>
   </div>
 </div>
