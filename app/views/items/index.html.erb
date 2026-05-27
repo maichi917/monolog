@@ -6,59 +6,84 @@
   </div>
 
   <% if @items.any? %>
-    <div class="ui-table-card">
-      <table class="min-w-full divide-y divide-gray-200">
-        <thead class="bg-gray-50">
-          <tr>
-            <th class="px-4 py-3 text-center text-xs font-medium text-gray-400 uppercase tracking-wider w-20">画像</th>
-            <th class="min-w-[250px] px-4 py-3 text-center text-xs font-medium text-gray-400 uppercase tracking-wider">名前</th>
-            <th class="px-4 py-3 text-center text-xs font-medium text-gray-400 uppercase tracking-wider">価格</th>
-            <th class="px-4 py-3 text-center text-xs font-medium text-gray-400 uppercase tracking-wider">在庫数</th>
-            <th class="px-4 py-3 text-center text-xs font-medium text-gray-400 uppercase tracking-wider">状態・操作</th>
-            <th class="px-4 py-3 text-center text-xs font-medium text-gray-400 uppercase tracking-wider"></th>
-          </tr>
-        </thead>
-        <tbody class="bg-white divide-y divide-gray-200">
-          <% @items.each do |item| %>
-            <tr class="hover:bg-gray-50 transition duration-150">
-              <td class="px-4 py-4 text-center">
-                <%= render "image", item: item %>
-              </td>
-              <td class="min-w-[250px] px-6 py-4 text-center">
-                <div class="text-lg text-gray-900 break-words whitespace-normal"><%= item.name %></div>
-              </td>
-              <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
-                <%= number_with_delimiter(item.price) %>
-              </td>
-              <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
-                <%= item.stock_quantity %>
-              </td>
-              <!-- ボタンエリア -->
-              <td class="px-6 py-4 whitespace-nowrap text-center">
-                <!-- 使用中なら状態を表示 -->
+    <div class="grid gap-4 lg:grid-cols-2">
+      <% @items.each do |item| %>
+        <article class="ui-card" data-disclosure>
+          <div class="flex gap-4">
+            <div class="shrink-0">
+              <%= render "image",
+                         item: item,
+                         size_class: "h-20 w-20",
+                         image_class: "h-20 w-20 rounded-lg object-cover",
+                         placeholder_icon_class: "h-8 w-8" %>
+            </div>
+
+            <div class="min-w-0 flex-1">
+              <div class="mb-2 flex flex-wrap items-start justify-between gap-2">
+                <h2 class="brand-font break-words text-lg font-bold text-slate-900"><%= item.name %></h2>
+
                 <% if item.using? %>
-                  <span class="rounded-full bg-amber-100 px-3 py-1 text-sm text-amber-800">使用中</span>
-                <!-- 在庫ありなら使い始めるボタン -->
+                  <span class="rounded-full bg-amber-100 px-3 py-1 text-xs font-medium text-amber-800">使用中</span>
                 <% elsif item.stock_available? %>
-                  <%= form_with url: start_using_item_path(item), method: :patch, local: true, class: 'inline-flex items-center gap-2' do %>
-                    <%= date_field_tag :started_at, Date.current, class: 'rounded border border-slate-300 px-2 py-1 text-sm' %>
-                    <%= submit_tag '使い始める', class: 'btn-primary cursor-pointer', data: { turbo_confirm: '使用を開始しますか?' } %>
-                  <% end %>
-                <!-- 使用中でなく、在庫もなければ「在庫なし」 -->
+                  <span class="rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700">在庫あり</span>
                 <% else %>
-                  <span class="rounded-full bg-slate-100 px-3 py-1 text-sm text-slate-700">在庫なし</span>
+                  <span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700">在庫なし</span>
                 <% end %>
-              </td>
-              <td class="px-4 py-4 whitespace-nowrap text-sm text-center">
-                <div class="flex gap-2 justify-center">
-                  <%= link_to "詳細", item_path(item), class: "font-medium text-emerald-700 transition duration-150 hover:text-emerald-800" %>
-                  <%= link_to "削除", item_path(item), data: { turbo_method: :delete, turbo_confirm: '本当に削除しますか?' }, class: "text-red-600 hover:text-red-800 font-medium transition duration-150" %>
+              </div>
+
+              <dl class="grid grid-cols-2 gap-3 text-sm">
+                <div>
+                  <dt class="text-xs text-slate-500">価格</dt>
+                  <dd class="mt-1 text-slate-700">
+                    <%= item.price.present? ? "#{number_with_delimiter(item.price)}円" : "未設定" %>
+                  </dd>
                 </div>
-              </td>
-            </tr>
-          <% end %>
-        </tbody>
-      </table>
+                <div>
+                  <dt class="text-xs text-slate-500">在庫数</dt>
+                  <dd class="mt-1 text-slate-700"><%= item.stock_quantity %></dd>
+                </div>
+              </dl>
+            </div>
+          </div>
+
+          <div class="mt-4 border-t border-slate-100 pt-4">
+            <% if item.using? %>
+              <p class="rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-800">
+                このアイテムは使用中です。
+              </p>
+            <% elsif item.stock_available? %>
+              <button type="button" class="btn-primary w-full" data-disclosure-toggle>
+                使い始める
+              </button>
+
+              <div class="mt-3 hidden rounded-lg border border-emerald-100 bg-emerald-50 p-3" data-disclosure-panel>
+                <%= form_with url: start_using_item_path(item), method: :patch, local: true, class: "space-y-3" do %>
+                  <div>
+                    <%= label_tag :started_at, "使い始め日", class: "form-label" %>
+                    <%= date_field_tag :started_at, Date.current, class: "form-input bg-white" %>
+                  </div>
+
+                  <div class="grid gap-2 sm:grid-cols-2">
+                    <%= submit_tag "この日から使う", class: "btn-primary cursor-pointer", data: { turbo_confirm: "使用を開始しますか?" } %>
+                    <button type="button" class="btn-secondary" data-disclosure-cancel>
+                      キャンセル
+                    </button>
+                  </div>
+                <% end %>
+              </div>
+            <% else %>
+              <p class="rounded-lg bg-slate-50 px-3 py-2 text-sm text-slate-600">
+                在庫がないため、使用を開始できません。
+              </p>
+            <% end %>
+
+            <div class="mt-3 flex justify-end gap-4 text-sm">
+              <%= link_to "詳細", item_path(item), class: "font-medium text-emerald-700 transition duration-150 hover:text-emerald-800" %>
+              <%= link_to "削除", item_path(item), data: { turbo_method: :delete, turbo_confirm: "本当に削除しますか?" }, class: "font-medium text-red-600 transition duration-150 hover:text-red-800" %>
+            </div>
+          </div>
+        </article>
+      <% end %>
     </div>
   <% else %>
     <div class="ui-empty-state">

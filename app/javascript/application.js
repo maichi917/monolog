@@ -36,3 +36,18 @@ document.addEventListener("submit", (event) => {
     submitButton.disabled = true
   }
 })
+
+document.addEventListener("click", (event) => {
+  const toggleButton = event.target.closest("[data-disclosure-toggle]")
+  const cancelButton = event.target.closest("[data-disclosure-cancel]")
+  const button = toggleButton || cancelButton
+
+  if (!button) return
+
+  const disclosure = button.closest("[data-disclosure]")
+  const panel = disclosure?.querySelector("[data-disclosure-panel]")
+
+  if (!panel) return
+
+  panel.classList.toggle("hidden", Boolean(cancelButton))
+})
