@@ -71,14 +71,15 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to in_use_items_path
   end
 
-  test "in_use page links to finish using form" do
+  test "in_use page has finish using form in item card" do
     item = items(:one)
     item.start_using!(@user, Time.zone.local(2026, 5, 10))
 
     get in_use_items_path
 
     assert_response :success
-    assert_select "a[href='#{finish_using_form_item_path(item)}']", text: "使い切り"
+    assert_select "form[action='#{finish_using_item_path(item)}'] input[name='finished_at']"
+    assert_select "button[data-disclosure-toggle]", text: "使い切る"
   end
 
   test "used_up page links to edit usage log" do
