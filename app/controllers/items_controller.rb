@@ -22,10 +22,15 @@ class ItemsController < ApplicationController
 
   def used_up
     @page_title = "使い切り履歴"
-    @usage_logs = current_user.usage_logs
-                              .finished
-                              .includes(:item)
-                              .order(finished_at: :desc)
+    finished_usage_logs = current_user.usage_logs
+                                      .finished
+                                      .includes(:item)
+                                      .order(finished_at: :desc)
+    @usage_logs = finished_usage_logs.to_a.uniq(&:item_id)
+    @used_up_counts_by_item_id = current_user.usage_logs
+                                             .finished
+                                             .group(:item_id)
+                                             .count
   end
 
   def new

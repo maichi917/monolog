@@ -82,16 +82,30 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_select "button[data-disclosure-toggle]", text: "使い切る"
   end
 
-  test "used_up page links to edit usage log" do
+  test "used_up page shows used up count" do
     item = items(:one)
     item.start_using!(@user, Time.zone.local(2026, 5, 10))
     item.finish_using!(Time.zone.local(2026, 5, 12), rating: 4, review: "また使いたい")
-    usage_log = item.usage_logs.finished.first
 
     get used_up_items_path
 
     assert_response :success
-    assert_select "a[href='#{edit_usage_log_path(usage_log)}']", text: "編集"
+    assert_includes response.body, "1回"
+  end
+
+  test "used_up page shows one card per item with used up count" do
+    item = items(:one)
+    item.start_using!(@user, Time.zone.local(2026, 5, 10))
+    item.finish_using!(Time.zone.local(2026, 5, 12), rating: 4)
+    item.update!(stock_quantity: 1)
+    item.start_using!(@user, Time.zone.local(2026, 5, 20))
+    item.finish_using!(Time.zone.local(2026, 5, 25), rating: 5)
+
+    get used_up_items_path
+
+    assert_response :success
+    assert_select "article.ui-card", count: 1
+    assert_includes response.body, "2回"
   end
 
   test "destroy_image removes attached image and redirects to edit page" do
