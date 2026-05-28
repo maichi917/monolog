@@ -8,7 +8,7 @@
       <% @usage_logs.each do |usage_log| %>
         <% item = usage_log.item %>
 
-        <article class="ui-card">
+        <article class="ui-card flex h-full flex-col">
           <div class="flex gap-4">
             <div class="shrink-0">
               <%= render "items/image",
@@ -54,7 +54,7 @@
             <% end %>
           </div>
 
-          <div class="mt-4 flex items-center justify-between gap-4 border-t border-slate-100 pt-4">
+          <div class="mt-auto flex items-center justify-between gap-4 border-t border-slate-100 pt-4">
             <%= link_to "編集", edit_usage_log_path(usage_log), class: "text-sm font-medium text-emerald-700 transition hover:text-emerald-800" %>
             <%= link_to "詳細を見る", item_path(item), class: "btn-secondary px-3 py-1.5" %>
           </div>
