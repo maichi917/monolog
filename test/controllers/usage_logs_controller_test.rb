@@ -27,7 +27,7 @@ class UsageLogsControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_includes response.body, @item.name
-    assert_includes response.body, "★★★★"
+    assert_select "dd", text: /★★★★\s*☆/
     assert_includes response.body, "また使いたい"
     assert_select "a[href='#{edit_usage_log_path(@usage_log)}']", text: "編集"
   end
@@ -39,7 +39,7 @@ class UsageLogsControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_includes response.body, @item.name
-    assert_includes response.body, "★★★★"
+    assert_select "dd", text: /★★★★\s*☆/
     assert_includes response.body, "レビューなし"
   end
 
