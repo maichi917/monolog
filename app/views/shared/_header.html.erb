@@ -11,11 +11,15 @@
 
       <% if user_signed_in? %>
         <nav class="flex flex-wrap gap-2 text-sm" aria-label="メインメニュー">
-          <%= link_to "アイテムDB", items_path, class: "rounded-full bg-emerald-50 px-3 py-1.5 font-medium text-emerald-700 transition hover:bg-emerald-100" %>
-          <%= link_to "ストックBOX", items_path(stock: "available"), class: "rounded-full bg-slate-100 px-3 py-1.5 font-medium text-slate-700 transition hover:bg-slate-200" %>
-          <%= link_to "使用中アイテム", in_use_items_path, class: "rounded-full bg-slate-100 px-3 py-1.5 font-medium text-slate-700 transition hover:bg-slate-200" %>
-          <%= link_to "使い切り履歴", used_up_items_path, class: "rounded-full bg-slate-100 px-3 py-1.5 font-medium text-slate-700 transition hover:bg-slate-200" %>
-          <%= link_to "評価・レビュー履歴", reviews_usage_logs_path, class: "rounded-full bg-slate-100 px-3 py-1.5 font-medium text-slate-700 transition hover:bg-slate-200" %>
+          <% active_nav_class = "rounded-full bg-emerald-50 px-3 py-1.5 font-medium text-emerald-700 transition hover:bg-emerald-100" %>
+          <% inactive_nav_class = "rounded-full bg-slate-100 px-3 py-1.5 font-medium text-slate-700 transition hover:bg-slate-200" %>
+          <% item_db_active = current_page?(items_path) && params[:stock].blank? %>
+
+          <%= link_to "アイテムDB", items_path, class: item_db_active ? active_nav_class : inactive_nav_class %>
+          <%= link_to "ストックBOX", items_path(stock: "available"), class: current_page?(items_path(stock: "available")) ? active_nav_class : inactive_nav_class %>
+          <%= link_to "使用中アイテム", in_use_items_path, class: current_page?(in_use_items_path) ? active_nav_class : inactive_nav_class %>
+          <%= link_to "使い切り履歴", used_up_items_path, class: current_page?(used_up_items_path) ? active_nav_class : inactive_nav_class %>
+          <%= link_to "評価・レビュー履歴", reviews_usage_logs_path, class: current_page?(reviews_usage_logs_path) ? active_nav_class : inactive_nav_class %>
         </nav>
       <% end %>
     </div>
