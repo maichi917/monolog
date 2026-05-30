@@ -3,6 +3,7 @@ Rails.application.routes.draw do
 
   devise_for :users
   root "static_pages#top"
+  get "terms", to: "static_pages#terms", as: :terms
 
   resources :items, only: %i[index new create show edit update destroy] do
     member do
