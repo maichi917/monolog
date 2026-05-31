@@ -14,4 +14,18 @@ class StaticPagesControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "footer a[href='#{terms_path}']", "利用規約"
   end
+
+  test "プライバシーポリシーページを表示できる" do
+    get privacy_path
+
+    assert_response :success
+    assert_select "h1", "プライバシーポリシー"
+  end
+
+  test "フッターからプライバシーポリシーページに移動できる" do
+    get root_path
+
+    assert_response :success
+    assert_select "footer a[href='#{privacy_path}']", "プライバシーポリシー"
+  end
 end
