@@ -5,6 +5,7 @@ Rails.application.routes.draw do
   root "static_pages#top"
   get "terms", to: "static_pages#terms", as: :terms
   get "privacy", to: "static_pages#privacy", as: :privacy
+  get "contact", to: "static_pages#contact", as: :contact
 
   resources :items, only: %i[index new create show edit update destroy] do
     member do
