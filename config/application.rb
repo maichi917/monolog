@@ -23,6 +23,9 @@ module App
     #
     config.time_zone = "Tokyo"
     config.active_record.default_timezone = :utc
+    config.generators do |generator|
+      generator.orm :active_record, primary_key_type: :uuid
+    end
     # config.eager_load_paths << Rails.root.join("extras")
 
     # デフォルトロケールを日本語に設定
