@@ -20,6 +20,7 @@
           <%= link_to "使用中アイテム", in_use_items_path, class: current_page?(in_use_items_path) ? active_nav_class : inactive_nav_class %>
           <%= link_to "使い切り履歴", used_up_items_path, class: current_page?(used_up_items_path) ? active_nav_class : inactive_nav_class %>
           <%= link_to "評価・レビュー履歴", reviews_usage_logs_path, class: current_page?(reviews_usage_logs_path) ? active_nav_class : inactive_nav_class %>
+          <%= link_to "カテゴリ管理", categories_path, class: current_page?(categories_path) ? active_nav_class : inactive_nav_class %>
         </nav>
       <% end %>
     </div>
