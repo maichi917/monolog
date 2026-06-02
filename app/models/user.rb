@@ -7,6 +7,7 @@ class User < ApplicationRecord
          :recoverable, :rememberable, :validatable
   has_many :items, dependent: :destroy
   has_many :usage_logs, dependent: :destroy
+  has_many :categories, dependent: :destroy
 
   # nameは必須（重複は許可）
   validates :name, presence: true, length: { maximum: 255 }
