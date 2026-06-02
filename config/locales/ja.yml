@@ -7,6 +7,7 @@ ja:
     models:
       item: アイテム
       usage_log: 使用履歴
+      category: カテゴリ
     attributes:
       item:
         name: アイテム名
@@ -20,6 +21,8 @@ ja:
         finished_at: 使い切り日
         rating: 評価
         review: レビュー
+      category:
+        name: カテゴリ名
       user:
         email: メールアドレス
     errors:
