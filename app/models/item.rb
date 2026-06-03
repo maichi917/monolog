@@ -1,4 +1,6 @@
 class Item < ApplicationRecord
+  attr_accessor :new_category_name, :remove_category
+
   validates :name, presence: true, length: { maximum: 100 }
   validates :price, numericality: { only_integer: true, allow_blank: true, greater_than_or_equal_to: 0 }
   validates :stock_quantity, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
@@ -6,6 +8,7 @@ class Item < ApplicationRecord
   validate :image_size
 
   belongs_to :user
+  belongs_to :category, optional: true
   has_many :usage_logs, dependent: :destroy
   has_one_attached :image do |attachable|
     attachable.variant :thumbnail, resize_to_fill: [160, 160], format: :webp, saver: { quality: 80 }

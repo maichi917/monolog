@@ -12,6 +12,9 @@ ja:
       item:
         name: アイテム名
         category_name: カテゴリー
+        category: カテゴリ
+        category_id: カテゴリ
+        new_category_name: 新しいカテゴリ名
         price: 価格
         stock_quantity: 在庫数
         favorite: お気に入り

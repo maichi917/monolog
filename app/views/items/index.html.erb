@@ -42,6 +42,10 @@
                   <dt class="text-xs text-slate-500">在庫数</dt>
                   <dd class="mt-1 text-slate-700"><%= item.stock_quantity %></dd>
                 </div>
+                <div class="col-span-2">
+                  <dt class="text-xs text-slate-500">カテゴリ</dt>
+                  <dd class="mt-1 text-slate-700"><%= item.category&.name || "未設定" %></dd>
+                </div>
               </dl>
             </div>
           </div>
