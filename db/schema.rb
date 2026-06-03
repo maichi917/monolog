@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_06_02_000000) do
+ActiveRecord::Schema[7.1].define(version: 2026_06_03_000000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
@@ -62,7 +62,9 @@ ActiveRecord::Schema[7.1].define(version: 2026_06_02_000000) do
     t.datetime "updated_at", null: false
     t.boolean "archived", default: false, null: false
     t.uuid "user_id", null: false
+    t.uuid "category_id"
     t.index ["archived"], name: "index_items_on_archived"
+    t.index ["category_id"], name: "index_items_on_category_id"
     t.index ["user_id"], name: "index_items_on_user_id"
   end
 
@@ -98,6 +100,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_06_02_000000) do
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "categories", "users"
+  add_foreign_key "items", "categories"
   add_foreign_key "items", "users"
   add_foreign_key "usage_logs", "items"
   add_foreign_key "usage_logs", "users"

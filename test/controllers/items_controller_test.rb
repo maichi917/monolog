@@ -131,11 +131,165 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_select "[data-submit-loading]", text: "アイテムを登録しています..."
   end
 
+  test "new page has category select and new category field" do
+    get new_item_path
+
+    assert_response :success
+    assert_select "select[name='item[category_id]']"
+    assert_select "input[name='item[new_category_name]']"
+    assert_includes response.body, categories(:hair_care).name
+  end
+
   test "edit page has submit loading message" do
     get edit_item_path(items(:one))
 
     assert_response :success
     assert_select "[data-submit-loading]", text: "アイテム情報を更新しています..."
+  end
+
+  test "create assigns selected category to item" do
+    category = categories(:hair_care)
+
+    assert_difference -> { @user.items.count }, 1 do
+      post items_path, params: {
+        item: {
+          name: "シャンプー",
+          price: 1200,
+          stock_quantity: 1,
+          category_id: category.id
+        }
+      }
+    end
+
+    item = @user.items.order(:created_at).last
+    assert_redirected_to items_path
+    assert_equal category, item.category
+  end
+
+  test "create creates new category and assigns it to item" do
+    assert_difference -> { @user.categories.count }, 1 do
+      assert_difference -> { @user.items.count }, 1 do
+        post items_path, params: {
+          item: {
+            name: "歯ブラシ",
+            price: 300,
+            stock_quantity: 2,
+            new_category_name: "日用品"
+          }
+        }
+      end
+    end
+
+    item = @user.items.order(:created_at).last
+    assert_redirected_to items_path
+    assert_equal "日用品", item.category.name
+  end
+
+  test "create rerenders new when new category is invalid" do
+    assert_no_difference -> { @user.categories.count } do
+      assert_no_difference -> { @user.items.count } do
+        post items_path, params: {
+          item: {
+            name: "長いカテゴリのアイテム",
+            price: 300,
+            stock_quantity: 2,
+            new_category_name: "あ" * 21
+          }
+        }
+      end
+    end
+
+    assert_response :unprocessable_content
+    assert_includes response.body, "新しいカテゴリ名は20文字以内で入力してください"
+  end
+
+  test "update changes category" do
+    item = items(:one)
+    category = categories(:skin_care)
+
+    patch item_path(item), params: {
+      item: {
+        name: item.name,
+        price: item.price,
+        stock_quantity: item.stock_quantity,
+        category_id: category.id
+      }
+    }
+
+    assert_redirected_to items_path
+    assert_equal category, item.reload.category
+  end
+
+  test "update creates new category and assigns it to item" do
+    item = items(:one)
+
+    assert_difference -> { @user.categories.count }, 1 do
+      patch item_path(item), params: {
+        item: {
+          name: item.name,
+          price: item.price,
+          stock_quantity: item.stock_quantity,
+          new_category_name: "メイク"
+        }
+      }
+    end
+
+    assert_redirected_to items_path
+    assert_equal "メイク", item.reload.category.name
+  end
+
+  test "update removes category from item" do
+    item = items(:one)
+    item.update!(category: categories(:hair_care))
+
+    patch item_path(item), params: {
+      item: {
+        name: item.name,
+        price: item.price,
+        stock_quantity: item.stock_quantity,
+        remove_category: "1"
+      }
+    }
+
+    assert_redirected_to items_path
+    assert_nil item.reload.category
+  end
+
+  test "create cannot assign another user's category" do
+    category = Category.create!(user: users(:two), name: "日用品")
+
+    assert_no_difference -> { @user.items.count } do
+      post items_path, params: {
+        item: {
+          name: "他ユーザーカテゴリのアイテム",
+          price: 300,
+          stock_quantity: 1,
+          category_id: category.id
+        }
+      }
+    end
+
+    assert_response :not_found
+  end
+
+  test "index shows item category" do
+    item = items(:one)
+    item.update!(category: categories(:hair_care))
+
+    get items_path
+
+    assert_response :success
+    assert_includes response.body, categories(:hair_care).name
+  end
+
+  test "show shows item category" do
+    item = items(:one)
+    item.update!(category: categories(:hair_care))
+
+    get item_path(item)
+
+    assert_response :success
+    assert_includes response.body, categories(:hair_care).name
   end
 
   test "update with invalid image rerenders edit page" do

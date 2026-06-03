@@ -1,8 +1,9 @@
 class ItemsController < ApplicationController
   before_action :authenticate_user! # ユーザーがログインしていることを確認
+  before_action :set_categories, only: %i[new create edit update]
 
   def index
-    @items = current_user.items.visible.order(created_at: :desc)
+    @items = current_user.items.visible.includes(:category).order(created_at: :desc)
 
     if params[:stock] == "available"
       @page_title = "ストックBOX"
@@ -39,11 +40,13 @@ class ItemsController < ApplicationController
 
   def create
     @item = current_user.items.build(item_params) # ログイン中のユーザーに紐づくアイテムを作成
-    if @item.save
+
+    if assign_category(@item) && @item.save
       redirect_to items_path, success: 'アイテムが作成されました。'
     else
-    flash.now[:danger] = 'アイテムの作成に失敗しました。'  # ← flash.nowを使う！
-    render :new, status: :unprocessable_content
+      set_categories
+      flash.now[:danger] = 'アイテムの作成に失敗しました。'  # ← flash.nowを使う！
+      render :new, status: :unprocessable_content
     end
   end
 
@@ -57,10 +60,12 @@ class ItemsController < ApplicationController
 
   def update
     @item = current_user.items.find(params[:id])
+    @item.assign_attributes(item_params)
 
-    if @item.update(item_params)
+    if assign_category(@item) && @item.save
       redirect_to items_path, notice: 'アイテム情報を更新しました'
     else
+      set_categories
       render :edit, status: :unprocessable_content
     end
   end
@@ -124,5 +129,36 @@ class ItemsController < ApplicationController
 
   def item_params
     params.require(:item).permit(:name, :price, :stock_quantity, :favorite, :memo, :image)
+  end
+
+  def set_categories
+    @categories = current_user.categories.order(:name)
+  end
+
+  def assign_category(item)
+    category_name = params.dig(:item, :new_category_name).to_s.strip
+    category_id = params.dig(:item, :category_id)
+    remove_category = ActiveModel::Type::Boolean.new.cast(params.dig(:item, :remove_category))
+
+    item.new_category_name = category_name
+    item.remove_category = remove_category
+
+    if category_name.present?
+      category = current_user.categories.find_or_initialize_by(name: category_name)
+      unless category.save
+        category.errors[:name].each { |message| item.errors.add(:new_category_name, message) }
+        return false
+      end
+
+      item.category = category
+    elsif remove_category
+      item.category = nil
+    elsif category_id.present?
+      item.category = current_user.categories.find(category_id)
+    else
+      item.category = nil
+    end
+
+    true
   end
 end
