@@ -1,4 +1,9 @@
 class UsageLog < ApplicationRecord
+  enum :finish_reason, {
+    used_up: "used_up",
+    discontinued: "discontinued"
+  }, validate: { allow_nil: true }
+
   belongs_to :item
   belongs_to :user
 

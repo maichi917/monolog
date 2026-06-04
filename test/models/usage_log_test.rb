@@ -67,4 +67,39 @@ class UsageLogTest < ActiveSupport::TestCase
 
     assert usage_log.valid?
   end
+
+  test "usage log accepts used up finish reason" do
+    usage_log = @item.usage_logs.build(
+      user: @user,
+      started_at: Time.zone.local(2026, 5, 10),
+      finished_at: Time.zone.local(2026, 5, 12),
+      finish_reason: :used_up
+    )
+
+    assert usage_log.valid?
+    assert usage_log.used_up?
+  end
+
+  test "usage log accepts discontinued finish reason" do
+    usage_log = @item.usage_logs.build(
+      user: @user,
+      started_at: Time.zone.local(2026, 5, 10),
+      finished_at: Time.zone.local(2026, 5, 12),
+      finish_reason: :discontinued
+    )
+
+    assert usage_log.valid?
+    assert usage_log.discontinued?
+  end
+
+  test "usage log rejects invalid finish reason" do
+    usage_log = @item.usage_logs.build(
+      user: @user,
+      started_at: Time.zone.local(2026, 5, 10),
+      finished_at: Time.zone.local(2026, 5, 12),
+      finish_reason: :unknown
+    )
+
+    assert_not usage_log.valid?
+  end
 end
