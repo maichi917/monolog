@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_06_03_000000) do
+ActiveRecord::Schema[7.1].define(version: 2026_06_05_000000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
@@ -77,6 +77,9 @@ ActiveRecord::Schema[7.1].define(version: 2026_06_03_000000) do
     t.datetime "updated_at", null: false
     t.uuid "item_id", null: false
     t.uuid "user_id", null: false
+    t.string "finish_reason"
+    t.text "discontinued_reason"
+    t.index ["finish_reason"], name: "index_usage_logs_on_finish_reason"
     t.index ["item_id", "finished_at"], name: "index_usage_logs_on_item_id_and_finished_at"
     t.index ["item_id"], name: "index_usage_logs_on_item_id"
     t.index ["item_id"], name: "index_usage_logs_on_item_id_where_in_use", unique: true, where: "(finished_at IS NULL)"

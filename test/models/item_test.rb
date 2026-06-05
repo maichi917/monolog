@@ -24,6 +24,7 @@ class ItemTest < ActiveSupport::TestCase
     usage_log = item.usage_logs.finished.first
     assert_not item.using?
     assert_equal Time.zone.local(2026, 5, 12), usage_log.finished_at
+    assert_equal "used_up", usage_log.finish_reason
     assert_equal 5, usage_log.rating
     assert_equal "使いやすい", usage_log.review
   end
@@ -47,6 +48,24 @@ class ItemTest < ActiveSupport::TestCase
 
     usage_log = item.usage_logs.finished.first
     assert_not item.using?
+    assert_nil usage_log.review
+  end
+
+  test "discontinue_using! discontinues current usage log" do
+    item = items(:one)
+    item.start_using!(users(:one), Time.zone.local(2026, 5, 10))
+
+    item.discontinue_using!(
+      Time.zone.local(2026, 5, 11),
+      discontinued_reason: "肌に合わなかった"
+    )
+
+    usage_log = item.usage_logs.finished.first
+    assert_not item.using?
+    assert_equal Time.zone.local(2026, 5, 11), usage_log.finished_at
+    assert_equal "discontinued", usage_log.finish_reason
+    assert_equal "肌に合わなかった", usage_log.discontinued_reason
+    assert_nil usage_log.rating
     assert_nil usage_log.review
   end
 

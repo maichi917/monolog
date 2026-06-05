@@ -25,13 +25,24 @@ class ItemsController < ApplicationController
     @page_title = "使い切り履歴"
     finished_usage_logs = current_user.usage_logs
                                       .finished
+                                      .used_up
                                       .includes(:item)
                                       .order(finished_at: :desc)
     @usage_logs = finished_usage_logs.to_a.uniq(&:item_id)
     @used_up_counts_by_item_id = current_user.usage_logs
                                              .finished
+                                             .used_up
                                              .group(:item_id)
                                              .count
+  end
+
+  def discontinued
+    @page_title = "使用中止リスト"
+    @usage_logs = current_user.usage_logs
+                              .finished
+                              .discontinued
+                              .includes(:item)
+                              .order(finished_at: :desc)
   end
 
   def new
@@ -119,6 +130,31 @@ class ItemsController < ApplicationController
     @item.finish_using!(params[:finished_at])
 
     redirect_to edit_usage_log_path(usage_log), notice: "アイテムを使い切りました🎉"
+  end
+
+  def discontinue_using_form
+    @item = current_user.items.find(params[:id])
+
+    unless @item.using?
+      redirect_to in_use_items_path, alert: "使用中のアイテムがありません"
+    end
+  end
+
+  def discontinue_using
+    @item = current_user.items.find(params[:id])
+    usage_log = @item.current_usage_log
+
+    if usage_log.blank?
+      redirect_to in_use_items_path, alert: "使用中のアイテムがありません"
+      return
+    end
+
+    @item.discontinue_using!(
+      params[:finished_at],
+      discontinued_reason: params[:discontinued_reason]
+    )
+
+    redirect_to in_use_items_path, notice: "使用を中止しました"
   end
 
   private
