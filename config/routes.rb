@@ -12,11 +12,14 @@ Rails.application.routes.draw do
       patch :start_using
       get :finish_using_form, path: :finish_using
       patch :finish_using
+      get :discontinue_using_form, path: :discontinue_using
+      patch :discontinue_using
       delete :image, action: :destroy_image
     end
 
     collection do
       get :used_up
+      get :discontinued
       get :in_use
     end
   end

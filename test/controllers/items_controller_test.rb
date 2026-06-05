@@ -55,6 +55,34 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_nil usage_log.review
   end
 
+  test "discontinue_using discontinues current usage log and redirects to in-use page" do
+    item = items(:one)
+    item.start_using!(@user, Time.zone.local(2026, 5, 10))
+
+    patch discontinue_using_item_path(item), params: {
+      finished_at: "2026-05-11",
+      rating: 1,
+      review: "肌に合わなかった"
+    }
+
+    usage_log = item.usage_logs.finished.first
+    assert_redirected_to in_use_items_path
+    assert_equal Time.zone.local(2026, 5, 11), usage_log.finished_at
+    assert_equal "discontinued", usage_log.finish_reason
+    assert_equal 1, usage_log.rating
+    assert_equal "肌に合わなかった", usage_log.review
+  end
+
+  test "discontinue_using redirects when item is not in use" do
+    item = items(:one)
+
+    patch discontinue_using_item_path(item), params: {
+      finished_at: "2026-05-11"
+    }
+
+    assert_redirected_to in_use_items_path
+  end
+
   test "finish_using_form shows date field" do
     item = items(:one)
     item.start_using!(@user, Time.zone.local(2026, 5, 10))
@@ -71,15 +99,41 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to in_use_items_path
   end
 
-  test "in_use page has finish using form in item card" do
+  test "discontinue_using_form shows date field" do
+    item = items(:one)
+    item.start_using!(@user, Time.zone.local(2026, 5, 10))
+
+    get discontinue_using_form_item_path(item)
+
+    assert_response :success
+    assert_select "form[action='#{discontinue_using_item_path(item)}'] input[name='finished_at']"
+    assert_select "input[type='submit'][value='使用を中止する']"
+  end
+
+  test "discontinue_using_form redirects when item is not in use" do
+    get discontinue_using_form_item_path(items(:one))
+
+    assert_redirected_to in_use_items_path
+  end
+
+  test "in_use page has finish using link in item card" do
     item = items(:one)
     item.start_using!(@user, Time.zone.local(2026, 5, 10))
 
     get in_use_items_path
 
     assert_response :success
-    assert_select "form[action='#{finish_using_item_path(item)}'] input[name='finished_at']"
-    assert_select "button[data-disclosure-toggle]", text: "使い切る"
+    assert_select "a[href='#{finish_using_form_item_path(item)}']", text: "使い切る"
+  end
+
+  test "in_use page has discontinue using link in item card" do
+    item = items(:one)
+    item.start_using!(@user, Time.zone.local(2026, 5, 10))
+
+    get in_use_items_path
+
+    assert_response :success
+    assert_select "a[href='#{discontinue_using_form_item_path(item)}']", text: "使用を中止する"
   end
 
   test "used_up page shows used up count" do
@@ -91,6 +145,31 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_includes response.body, "1回"
+  end
+
+  test "used_up page does not show discontinued usage logs" do
+    item = items(:one)
+    item.start_using!(@user, Time.zone.local(2026, 5, 10))
+    item.discontinue_using!(Time.zone.local(2026, 5, 12))
+
+    get used_up_items_path
+
+    assert_response :success
+    assert_includes response.body, "使い切り履歴がありません"
+    assert_no_match item.name, response.body
+  end
+
+  test "discontinued page shows discontinued usage logs" do
+    item = items(:one)
+    item.start_using!(@user, Time.zone.local(2026, 5, 10))
+    item.discontinue_using!(Time.zone.local(2026, 5, 12))
+
+    get discontinued_items_path
+
+    assert_response :success
+    assert_includes response.body, item.name
+    assert_includes response.body, "使用中止"
+    assert_includes response.body, "使用期間"
   end
 
   test "used_up page shows one card per item with used up count" do
