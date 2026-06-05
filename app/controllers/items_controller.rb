@@ -151,8 +151,7 @@ class ItemsController < ApplicationController
 
     @item.discontinue_using!(
       params[:finished_at],
-      rating: params[:rating],
-      review: params[:review]
+      discontinued_reason: params[:discontinued_reason]
     )
 
     redirect_to in_use_items_path, notice: "使用を中止しました"

@@ -92,6 +92,30 @@ class UsageLogTest < ActiveSupport::TestCase
     assert usage_log.discontinued?
   end
 
+  test "usage log accepts discontinued reason without rating" do
+    usage_log = @item.usage_logs.build(
+      user: @user,
+      started_at: Time.zone.local(2026, 5, 10),
+      finished_at: Time.zone.local(2026, 5, 12),
+      finish_reason: :discontinued,
+      discontinued_reason: "肌に合わなかった"
+    )
+
+    assert usage_log.valid?
+  end
+
+  test "usage log rejects too long discontinued reason" do
+    usage_log = @item.usage_logs.build(
+      user: @user,
+      started_at: Time.zone.local(2026, 5, 10),
+      finished_at: Time.zone.local(2026, 5, 12),
+      finish_reason: :discontinued,
+      discontinued_reason: "あ" * 501
+    )
+
+    assert_not usage_log.valid?
+  end
+
   test "usage log rejects invalid finish reason" do
     usage_log = @item.usage_logs.build(
       user: @user,

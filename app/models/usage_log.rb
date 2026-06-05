@@ -13,6 +13,7 @@ class UsageLog < ApplicationRecord
 
   validates :started_at, presence: true
   validates :rating, inclusion: { in: 1..5 }, allow_nil: true
+  validates :discontinued_reason, length: { maximum: 500 }, allow_blank: true
 
   validate :finished_at_must_be_after_started_at
   validate :review_requires_rating

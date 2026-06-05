@@ -61,16 +61,16 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
 
     patch discontinue_using_item_path(item), params: {
       finished_at: "2026-05-11",
-      rating: 1,
-      review: "肌に合わなかった"
+      discontinued_reason: "肌に合わなかった"
     }
 
     usage_log = item.usage_logs.finished.first
     assert_redirected_to in_use_items_path
     assert_equal Time.zone.local(2026, 5, 11), usage_log.finished_at
     assert_equal "discontinued", usage_log.finish_reason
-    assert_equal 1, usage_log.rating
-    assert_equal "肌に合わなかった", usage_log.review
+    assert_equal "肌に合わなかった", usage_log.discontinued_reason
+    assert_nil usage_log.rating
+    assert_nil usage_log.review
   end
 
   test "discontinue_using redirects when item is not in use" do
@@ -107,6 +107,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "form[action='#{discontinue_using_item_path(item)}'] input[name='finished_at']"
+    assert_select "textarea[name='discontinued_reason']"
     assert_select "input[type='submit'][value='使用を中止する']"
   end
 
@@ -170,6 +171,21 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_includes response.body, item.name
     assert_includes response.body, "使用中止"
     assert_includes response.body, "使用期間"
+  end
+
+  test "discontinued page shows discontinued reason when present" do
+    item = items(:one)
+    item.start_using!(@user, Time.zone.local(2026, 5, 10))
+    item.discontinue_using!(
+      Time.zone.local(2026, 5, 12),
+      discontinued_reason: "香りが苦手だった"
+    )
+
+    get discontinued_items_path
+
+    assert_response :success
+    assert_includes response.body, "使用中止理由"
+    assert_includes response.body, "香りが苦手だった"
   end
 
   test "used_up page shows one card per item with used up count" do

@@ -55,12 +55,11 @@ class Item < ApplicationRecord
     )
   end
 
-  def discontinue_using!(finished_at, rating: nil, review: nil)
+  def discontinue_using!(finished_at, discontinued_reason: nil)
     current_usage_log.update!(
       finished_at: finished_at.presence || Time.current,
       finish_reason: :discontinued,
-      rating: rating.presence,
-      review: review.presence
+      discontinued_reason: discontinued_reason.presence
     )
   end
 

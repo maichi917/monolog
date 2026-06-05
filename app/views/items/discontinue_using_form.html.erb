@@ -18,6 +18,17 @@
           <%= date_field_tag :finished_at, Date.current, class: "form-input" %>
         </div>
 
+        <div>
+          <%= label_tag :discontinued_reason, "使用中止理由（任意）", class: "form-label" %>
+          <%= text_area_tag :discontinued_reason,
+                            nil,
+                            rows: 4,
+                            maxlength: 500,
+                            class: "form-input",
+                            placeholder: "例: 肌に合わなかった、香りが苦手だった など" %>
+          <p class="form-help">理由はあとから見返すためのメモです。空欄でも使用中止できます。</p>
+        </div>
+
         <div class="grid gap-3 sm:grid-cols-2">
           <%= link_to "戻る", in_use_items_path, class: "btn-secondary" %>
           <%= submit_tag "使用を中止する", class: "btn-danger cursor-pointer", data: { turbo_confirm: "使用中止として記録しますか?" } %>

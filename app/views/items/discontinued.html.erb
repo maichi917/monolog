@@ -57,6 +57,13 @@
             </div>
           </dl>
 
+          <% if usage_log.discontinued_reason.present? %>
+            <div class="mt-4 rounded-lg bg-red-50 p-3 text-sm">
+              <p class="text-xs font-semibold text-red-700">使用中止理由</p>
+              <p class="mt-1 whitespace-pre-wrap text-slate-700"><%= usage_log.discontinued_reason %></p>
+            </div>
+          <% end %>
+
           <div class="mt-4 flex items-center justify-end gap-4 border-t border-slate-100 pt-4">
             <%= link_to "詳細を見る", item_path(item), class: "btn-secondary px-3 py-1.5" %>
           </div>
