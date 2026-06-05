@@ -171,6 +171,8 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_includes response.body, item.name
     assert_includes response.body, "使用中止"
     assert_includes response.body, "使用期間"
+    assert_includes response.body, "理由は未入力です"
+    assert_select "a[href='#{usage_log_path(item.usage_logs.finished.first)}']", text: "詳細を見る"
   end
 
   test "discontinued page shows discontinued reason when present" do
