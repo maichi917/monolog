@@ -1,0 +1,90 @@
+<% item = @usage_log.item %>
+
+<div class="mx-auto w-full max-w-lg px-4 py-6">
+  <div class="mb-6 flex items-center justify-between gap-4">
+    <%= link_to "使用中止リストへ", discontinued_items_path, class: "btn-secondary" %>
+    <%= link_to "アイテム本体を見る", item_path(item), class: "btn-primary" %>
+  </div>
+
+  <section class="ui-card space-y-6">
+    <div class="mx-auto w-full md:max-w-64">
+      <%= render "items/image",
+                 item: item,
+                 size_class: "aspect-square w-full",
+                 image_class: "aspect-square w-full rounded-lg object-cover",
+                 placeholder_icon_class: "h-16 w-16",
+                 variant_name: :preview %>
+    </div>
+
+    <div class="space-y-3">
+      <div class="flex flex-wrap items-start justify-between gap-3">
+        <h1 class="brand-font break-words text-2xl font-bold text-slate-900"><%= item.name %></h1>
+
+        <% if @usage_log.discontinued? %>
+          <span class="rounded-full bg-red-50 px-3 py-1 text-xs font-semibold text-red-700">使用中止</span>
+        <% elsif @usage_log.used_up? %>
+          <span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">使い切り済み</span>
+        <% else %>
+          <span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">終了済み</span>
+        <% end %>
+      </div>
+
+      <dl class="grid grid-cols-2 gap-3 text-sm">
+        <div class="rounded-lg bg-slate-50 p-3">
+          <dt class="text-xs text-slate-500">使い始め日</dt>
+          <dd class="mt-1 font-semibold text-slate-800">
+            <%= @usage_log.started_at&.strftime("%Y/%-m/%-d") || "-" %>
+          </dd>
+        </div>
+
+        <div class="rounded-lg bg-slate-50 p-3">
+          <dt class="text-xs text-slate-500"><%= @usage_log.discontinued? ? "使用中止日" : "終了日" %></dt>
+          <dd class="mt-1 font-semibold text-slate-800">
+            <%= @usage_log.finished_at&.strftime("%Y/%-m/%-d") || "-" %>
+          </dd>
+        </div>
+
+        <div class="rounded-lg bg-slate-50 p-3">
+          <dt class="text-xs text-slate-500">使用期間</dt>
+          <dd class="mt-1 font-semibold text-slate-800">
+            <% if @usage_log.started_at.present? && @usage_log.finished_at.present? %>
+              <%= "#{(@usage_log.finished_at.to_date - @usage_log.started_at.to_date).to_i + 1}日" %>
+            <% else %>
+              -
+            <% end %>
+          </dd>
+        </div>
+
+        <div class="rounded-lg bg-slate-50 p-3">
+          <dt class="text-xs text-slate-500">カテゴリ</dt>
+          <dd class="mt-1 font-semibold text-slate-800"><%= item.category&.name || "未設定" %></dd>
+        </div>
+      </dl>
+    </div>
+
+    <% if @usage_log.discontinued? %>
+      <div class="border-t border-slate-100 pt-5">
+        <h2 class="form-label">使用中止理由</h2>
+        <% if @usage_log.discontinued_reason.present? %>
+          <div class="whitespace-pre-wrap rounded-lg border border-red-200 bg-red-50 p-3 text-sm leading-6 text-slate-700">
+            <%= @usage_log.discontinued_reason %>
+          </div>
+        <% else %>
+          <p class="rounded-lg bg-slate-50 px-3 py-4 text-sm text-slate-500">使用中止理由はありません。</p>
+        <% end %>
+      </div>
+    <% end %>
+
+    <% if @usage_log.rating.present? %>
+      <div class="border-t border-slate-100 pt-5">
+        <h2 class="form-label">評価・レビュー</h2>
+        <div class="rounded-lg bg-slate-50 p-3 text-sm">
+          <p class="font-semibold text-yellow-500">
+            <%= "★" * @usage_log.rating %><span class="text-slate-300"><%= "☆" * (5 - @usage_log.rating) %></span>
+          </p>
+          <p class="mt-2 whitespace-pre-wrap text-slate-700"><%= @usage_log.review.presence || "レビューなし" %></p>
+        </div>
+      </div>
+    <% end %>
+  </section>
+</div>

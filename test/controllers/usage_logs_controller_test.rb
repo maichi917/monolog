@@ -20,6 +20,17 @@ class UsageLogsControllerTest < ActionDispatch::IntegrationTest
     assert_select "a[href='#{used_up_items_path}']", text: "レビューしない"
   end
 
+  test "show displays usage log detail" do
+    get usage_log_path(@usage_log)
+
+    assert_response :success
+    assert_includes response.body, @item.name
+    assert_includes response.body, "使い始め日"
+    assert_includes response.body, "終了日"
+    assert_includes response.body, "使用期間"
+    assert_select "a[href='#{item_path(@item)}']", text: "アイテム本体を見る"
+  end
+
   test "reviews shows finished usage logs with rating and review" do
     @usage_log.update!(rating: 4, review: "また使いたい")
 
@@ -104,6 +115,18 @@ class UsageLogsControllerTest < ActionDispatch::IntegrationTest
     other_usage_log = other_item.usage_logs.finished.first
 
     get edit_usage_log_path(other_usage_log)
+
+    assert_response :not_found
+  end
+
+  test "other user's usage log cannot be shown" do
+    other_user = users(:two)
+    other_item = other_user.items.create!(name: "他のアイテム", stock_quantity: 1)
+    other_item.start_using!(other_user, Time.zone.local(2026, 5, 10))
+    other_item.finish_using!(Time.zone.local(2026, 5, 12))
+    other_usage_log = other_item.usage_logs.finished.first
+
+    get usage_log_path(other_usage_log)
 
     assert_response :not_found
   end

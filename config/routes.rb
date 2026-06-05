@@ -24,7 +24,7 @@ Rails.application.routes.draw do
     end
   end
 
-  resources :usage_logs, only: %i[edit update] do
+  resources :usage_logs, only: %i[show edit update] do
     collection do
       get :reviews
     end
