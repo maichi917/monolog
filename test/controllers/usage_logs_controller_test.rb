@@ -130,4 +130,93 @@ class UsageLogsControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :not_found
   end
+
+  test "edit_discontinued_reason shows reason form" do
+    usage_log = create_discontinued_usage_log
+
+    get edit_discontinued_reason_usage_log_path(usage_log)
+
+    assert_response :success
+    assert_select "textarea[name='usage_log[discontinued_reason]']"
+    assert_select "a[href='#{usage_log_path(usage_log)}']", text: "戻る"
+  end
+
+  test "show has discontinued reason edit link" do
+    usage_log = create_discontinued_usage_log
+
+    get usage_log_path(usage_log)
+
+    assert_response :success
+    assert_select "a[href='#{edit_discontinued_reason_usage_log_path(usage_log)}']", text: "理由を編集"
+  end
+
+  test "update_discontinued_reason adds reason" do
+    usage_log = create_discontinued_usage_log
+
+    patch update_discontinued_reason_usage_log_path(usage_log), params: {
+      usage_log: {
+        discontinued_reason: "香りが苦手だった"
+      }
+    }
+
+    assert_redirected_to usage_log_path(usage_log)
+    assert_equal "香りが苦手だった", usage_log.reload.discontinued_reason
+  end
+
+  test "update_discontinued_reason changes reason" do
+    usage_log = create_discontinued_usage_log(discontinued_reason: "肌に合わなかった")
+
+    patch update_discontinued_reason_usage_log_path(usage_log), params: {
+      usage_log: {
+        discontinued_reason: "香りが苦手だった"
+      }
+    }
+
+    assert_redirected_to usage_log_path(usage_log)
+    assert_equal "香りが苦手だった", usage_log.reload.discontinued_reason
+  end
+
+  test "update_discontinued_reason clears reason" do
+    usage_log = create_discontinued_usage_log(discontinued_reason: "肌に合わなかった")
+
+    patch update_discontinued_reason_usage_log_path(usage_log), params: {
+      usage_log: {
+        discontinued_reason: ""
+      }
+    }
+
+    assert_redirected_to usage_log_path(usage_log)
+    assert_nil usage_log.reload.discontinued_reason
+  end
+
+  test "used up usage log cannot edit discontinued reason" do
+    get edit_discontinued_reason_usage_log_path(@usage_log)
+
+    assert_response :not_found
+  end
+
+  test "other user's usage log cannot edit discontinued reason" do
+    other_user = users(:two)
+    other_item = other_user.items.create!(name: "他のアイテム", stock_quantity: 1)
+    other_item.start_using!(other_user, Time.zone.local(2026, 5, 10))
+    other_item.discontinue_using!(Time.zone.local(2026, 5, 12))
+    other_usage_log = other_item.usage_logs.finished.first
+
+    get edit_discontinued_reason_usage_log_path(other_usage_log)
+
+    assert_response :not_found
+  end
+
+  private
+
+  def create_discontinued_usage_log(discontinued_reason: nil)
+    item = items(:two)
+    item.update!(stock_quantity: 1)
+    item.start_using!(@user, Time.zone.local(2026, 5, 10))
+    item.discontinue_using!(
+      Time.zone.local(2026, 5, 12),
+      discontinued_reason: discontinued_reason
+    )
+    item.usage_logs.finished.discontinued.first
+  end
 end
