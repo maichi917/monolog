@@ -25,6 +25,11 @@ Rails.application.routes.draw do
   end
 
   resources :usage_logs, only: %i[show edit update] do
+    member do
+      get :edit_discontinued_reason
+      patch :update_discontinued_reason
+    end
+
     collection do
       get :reviews
     end

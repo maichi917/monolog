@@ -1,4 +1,6 @@
 class UsageLog < ApplicationRecord
+  normalizes :discontinued_reason, with: ->(reason) { reason.presence }
+
   enum :finish_reason, {
     used_up: "used_up",
     discontinued: "discontinued"

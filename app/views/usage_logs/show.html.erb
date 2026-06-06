@@ -64,7 +64,13 @@
 
     <% if @usage_log.discontinued? %>
       <div class="border-t border-slate-100 pt-5">
-        <h2 class="form-label">使用中止理由</h2>
+        <div class="mb-2 flex items-center justify-between gap-3">
+          <h2 class="form-label mb-0">使用中止理由</h2>
+          <%= link_to "理由を編集",
+                      edit_discontinued_reason_usage_log_path(@usage_log),
+                      class: "text-sm font-medium text-emerald-700 transition hover:text-emerald-800" %>
+        </div>
+
         <% if @usage_log.discontinued_reason.present? %>
           <div class="whitespace-pre-wrap rounded-lg border border-red-200 bg-red-50 p-3 text-sm leading-6 text-slate-700">
             <%= @usage_log.discontinued_reason %>
