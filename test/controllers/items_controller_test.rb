@@ -190,6 +190,28 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "香りが苦手だった"
   end
 
+  test "discontinued page paginates usage logs with ten logs per page" do
+    11.times do |number|
+      item = @user.items.create!(
+        name: "使用中止ページ確認#{number}",
+        stock_quantity: 1
+      )
+      item.start_using!(@user, Time.zone.local(2026, 5, 10))
+      item.discontinue_using!(Time.zone.local(2026, 5, 12))
+    end
+
+    get discontinued_items_path
+
+    assert_response :success
+    assert_select "article.ui-card", count: 10
+    assert_select "a[href='#{discontinued_items_path(page: 2)}']"
+
+    get discontinued_items_path(page: 2)
+
+    assert_response :success
+    assert_select "article.ui-card", count: 1
+  end
+
   test "used_up page shows one card per item with used up count" do
     item = items(:one)
     item.start_using!(@user, Time.zone.local(2026, 5, 10))
