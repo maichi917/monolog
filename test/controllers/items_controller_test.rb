@@ -379,6 +379,26 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_includes response.body, categories(:hair_care).name
   end
 
+  test "index paginates items with ten items per page" do
+    9.times do |number|
+      @user.items.create!(
+        name: "ページネーション確認#{number}",
+        stock_quantity: 1
+      )
+    end
+
+    get items_path
+
+    assert_response :success
+    assert_select "article.ui-card", count: 10
+    assert_select "a[href='#{items_path(page: 2)}']"
+
+    get items_path(page: 2)
+
+    assert_response :success
+    assert_select "article.ui-card", count: 1
+  end
+
   test "show shows item category" do
     item = items(:one)
     item.update!(category: categories(:hair_care))

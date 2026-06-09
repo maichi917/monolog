@@ -45,6 +45,10 @@
             </li>
           <% end %>
         </ul>
+
+        <div class="mt-6">
+          <%= paginate @categories %>
+        </div>
       <% else %>
         <p class="mt-4 text-sm text-slate-600">
           カテゴリはまだ登録されていません。
