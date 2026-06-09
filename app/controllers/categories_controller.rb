@@ -26,7 +26,7 @@ class CategoriesController < ApplicationController
   private
 
   def set_categories
-    @categories = current_user.categories.order(:name)
+    @categories = current_user.categories.order(:name).page(params[:page])
   end
 
   def category_params

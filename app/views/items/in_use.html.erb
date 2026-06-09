@@ -61,6 +61,10 @@
         </article>
       <% end %>
     </div>
+
+    <div class="mt-8">
+      <%= paginate @usage_logs %>
+    </div>
   <% else %>
     <div class="ui-empty-state">
       <p class="text-lg">使用中のアイテムがありません</p>

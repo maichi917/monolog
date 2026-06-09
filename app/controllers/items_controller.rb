@@ -11,6 +11,8 @@ class ItemsController < ApplicationController
     else
       @page_title = "アイテムDB"
     end
+
+    @items = @items.page(params[:page])
   end
 
   def in_use
@@ -19,6 +21,7 @@ class ItemsController < ApplicationController
                               .in_use
                               .includes(:item)
                               .order(started_at: :desc)
+                              .page(params[:page])
   end
 
   def used_up
@@ -28,7 +31,9 @@ class ItemsController < ApplicationController
                                       .used_up
                                       .includes(:item)
                                       .order(finished_at: :desc)
-    @usage_logs = finished_usage_logs.to_a.uniq(&:item_id)
+    @usage_logs = Kaminari.paginate_array(
+      finished_usage_logs.to_a.uniq(&:item_id)
+    ).page(params[:page])
     @used_up_counts_by_item_id = current_user.usage_logs
                                              .finished
                                              .used_up
@@ -43,6 +48,7 @@ class ItemsController < ApplicationController
                               .discontinued
                               .includes(:item)
                               .order(finished_at: :desc)
+                              .page(params[:page])
   end
 
   def new

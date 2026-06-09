@@ -19,6 +19,7 @@ class UsageLogsController < ApplicationController
                               .rated
                               .includes(:item)
                               .order(finished_at: :desc)
+                              .page(params[:page])
   end
 
   def update
