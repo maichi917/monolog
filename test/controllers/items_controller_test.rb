@@ -325,6 +325,64 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_select "a[href='#{in_use_items_path}']", text: "検索条件をリセット"
   end
 
+  test "in_use page filters usage logs by item category" do
+    matching_item = items(:one)
+    matching_item.update!(category: categories(:hair_care))
+    matching_item.start_using!(@user, Time.zone.local(2026, 5, 10))
+    other_item = items(:two)
+    other_item.update!(stock_quantity: 1, category: categories(:skin_care))
+    other_item.start_using!(@user, Time.zone.local(2026, 5, 11))
+
+    get in_use_items_path, params: { category_id: categories(:hair_care).id }
+
+    assert_response :success
+    assert_includes response.body, matching_item.name
+    assert_no_match other_item.name, response.body
+    assert_select "a.bg-emerald-600", text: categories(:hair_care).name
+  end
+
+  test "in_use page combines item name and category filters" do
+    items(:one).update!(category: categories(:hair_care))
+    items(:one).start_using!(@user, Time.zone.local(2026, 5, 10))
+    items(:two).update!(stock_quantity: 1, category: categories(:hair_care))
+    items(:two).start_using!(@user, Time.zone.local(2026, 5, 11))
+
+    get in_use_items_path, params: {
+      q: "化粧",
+      category_id: categories(:hair_care).id
+    }
+
+    assert_response :success
+    assert_includes response.body, items(:one).name
+    assert_no_match items(:two).name, response.body
+    assert_select "input[type='hidden'][name='category_id'][value='#{categories(:hair_care).id}']"
+  end
+
+  test "in_use page filters usage logs for uncategorized items" do
+    items(:one).update!(category: categories(:hair_care))
+    items(:one).start_using!(@user, Time.zone.local(2026, 5, 10))
+    items(:two).update!(stock_quantity: 1)
+    items(:two).start_using!(@user, Time.zone.local(2026, 5, 11))
+
+    get in_use_items_path, params: { category_id: "uncategorized" }
+
+    assert_response :success
+    assert_includes response.body, items(:two).name
+    assert_no_match items(:one).name, response.body
+    assert_select "a.bg-emerald-600", text: "未分類"
+  end
+
+  test "in_use page shows category tags for current user only" do
+    other_category = users(:two).categories.create!(name: "他ユーザーカテゴリ")
+
+    get in_use_items_path
+
+    assert_response :success
+    assert_select "a", text: categories(:hair_care).name
+    assert_select "a", text: "未分類"
+    assert_select "a", text: other_category.name, count: 0
+  end
+
   test "used_up page shows used up count" do
     item = items(:one)
     item.start_using!(@user, Time.zone.local(2026, 5, 10))
@@ -442,6 +500,84 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_select "a[href='#{discontinued_items_path(page: 2, q: "検索対象")}']"
   end
 
+  test "discontinued page filters usage logs by item category" do
+    matching_item = items(:one)
+    matching_item.update!(category: categories(:hair_care))
+    matching_item.start_using!(@user, Time.zone.local(2026, 5, 10))
+    matching_item.discontinue_using!(Time.zone.local(2026, 5, 12))
+    other_item = items(:two)
+    other_item.update!(stock_quantity: 1, category: categories(:skin_care))
+    other_item.start_using!(@user, Time.zone.local(2026, 5, 11))
+    other_item.discontinue_using!(Time.zone.local(2026, 5, 13))
+
+    get discontinued_items_path, params: { category_id: categories(:hair_care).id }
+
+    assert_response :success
+    assert_includes response.body, matching_item.name
+    assert_no_match other_item.name, response.body
+    assert_select "a.bg-emerald-600", text: categories(:hair_care).name
+  end
+
+  test "discontinued page combines item name and category filters" do
+    items(:one).update!(category: categories(:hair_care))
+    items(:one).start_using!(@user, Time.zone.local(2026, 5, 10))
+    items(:one).discontinue_using!(Time.zone.local(2026, 5, 12))
+    items(:two).update!(stock_quantity: 1, category: categories(:hair_care))
+    items(:two).start_using!(@user, Time.zone.local(2026, 5, 11))
+    items(:two).discontinue_using!(Time.zone.local(2026, 5, 13))
+
+    get discontinued_items_path, params: {
+      q: "化粧",
+      category_id: categories(:hair_care).id
+    }
+
+    assert_response :success
+    assert_includes response.body, items(:one).name
+    assert_no_match items(:two).name, response.body
+    assert_select "input[type='hidden'][name='category_id'][value='#{categories(:hair_care).id}']"
+  end
+
+  test "discontinued page filters usage logs for uncategorized items" do
+    items(:one).update!(category: categories(:hair_care))
+    items(:one).start_using!(@user, Time.zone.local(2026, 5, 10))
+    items(:one).discontinue_using!(Time.zone.local(2026, 5, 12))
+    items(:two).update!(stock_quantity: 1)
+    items(:two).start_using!(@user, Time.zone.local(2026, 5, 11))
+    items(:two).discontinue_using!(Time.zone.local(2026, 5, 13))
+
+    get discontinued_items_path, params: { category_id: "uncategorized" }
+
+    assert_response :success
+    assert_includes response.body, items(:two).name
+    assert_no_match items(:one).name, response.body
+    assert_select "a.bg-emerald-600", text: "未分類"
+  end
+
+  test "discontinued page keeps search and category filters in pagination links" do
+    category = categories(:hair_care)
+    11.times do |number|
+      item = @user.items.create!(
+        name: "検索対象#{number}",
+        stock_quantity: 1,
+        category: category
+      )
+      item.start_using!(@user, Time.zone.local(2026, 5, 10))
+      item.discontinue_using!(Time.zone.local(2026, 5, 12))
+    end
+
+    get discontinued_items_path, params: {
+      q: "検索対象",
+      category_id: category.id
+    }
+
+    assert_response :success
+    assert_select "a[href='#{discontinued_items_path(
+      page: 2,
+      q: "検索対象",
+      category_id: category.id
+    )}']"
+  end
+
   test "used_up page shows one card per item with used up count" do
     item = items(:one)
     item.start_using!(@user, Time.zone.local(2026, 5, 10))
@@ -497,6 +633,84 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "a[href='#{used_up_items_path(page: 2, q: "検索対象")}']"
+  end
+
+  test "used_up page filters usage logs by item category" do
+    matching_item = items(:one)
+    matching_item.update!(category: categories(:hair_care))
+    matching_item.start_using!(@user, Time.zone.local(2026, 5, 10))
+    matching_item.finish_using!(Time.zone.local(2026, 5, 12))
+    other_item = items(:two)
+    other_item.update!(stock_quantity: 1, category: categories(:skin_care))
+    other_item.start_using!(@user, Time.zone.local(2026, 5, 11))
+    other_item.finish_using!(Time.zone.local(2026, 5, 13))
+
+    get used_up_items_path, params: { category_id: categories(:hair_care).id }
+
+    assert_response :success
+    assert_includes response.body, matching_item.name
+    assert_no_match other_item.name, response.body
+    assert_select "a.bg-emerald-600", text: categories(:hair_care).name
+  end
+
+  test "used_up page combines item name and category filters" do
+    items(:one).update!(category: categories(:hair_care))
+    items(:one).start_using!(@user, Time.zone.local(2026, 5, 10))
+    items(:one).finish_using!(Time.zone.local(2026, 5, 12))
+    items(:two).update!(stock_quantity: 1, category: categories(:hair_care))
+    items(:two).start_using!(@user, Time.zone.local(2026, 5, 11))
+    items(:two).finish_using!(Time.zone.local(2026, 5, 13))
+
+    get used_up_items_path, params: {
+      q: "化粧",
+      category_id: categories(:hair_care).id
+    }
+
+    assert_response :success
+    assert_includes response.body, items(:one).name
+    assert_no_match items(:two).name, response.body
+    assert_select "input[type='hidden'][name='category_id'][value='#{categories(:hair_care).id}']"
+  end
+
+  test "used_up page filters usage logs for uncategorized items" do
+    items(:one).update!(category: categories(:hair_care))
+    items(:one).start_using!(@user, Time.zone.local(2026, 5, 10))
+    items(:one).finish_using!(Time.zone.local(2026, 5, 12))
+    items(:two).update!(stock_quantity: 1)
+    items(:two).start_using!(@user, Time.zone.local(2026, 5, 11))
+    items(:two).finish_using!(Time.zone.local(2026, 5, 13))
+
+    get used_up_items_path, params: { category_id: "uncategorized" }
+
+    assert_response :success
+    assert_includes response.body, items(:two).name
+    assert_no_match items(:one).name, response.body
+    assert_select "a.bg-emerald-600", text: "未分類"
+  end
+
+  test "used_up page keeps search and category filters in pagination links" do
+    category = categories(:hair_care)
+    11.times do |number|
+      item = @user.items.create!(
+        name: "検索対象#{number}",
+        stock_quantity: 1,
+        category: category
+      )
+      item.start_using!(@user, Time.zone.local(2026, 5, 10))
+      item.finish_using!(Time.zone.local(2026, 5, 12))
+    end
+
+    get used_up_items_path, params: {
+      q: "検索対象",
+      category_id: category.id
+    }
+
+    assert_response :success
+    assert_select "a[href='#{used_up_items_path(
+      page: 2,
+      q: "検索対象",
+      category_id: category.id
+    )}']"
   end
 
   test "destroy_image removes attached image and redirects to edit page" do
