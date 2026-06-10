@@ -3,6 +3,14 @@ require "test_helper"
 class ItemTest < ActiveSupport::TestCase
   include ActionDispatch::TestProcess::FixtureFile
 
+  test "by_name returns items whose names partially match" do
+    assert_equal [items(:one)], Item.by_name("化粧").to_a
+  end
+
+  test "by_name returns all items when query is blank" do
+    assert_equal Item.order(:id).to_a, Item.by_name(" ").order(:id).to_a
+  end
+
   test "start_using! creates an in-use usage log and decreases stock" do
     item = items(:one)
 
