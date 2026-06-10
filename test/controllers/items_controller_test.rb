@@ -167,6 +167,30 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_select "a[href='#{discontinue_using_form_item_path(item)}']", text: "使用を中止する"
   end
 
+  test "in_use page searches current user's usage logs by item name" do
+    matching_item = items(:one)
+    matching_item.start_using!(@user, Time.zone.local(2026, 5, 10))
+    other_item = items(:two)
+    other_item.update!(stock_quantity: 1)
+    other_item.start_using!(@user, Time.zone.local(2026, 5, 11))
+
+    get in_use_items_path, params: { q: "化粧" }
+
+    assert_response :success
+    assert_includes response.body, matching_item.name
+    assert_no_match other_item.name, response.body
+    assert_select "input[name='q'][value='化粧']"
+    assert_select "a[href='#{in_use_items_path}']", text: "リセット"
+  end
+
+  test "in_use page shows a message when search has no results" do
+    get in_use_items_path, params: { q: "存在しないアイテム" }
+
+    assert_response :success
+    assert_includes response.body, "条件に合う使用中アイテムがありません"
+    assert_select "a[href='#{in_use_items_path}']", text: "検索条件をリセット"
+  end
+
   test "used_up page shows used up count" do
     item = items(:one)
     item.start_using!(@user, Time.zone.local(2026, 5, 10))
@@ -242,6 +266,48 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_select "article.ui-card", count: 1
   end
 
+  test "discontinued page searches discontinued logs by item name" do
+    matching_item = items(:one)
+    matching_item.start_using!(@user, Time.zone.local(2026, 5, 10))
+    matching_item.discontinue_using!(Time.zone.local(2026, 5, 12))
+    other_item = items(:two)
+    other_item.update!(stock_quantity: 1)
+    other_item.start_using!(@user, Time.zone.local(2026, 5, 11))
+    other_item.discontinue_using!(Time.zone.local(2026, 5, 13))
+
+    get discontinued_items_path, params: { q: "化粧" }
+
+    assert_response :success
+    assert_includes response.body, matching_item.name
+    assert_no_match other_item.name, response.body
+    assert_select "input[name='q'][value='化粧']"
+    assert_select "a[href='#{discontinued_items_path}']", text: "リセット"
+  end
+
+  test "discontinued page shows a message when search has no results" do
+    get discontinued_items_path, params: { q: "存在しないアイテム" }
+
+    assert_response :success
+    assert_includes response.body, "条件に合う使用中止履歴がありません"
+    assert_select "a[href='#{discontinued_items_path}']", text: "検索条件をリセット"
+  end
+
+  test "discontinued page keeps search query in pagination links" do
+    11.times do |number|
+      item = @user.items.create!(
+        name: "検索対象#{number}",
+        stock_quantity: 1
+      )
+      item.start_using!(@user, Time.zone.local(2026, 5, 10))
+      item.discontinue_using!(Time.zone.local(2026, 5, 12))
+    end
+
+    get discontinued_items_path, params: { q: "検索対象" }
+
+    assert_response :success
+    assert_select "a[href='#{discontinued_items_path(page: 2, q: "検索対象")}']"
+  end
+
   test "used_up page shows one card per item with used up count" do
     item = items(:one)
     item.start_using!(@user, Time.zone.local(2026, 5, 10))
@@ -255,6 +321,48 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "article.ui-card", count: 1
     assert_includes response.body, "2回"
+  end
+
+  test "used_up page searches used up logs by item name" do
+    matching_item = items(:one)
+    matching_item.start_using!(@user, Time.zone.local(2026, 5, 10))
+    matching_item.finish_using!(Time.zone.local(2026, 5, 12))
+    other_item = items(:two)
+    other_item.update!(stock_quantity: 1)
+    other_item.start_using!(@user, Time.zone.local(2026, 5, 11))
+    other_item.finish_using!(Time.zone.local(2026, 5, 13))
+
+    get used_up_items_path, params: { q: "化粧" }
+
+    assert_response :success
+    assert_includes response.body, matching_item.name
+    assert_no_match other_item.name, response.body
+    assert_select "input[name='q'][value='化粧']"
+    assert_select "a[href='#{used_up_items_path}']", text: "リセット"
+  end
+
+  test "used_up page shows a message when search has no results" do
+    get used_up_items_path, params: { q: "存在しないアイテム" }
+
+    assert_response :success
+    assert_includes response.body, "条件に合う使い切り履歴がありません"
+    assert_select "a[href='#{used_up_items_path}']", text: "検索条件をリセット"
+  end
+
+  test "used_up page keeps search query in pagination links" do
+    11.times do |number|
+      item = @user.items.create!(
+        name: "検索対象#{number}",
+        stock_quantity: 1
+      )
+      item.start_using!(@user, Time.zone.local(2026, 5, 10))
+      item.finish_using!(Time.zone.local(2026, 5, 12))
+    end
+
+    get used_up_items_path, params: { q: "検索対象" }
+
+    assert_response :success
+    assert_select "a[href='#{used_up_items_path(page: 2, q: "検索対象")}']"
   end
 
   test "destroy_image removes attached image and redirects to edit page" do

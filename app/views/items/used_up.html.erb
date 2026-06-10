@@ -3,6 +3,30 @@
     <h1 class="brand-font text-2xl font-bold text-slate-900"><%= @page_title %></h1>
   </div>
 
+  <%= form_with url: used_up_items_path,
+                method: :get,
+                local: true,
+                class: "mb-6 rounded-lg bg-slate-50 p-3" do %>
+    <div class="flex gap-2">
+      <div class="flex-1">
+        <%= search_field_tag :q,
+                             @search_query,
+                             placeholder: "アイテム名で検索",
+                             class: "form-input h-10" %>
+      </div>
+
+      <%= submit_tag "検索", name: nil, class: "btn-primary h-10 shrink-0 cursor-pointer" %>
+    </div>
+
+    <% if @search_query.present? %>
+      <div class="mt-2 text-right">
+        <%= link_to "リセット",
+                    used_up_items_path,
+                    class: "text-sm font-medium text-slate-600 transition hover:text-slate-900" %>
+      </div>
+    <% end %>
+  <% end %>
+
   <% if @usage_logs.any? %>
     <div class="grid gap-4 lg:grid-cols-2">
       <% @usage_logs.each do |usage_log| %>
@@ -76,8 +100,14 @@
     </div>
   <% else %>
     <div class="ui-empty-state">
-      <p class="text-lg">使い切り履歴がありません</p>
-      <p class="mt-2 text-sm">使い切ったアイテムがここに表示されます。</p>
+      <% if @search_query.present? %>
+        <p class="text-lg">条件に合う使い切り履歴がありません</p>
+        <p class="mt-2 text-sm">別のアイテム名で検索してください。</p>
+        <%= link_to "検索条件をリセット", used_up_items_path, class: "btn-secondary mt-5" %>
+      <% else %>
+        <p class="text-lg">使い切り履歴がありません</p>
+        <p class="mt-2 text-sm">使い切ったアイテムがここに表示されます。</p>
+      <% end %>
     </div>
   <% end %>
 </div>

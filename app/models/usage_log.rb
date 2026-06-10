@@ -12,6 +12,11 @@ class UsageLog < ApplicationRecord
   scope :in_use, -> { where(finished_at: nil) }
   scope :finished, -> { where.not(finished_at: nil) }
   scope :rated, -> { where.not(rating: nil) }
+  scope :by_item_name, ->(query) {
+    return all if query.blank?
+
+    joins(:item).where("items.name ILIKE ?", "%#{sanitize_sql_like(query)}%")
+  }
 
   validates :started_at, presence: true
   validates :rating, inclusion: { in: 1..5 }, allow_nil: true

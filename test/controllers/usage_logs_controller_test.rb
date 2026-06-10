@@ -74,6 +74,34 @@ class UsageLogsControllerTest < ActionDispatch::IntegrationTest
     assert_no_match "他ユーザー", response.body
   end
 
+  test "reviews searches rated usage logs by item name" do
+    @usage_log.update!(rating: 4, review: "また使いたい")
+    other_item = items(:two)
+    other_item.update!(stock_quantity: 1)
+    other_item.start_using!(@user, Time.zone.local(2026, 5, 11))
+    other_item.finish_using!(
+      Time.zone.local(2026, 5, 13),
+      rating: 5,
+      review: "しっとりした"
+    )
+
+    get reviews_usage_logs_path, params: { q: "化粧" }
+
+    assert_response :success
+    assert_includes response.body, @item.name
+    assert_no_match other_item.name, response.body
+    assert_select "input[name='q'][value='化粧']"
+    assert_select "a[href='#{reviews_usage_logs_path}']", text: "リセット"
+  end
+
+  test "reviews shows a message when search has no results" do
+    get reviews_usage_logs_path, params: { q: "存在しないアイテム" }
+
+    assert_response :success
+    assert_includes response.body, "条件に合う評価・レビュー履歴がありません"
+    assert_select "a[href='#{reviews_usage_logs_path}']", text: "検索条件をリセット"
+  end
+
   test "header links to reviews page" do
     get reviews_usage_logs_path
 
