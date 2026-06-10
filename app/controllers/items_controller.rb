@@ -5,7 +5,10 @@ class ItemsController < ApplicationController
   def index
     @items = current_user.items.visible.includes(:category).order(created_at: :desc)
     @search_query = params[:q].to_s.strip
+    @selected_category_id = params[:category_id].to_s
+    @categories = current_user.categories.order(:name)
     @items = @items.by_name(@search_query)
+                   .by_category(@selected_category_id)
 
     if params[:stock] == "available"
       @page_title = "ストックBOX"

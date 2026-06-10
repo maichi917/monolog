@@ -11,6 +11,23 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal Item.order(:id).to_a, Item.by_name(" ").order(:id).to_a
   end
 
+  test "by_category returns items in the selected category" do
+    item = items(:one)
+    item.update!(category: categories(:hair_care))
+
+    assert_equal [item], Item.by_category(categories(:hair_care).id.to_s).to_a
+  end
+
+  test "by_category returns uncategorized items" do
+    items(:one).update!(category: categories(:hair_care))
+
+    assert_equal [items(:two)], Item.by_category("uncategorized").to_a
+  end
+
+  test "by_category returns all items when category is blank" do
+    assert_equal Item.order(:id).to_a, Item.by_category("").order(:id).to_a
+  end
+
   test "start_using! creates an in-use usage log and decreases stock" do
     item = items(:one)
 
