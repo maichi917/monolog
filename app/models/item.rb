@@ -23,6 +23,12 @@ class Item < ApplicationRecord
 
     where("name ILIKE ?", "%#{sanitize_sql_like(query)}%")
   }
+  scope :by_category, ->(category_id) {
+    return all if category_id.blank?
+    return where(category_id: nil) if category_id == "uncategorized"
+
+    where(category_id: category_id)
+  }
 
   def current_usage_log
     usage_logs.in_use.order(started_at: :desc).first

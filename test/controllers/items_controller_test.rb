@@ -36,6 +36,140 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_select "a[href='#{items_path}']", text: "検索条件をリセット"
   end
 
+  test "index filters items by category" do
+    items(:one).update!(category: categories(:hair_care))
+    items(:two).update!(category: categories(:skin_care))
+
+    get items_path, params: { category_id: categories(:hair_care).id }
+
+    assert_response :success
+    assert_includes response.body, items(:one).name
+    assert_no_match items(:two).name, response.body
+  end
+
+  test "index combines name and category filters" do
+    items(:one).update!(category: categories(:hair_care))
+    items(:two).update!(category: categories(:hair_care))
+
+    get items_path, params: {
+      q: "化粧",
+      category_id: categories(:hair_care).id
+    }
+
+    assert_response :success
+    assert_includes response.body, items(:one).name
+    assert_no_match items(:two).name, response.body
+  end
+
+  test "index filters uncategorized items" do
+    items(:one).update!(category: categories(:hair_care))
+
+    get items_path, params: { category_id: "uncategorized" }
+
+    assert_response :success
+    assert_includes response.body, items(:two).name
+    assert_no_match items(:one).name, response.body
+  end
+
+  test "index does not show another user's items for another user's category" do
+    other_user = users(:two)
+    other_category = other_user.categories.create!(name: "他ユーザーカテゴリ")
+    other_item = other_user.items.create!(
+      name: "他ユーザーアイテム",
+      stock_quantity: 1,
+      category: other_category
+    )
+
+    get items_path, params: { category_id: other_category.id }
+
+    assert_response :success
+    assert_no_match other_item.name, response.body
+  end
+
+  test "index shows current user's category tags and uncategorized tag" do
+    other_category = users(:two).categories.create!(name: "他ユーザーカテゴリ")
+
+    get items_path
+
+    assert_response :success
+    assert_select "a[href='#{items_path}']", text: "すべて"
+    assert_select "a[href='#{items_path(category_id: categories(:hair_care).id)}']",
+                  text: categories(:hair_care).name
+    assert_select "a[href='#{items_path(category_id: "uncategorized")}']", text: "未分類"
+    assert_select "a", text: other_category.name, count: 0
+  end
+
+  test "index highlights selected category tag" do
+    category = categories(:hair_care)
+
+    get items_path, params: { category_id: category.id }
+
+    assert_response :success
+    assert_select "a.bg-emerald-600[href='#{items_path(category_id: category.id)}']",
+                  text: category.name
+  end
+
+  test "index category tags keep name and stock filters" do
+    category = categories(:hair_care)
+
+    get items_path, params: { q: "化粧", stock: "available" }
+
+    assert_response :success
+    assert_select "a[href='#{items_path(q: "化粧", stock: "available", category_id: category.id)}']",
+                  text: category.name
+  end
+
+  test "index search form keeps selected category" do
+    category = categories(:hair_care)
+
+    get items_path, params: { category_id: category.id }
+
+    assert_response :success
+    assert_select "input[type='hidden'][name='category_id'][value='#{category.id}']"
+  end
+
+  test "index shows reset link when category is selected" do
+    get items_path, params: { category_id: categories(:hair_care).id }
+
+    assert_response :success
+    assert_select "a[href='#{items_path}']", text: "リセット"
+  end
+
+  test "index shows a message when category filter has no results" do
+    empty_category = @user.categories.create!(name: "アイテムなし")
+
+    get items_path, params: { category_id: empty_category.id }
+
+    assert_response :success
+    assert_includes response.body, "条件に合うアイテムがありません"
+    assert_select "a[href='#{items_path}']", text: "検索条件をリセット"
+  end
+
+  test "index keeps search category and stock filters in pagination links" do
+    category = categories(:hair_care)
+    11.times do |number|
+      @user.items.create!(
+        name: "検索対象#{number}",
+        stock_quantity: 1,
+        category: category
+      )
+    end
+
+    get items_path, params: {
+      q: "検索対象",
+      category_id: category.id,
+      stock: "available"
+    }
+
+    assert_response :success
+    assert_select "a[href='#{items_path(
+      page: 2,
+      q: "検索対象",
+      category_id: category.id,
+      stock: "available"
+    )}']"
+  end
+
   test "start_using creates usage log and redirects to in-use page" do
     item = items(:one)
 
