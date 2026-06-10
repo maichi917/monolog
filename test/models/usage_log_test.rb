@@ -6,6 +6,29 @@ class UsageLogTest < ActiveSupport::TestCase
     @item = items(:one)
   end
 
+  test "by_item_name returns usage logs whose item names partially match" do
+    matching_log = @item.usage_logs.create!(
+      user: @user,
+      started_at: Time.zone.local(2026, 5, 10)
+    )
+    other_log = items(:two).usage_logs.create!(
+      user: @user,
+      started_at: Time.zone.local(2026, 5, 11)
+    )
+
+    assert_equal [matching_log], UsageLog.by_item_name("化粧").to_a
+    assert_not_includes UsageLog.by_item_name("化粧"), other_log
+  end
+
+  test "by_item_name returns all usage logs when query is blank" do
+    @item.usage_logs.create!(
+      user: @user,
+      started_at: Time.zone.local(2026, 5, 10)
+    )
+
+    assert_equal UsageLog.order(:id).to_a, UsageLog.by_item_name(" ").order(:id).to_a
+  end
+
   test "rated returns usage logs with rating" do
     rated_log = @item.usage_logs.create!(
       user: @user,
