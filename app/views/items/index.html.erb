@@ -5,6 +5,32 @@
     <%= link_to "新規登録", new_item_path, class: "btn-primary shrink-0" %>
   </div>
 
+  <%= form_with url: items_path,
+                method: :get,
+                local: true,
+                class: "mb-6 rounded-lg bg-slate-50 p-3" do %>
+    <%= hidden_field_tag :stock, params[:stock] if params[:stock].present? %>
+
+    <div class="flex gap-2">
+      <div class="flex-1">
+        <%= search_field_tag :q,
+                             @search_query,
+                             placeholder: "アイテム名で検索",
+                             class: "form-input h-10" %>
+      </div>
+
+      <%= submit_tag "検索", name: nil, class: "btn-primary h-10 shrink-0 cursor-pointer" %>
+    </div>
+
+    <% if @search_query.present? %>
+      <div class="mt-2 text-right">
+        <%= link_to "リセット",
+                    items_path(stock: params[:stock].presence),
+                    class: "text-sm font-medium text-slate-600 transition hover:text-slate-900" %>
+      </div>
+    <% end %>
+  <% end %>
+
   <% if @items.any? %>
     <div class="grid gap-4 lg:grid-cols-2">
       <% @items.each do |item| %>
@@ -98,9 +124,17 @@
       <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
       </svg>
-      <p class="mt-4 text-lg">アイテムがありません</p>
-      <p class="mt-2 text-sm">まずは使い切りを記録したいアイテムを登録しましょう。</p>
-      <%= link_to "アイテムを登録する", new_item_path, class: "btn-primary mt-5" %>
+      <% if @search_query.present? %>
+        <p class="mt-4 text-lg">条件に合うアイテムがありません</p>
+        <p class="mt-2 text-sm">別のアイテム名で検索してください。</p>
+        <%= link_to "検索条件をリセット",
+                    items_path(stock: params[:stock].presence),
+                    class: "btn-secondary mt-5" %>
+      <% else %>
+        <p class="mt-4 text-lg">アイテムがありません</p>
+        <p class="mt-2 text-sm">まずは使い切りを記録したいアイテムを登録しましょう。</p>
+        <%= link_to "アイテムを登録する", new_item_path, class: "btn-primary mt-5" %>
+      <% end %>
     </div>
   <% end %>
 </div>

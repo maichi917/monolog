@@ -6,6 +6,36 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     sign_in @user
   end
 
+  test "index searches current user's items by partial name" do
+    other_user_item = users(:two).items.create!(
+      name: "化粧水 他ユーザー",
+      stock_quantity: 1
+    )
+
+    get items_path, params: { q: "化粧" }
+
+    assert_response :success
+    assert_includes response.body, items(:one).name
+    assert_no_match items(:two).name, response.body
+    assert_no_match other_user_item.name, response.body
+  end
+
+  test "index keeps search query and shows reset link" do
+    get items_path, params: { q: "化粧" }
+
+    assert_response :success
+    assert_select "input[name='q'][value='化粧']"
+    assert_select "a[href='#{items_path}']", text: "リセット"
+  end
+
+  test "index shows a message when search has no results" do
+    get items_path, params: { q: "存在しないアイテム" }
+
+    assert_response :success
+    assert_includes response.body, "条件に合うアイテムがありません"
+    assert_select "a[href='#{items_path}']", text: "検索条件をリセット"
+  end
+
   test "start_using creates usage log and redirects to in-use page" do
     item = items(:one)
 

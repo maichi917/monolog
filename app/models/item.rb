@@ -18,6 +18,11 @@ class Item < ApplicationRecord
   # スコープ
   scope :visible, -> { where(archived: false) }
   scope :archived, -> { where(archived: true) }
+  scope :by_name, ->(query) {
+    return all if query.blank?
+
+    where("name ILIKE ?", "%#{sanitize_sql_like(query)}%")
+  }
 
   def current_usage_log
     usage_logs.in_use.order(started_at: :desc).first
