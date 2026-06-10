@@ -17,6 +17,12 @@ class UsageLog < ApplicationRecord
 
     joins(:item).where("items.name ILIKE ?", "%#{sanitize_sql_like(query)}%")
   }
+  scope :by_item_category, ->(category_id) {
+    return all if category_id.blank?
+    return joins(:item).where(items: { category_id: nil }) if category_id == "uncategorized"
+
+    joins(:item).where(items: { category_id: category_id })
+  }
 
   validates :started_at, presence: true
   validates :rating, inclusion: { in: 1..5 }, allow_nil: true

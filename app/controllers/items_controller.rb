@@ -23,9 +23,12 @@ class ItemsController < ApplicationController
   def in_use
     @page_title = "使用中アイテム"
     @search_query = params[:q].to_s.strip
+    @selected_category_id = params[:category_id].to_s
+    @categories = current_user.categories.order(:name)
     @usage_logs = current_user.usage_logs
                               .in_use
                               .by_item_name(@search_query)
+                              .by_item_category(@selected_category_id)
                               .includes(:item)
                               .order(started_at: :desc)
                               .page(params[:page])
@@ -34,10 +37,13 @@ class ItemsController < ApplicationController
   def used_up
     @page_title = "使い切り履歴"
     @search_query = params[:q].to_s.strip
+    @selected_category_id = params[:category_id].to_s
+    @categories = current_user.categories.order(:name)
     finished_usage_logs = current_user.usage_logs
                                       .finished
                                       .used_up
                                       .by_item_name(@search_query)
+                                      .by_item_category(@selected_category_id)
                                       .includes(:item)
                                       .order(finished_at: :desc)
     @usage_logs = Kaminari.paginate_array(
@@ -53,10 +59,13 @@ class ItemsController < ApplicationController
   def discontinued
     @page_title = "使用中止リスト"
     @search_query = params[:q].to_s.strip
+    @selected_category_id = params[:category_id].to_s
+    @categories = current_user.categories.order(:name)
     @usage_logs = current_user.usage_logs
                               .finished
                               .discontinued
                               .by_item_name(@search_query)
+                              .by_item_category(@selected_category_id)
                               .includes(:item)
                               .order(finished_at: :desc)
                               .page(params[:page])

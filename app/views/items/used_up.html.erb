@@ -3,10 +3,28 @@
     <h1 class="brand-font text-2xl font-bold text-slate-900"><%= @page_title %></h1>
   </div>
 
+  <div class="mb-4 flex flex-wrap gap-2">
+    <%= link_to "すべて",
+                used_up_items_path(q: @search_query.presence),
+                class: @selected_category_id.blank? ? "rounded-full bg-emerald-600 px-3 py-1.5 text-sm font-semibold text-white" : "rounded-full border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50" %>
+
+    <% @categories.each do |category| %>
+      <%= link_to category.name,
+                  used_up_items_path(q: @search_query.presence, category_id: category.id),
+                  class: @selected_category_id == category.id.to_s ? "rounded-full bg-emerald-600 px-3 py-1.5 text-sm font-semibold text-white" : "rounded-full border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50" %>
+    <% end %>
+
+    <%= link_to "未分類",
+                used_up_items_path(q: @search_query.presence, category_id: "uncategorized"),
+                class: @selected_category_id == "uncategorized" ? "rounded-full bg-emerald-600 px-3 py-1.5 text-sm font-semibold text-white" : "rounded-full border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50" %>
+  </div>
+
   <%= form_with url: used_up_items_path,
                 method: :get,
                 local: true,
                 class: "mb-6 rounded-lg bg-slate-50 p-3" do %>
+    <%= hidden_field_tag :category_id, @selected_category_id if @selected_category_id.present? %>
+
     <div class="flex gap-2">
       <div class="flex-1">
         <%= search_field_tag :q,
@@ -18,7 +36,7 @@
       <%= submit_tag "検索", name: nil, class: "btn-primary h-10 shrink-0 cursor-pointer" %>
     </div>
 
-    <% if @search_query.present? %>
+    <% if @search_query.present? || @selected_category_id.present? %>
       <div class="mt-2 text-right">
         <%= link_to "リセット",
                     used_up_items_path,
@@ -100,9 +118,9 @@
     </div>
   <% else %>
     <div class="ui-empty-state">
-      <% if @search_query.present? %>
+      <% if @search_query.present? || @selected_category_id.present? %>
         <p class="text-lg">条件に合う使い切り履歴がありません</p>
-        <p class="mt-2 text-sm">別のアイテム名で検索してください。</p>
+        <p class="mt-2 text-sm">検索条件を変更して、もう一度お試しください。</p>
         <%= link_to "検索条件をリセット", used_up_items_path, class: "btn-secondary mt-5" %>
       <% else %>
         <p class="text-lg">使い切り履歴がありません</p>

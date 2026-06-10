@@ -102,6 +102,82 @@ class UsageLogsControllerTest < ActionDispatch::IntegrationTest
     assert_select "a[href='#{reviews_usage_logs_path}']", text: "検索条件をリセット"
   end
 
+  test "reviews filters usage logs by item category" do
+    @item.update!(category: categories(:hair_care))
+    @usage_log.update!(rating: 4)
+    other_item = items(:two)
+    other_item.update!(stock_quantity: 1, category: categories(:skin_care))
+    other_item.start_using!(@user, Time.zone.local(2026, 5, 11))
+    other_item.finish_using!(Time.zone.local(2026, 5, 13), rating: 5)
+
+    get reviews_usage_logs_path, params: { category_id: categories(:hair_care).id }
+
+    assert_response :success
+    assert_includes response.body, @item.name
+    assert_no_match other_item.name, response.body
+    assert_select "a.bg-emerald-600", text: categories(:hair_care).name
+  end
+
+  test "reviews combines item name and category filters" do
+    @item.update!(category: categories(:hair_care))
+    @usage_log.update!(rating: 4)
+    other_item = items(:two)
+    other_item.update!(stock_quantity: 1, category: categories(:hair_care))
+    other_item.start_using!(@user, Time.zone.local(2026, 5, 11))
+    other_item.finish_using!(Time.zone.local(2026, 5, 13), rating: 5)
+
+    get reviews_usage_logs_path, params: {
+      q: "化粧",
+      category_id: categories(:hair_care).id
+    }
+
+    assert_response :success
+    assert_includes response.body, @item.name
+    assert_no_match other_item.name, response.body
+    assert_select "input[type='hidden'][name='category_id'][value='#{categories(:hair_care).id}']"
+  end
+
+  test "reviews filters usage logs for uncategorized items" do
+    @item.update!(category: categories(:hair_care))
+    @usage_log.update!(rating: 4)
+    other_item = items(:two)
+    other_item.update!(stock_quantity: 1)
+    other_item.start_using!(@user, Time.zone.local(2026, 5, 11))
+    other_item.finish_using!(Time.zone.local(2026, 5, 13), rating: 5)
+
+    get reviews_usage_logs_path, params: { category_id: "uncategorized" }
+
+    assert_response :success
+    assert_includes response.body, other_item.name
+    assert_no_match @item.name, response.body
+    assert_select "a.bg-emerald-600", text: "未分類"
+  end
+
+  test "reviews keeps search and category filters in pagination links" do
+    category = categories(:hair_care)
+    11.times do |number|
+      item = @user.items.create!(
+        name: "検索対象#{number}",
+        stock_quantity: 1,
+        category: category
+      )
+      item.start_using!(@user, Time.zone.local(2026, 5, 10))
+      item.finish_using!(Time.zone.local(2026, 5, 12), rating: 4)
+    end
+
+    get reviews_usage_logs_path, params: {
+      q: "検索対象",
+      category_id: category.id
+    }
+
+    assert_response :success
+    assert_select "a[href='#{reviews_usage_logs_path(
+      page: 2,
+      q: "検索対象",
+      category_id: category.id
+    )}']"
+  end
+
   test "header links to reviews page" do
     get reviews_usage_logs_path
 

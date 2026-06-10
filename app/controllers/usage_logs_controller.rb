@@ -15,10 +15,13 @@ class UsageLogsController < ApplicationController
   def reviews
     @page_title = "評価・レビュー履歴"
     @search_query = params[:q].to_s.strip
+    @selected_category_id = params[:category_id].to_s
+    @categories = current_user.categories.order(:name)
     @usage_logs = current_user.usage_logs
                               .finished
                               .rated
                               .by_item_name(@search_query)
+                              .by_item_category(@selected_category_id)
                               .includes(:item)
                               .order(finished_at: :desc)
                               .page(params[:page])

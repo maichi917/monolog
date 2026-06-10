@@ -29,6 +29,47 @@ class UsageLogTest < ActiveSupport::TestCase
     assert_equal UsageLog.order(:id).to_a, UsageLog.by_item_name(" ").order(:id).to_a
   end
 
+  test "by_item_category returns usage logs in the selected item category" do
+    @item.update!(category: categories(:hair_care))
+    matching_log = @item.usage_logs.create!(
+      user: @user,
+      started_at: Time.zone.local(2026, 5, 10)
+    )
+    items(:two).update!(category: categories(:skin_care))
+    items(:two).usage_logs.create!(
+      user: @user,
+      started_at: Time.zone.local(2026, 5, 11)
+    )
+
+    assert_equal [matching_log],
+                 UsageLog.by_item_category(categories(:hair_care).id.to_s).to_a
+  end
+
+  test "by_item_category returns usage logs for uncategorized items" do
+    @item.update!(category: categories(:hair_care))
+    @item.usage_logs.create!(
+      user: @user,
+      started_at: Time.zone.local(2026, 5, 10)
+    )
+    uncategorized_log = items(:two).usage_logs.create!(
+      user: @user,
+      started_at: Time.zone.local(2026, 5, 11)
+    )
+
+    assert_equal [uncategorized_log],
+                 UsageLog.by_item_category("uncategorized").to_a
+  end
+
+  test "by_item_category returns all usage logs when category is blank" do
+    @item.usage_logs.create!(
+      user: @user,
+      started_at: Time.zone.local(2026, 5, 10)
+    )
+
+    assert_equal UsageLog.order(:id).to_a,
+                 UsageLog.by_item_category("").order(:id).to_a
+  end
+
   test "rated returns usage logs with rating" do
     rated_log = @item.usage_logs.create!(
       user: @user,
