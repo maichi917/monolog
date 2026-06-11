@@ -3,21 +3,10 @@
     <h1 class="brand-font text-2xl font-bold text-slate-900"><%= @page_title %></h1>
   </div>
 
-  <div class="mb-4 flex flex-wrap gap-2">
-    <%= link_to "すべて",
-                reviews_usage_logs_path(q: @search_query.presence),
-                class: @selected_category_id.blank? ? "rounded-full bg-emerald-600 px-3 py-1.5 text-sm font-semibold text-white" : "rounded-full border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50" %>
-
-    <% @categories.each do |category| %>
-      <%= link_to category.name,
-                  reviews_usage_logs_path(q: @search_query.presence, category_id: category.id),
-                  class: @selected_category_id == category.id.to_s ? "rounded-full bg-emerald-600 px-3 py-1.5 text-sm font-semibold text-white" : "rounded-full border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50" %>
-    <% end %>
-
-    <%= link_to "未分類",
-                reviews_usage_logs_path(q: @search_query.presence, category_id: "uncategorized"),
-                class: @selected_category_id == "uncategorized" ? "rounded-full bg-emerald-600 px-3 py-1.5 text-sm font-semibold text-white" : "rounded-full border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50" %>
-  </div>
+  <%= render "shared/category_filters",
+             categories: @categories,
+             selected_category_id: @selected_category_id,
+             filter_params: { q: @search_query.presence } %>
 
   <%= render "shared/search_form",
              url: reviews_usage_logs_path,

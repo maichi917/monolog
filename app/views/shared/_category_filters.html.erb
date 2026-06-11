@@ -1,0 +1,15 @@
+<div class="mb-4 flex flex-wrap gap-2">
+  <%= link_to "すべて",
+              url_for(filter_params),
+              class: category_filter_class(selected_category_id, nil) %>
+
+  <% categories.each do |category| %>
+    <%= link_to category.name,
+                url_for(filter_params.merge(category_id: category.id)),
+                class: category_filter_class(selected_category_id, category.id) %>
+  <% end %>
+
+  <%= link_to "未分類",
+              url_for(filter_params.merge(category_id: "uncategorized")),
+              class: category_filter_class(selected_category_id, "uncategorized") %>
+</div>
