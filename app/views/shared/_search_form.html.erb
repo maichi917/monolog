@@ -1,0 +1,27 @@
+<%= form_with url: url,
+              method: :get,
+              local: true,
+              class: "mb-6 rounded-lg bg-slate-50 p-3" do %>
+  <% hidden_params.each do |name, value| %>
+    <%= hidden_field_tag name, value if value.present? %>
+  <% end %>
+
+  <div class="flex gap-2">
+    <div class="flex-1">
+      <%= search_field_tag :q,
+                           query,
+                           placeholder: "アイテム名で検索",
+                           class: "form-input h-10" %>
+    </div>
+
+    <%= submit_tag "検索", name: nil, class: "btn-primary h-10 shrink-0 cursor-pointer" %>
+  </div>
+
+  <% if show_reset %>
+    <div class="mt-2 text-right">
+      <%= link_to "リセット",
+                  reset_url,
+                  class: "text-sm font-medium text-slate-600 transition hover:text-slate-900" %>
+    </div>
+  <% end %>
+<% end %>
