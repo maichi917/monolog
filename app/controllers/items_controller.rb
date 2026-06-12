@@ -14,7 +14,7 @@ class ItemsController < ApplicationController
       @page_title = "ストックBOX"
       @items = @items.where("stock_quantity > 0")
     else
-      @page_title = "アイテムDB"
+      @page_title = "アイテム一覧"
     end
 
     @items = @items.page(params[:page])
@@ -35,7 +35,7 @@ class ItemsController < ApplicationController
   end
 
   def used_up
-    @page_title = "使い切り履歴"
+    @page_title = "使い切り"
     @search_query = params[:q].to_s.strip
     @selected_category_id = params[:category_id].to_s
     @categories = current_user.categories.order(:name)
@@ -57,7 +57,7 @@ class ItemsController < ApplicationController
   end
 
   def discontinued
-    @page_title = "使用中止リスト"
+    @page_title = "使用中止"
     @search_query = params[:q].to_s.strip
     @selected_category_id = params[:category_id].to_s
     @categories = current_user.categories.order(:name)

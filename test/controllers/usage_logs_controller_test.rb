@@ -37,6 +37,7 @@ class UsageLogsControllerTest < ActionDispatch::IntegrationTest
     get reviews_usage_logs_path
 
     assert_response :success
+    assert_select "h1", text: "マイレビュー"
     assert_includes response.body, @item.name
     assert_select "dd", text: /★★★★\s*☆/
     assert_includes response.body, "また使いたい"
@@ -182,7 +183,7 @@ class UsageLogsControllerTest < ActionDispatch::IntegrationTest
     get reviews_usage_logs_path
 
     assert_response :success
-    assert_select "a[href='#{reviews_usage_logs_path}']", text: "評価・レビュー履歴"
+    assert_select "a[href='#{reviews_usage_logs_path}']", text: "マイレビュー"
   end
 
   test "update saves rating and review" do

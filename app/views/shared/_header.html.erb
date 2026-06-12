@@ -10,18 +10,92 @@
       </div>
 
       <% if user_signed_in? %>
-        <nav class="flex flex-wrap gap-2 text-sm" aria-label="メインメニュー">
-          <% active_nav_class = "rounded-full bg-emerald-50 px-3 py-1.5 font-medium text-emerald-700 transition hover:bg-emerald-100" %>
-          <% inactive_nav_class = "rounded-full bg-slate-100 px-3 py-1.5 font-medium text-slate-700 transition hover:bg-slate-200" %>
-          <% item_db_active = current_page?(items_path) && params[:stock].blank? %>
+        <% active_nav_class = "rounded-full bg-emerald-50 px-3 py-1.5 font-medium text-emerald-700 transition hover:bg-emerald-100" %>
+        <% inactive_nav_class = "rounded-full bg-slate-100 px-3 py-1.5 font-medium text-slate-700 transition hover:bg-slate-200" %>
+        <% item_index_page = controller_name == "items" && action_name == "index" %>
+        <% item_db_active = item_index_page && params[:stock].blank? %>
+        <% stock_box_active = item_index_page && params[:stock] == "available" %>
+        <% in_use_active = controller_name == "items" && action_name == "in_use" %>
+        <% history_nav_active = controller_name == "items" && action_name.in?(%w[used_up discontinued]) %>
+        <% reviews_active = controller_name == "usage_logs" && action_name == "reviews" %>
+        <% categories_active = controller_name == "categories" && action_name == "index" %>
 
-          <%= link_to "アイテムDB", items_path, class: item_db_active ? active_nav_class : inactive_nav_class %>
-          <%= link_to "ストックBOX", items_path(stock: "available"), class: current_page?(items_path(stock: "available")) ? active_nav_class : inactive_nav_class %>
-          <%= link_to "使用中アイテム", in_use_items_path, class: current_page?(in_use_items_path) ? active_nav_class : inactive_nav_class %>
-          <%= link_to "使い切り履歴", used_up_items_path, class: current_page?(used_up_items_path) ? active_nav_class : inactive_nav_class %>
-          <%= link_to "使用中止リスト", discontinued_items_path, class: current_page?(discontinued_items_path) ? active_nav_class : inactive_nav_class %>
-          <%= link_to "評価・レビュー履歴", reviews_usage_logs_path, class: current_page?(reviews_usage_logs_path) ? active_nav_class : inactive_nav_class %>
-          <%= link_to "カテゴリ管理", categories_path, class: current_page?(categories_path) ? active_nav_class : inactive_nav_class %>
+        <details class="md:hidden">
+          <summary class="flex cursor-pointer list-none items-center justify-center gap-2 rounded-lg bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-200">
+            <svg class="h-5 w-5" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+            </svg>
+            メニュー
+          </summary>
+
+          <nav class="mt-2 divide-y divide-slate-100 rounded-lg border border-slate-200 bg-white px-3 text-sm" aria-label="スマートフォンメニュー">
+            <div class="grid gap-2 py-3">
+              <%= link_to "アイテム一覧", items_path, class: item_db_active ? active_nav_class : inactive_nav_class %>
+              <%= link_to "在庫あり", items_path(stock: "available"), class: stock_box_active ? active_nav_class : inactive_nav_class %>
+              <%= link_to "使用中", in_use_items_path, class: in_use_active ? active_nav_class : inactive_nav_class %>
+            </div>
+
+            <details class="py-3" data-menu-group="history">
+              <summary class="flex cursor-pointer items-center justify-between px-3 text-sm font-semibold text-slate-700">
+                <span>履歴</span>
+                <span class="text-xs text-slate-400" aria-hidden="true" data-menu-chevron>▼</span>
+              </summary>
+              <div class="mt-2 grid gap-2">
+                <%= link_to "使い切り", used_up_items_path, class: current_page?(used_up_items_path) ? active_nav_class : inactive_nav_class %>
+                <%= link_to "使用中止", discontinued_items_path, class: current_page?(discontinued_items_path) ? active_nav_class : inactive_nav_class %>
+              </div>
+            </details>
+
+            <div class="grid gap-2 py-3">
+              <%= link_to "マイレビュー", reviews_usage_logs_path, class: reviews_active ? active_nav_class : inactive_nav_class %>
+            </div>
+
+            <div class="py-3">
+              <%= link_to categories_path,
+                          class: class_names(
+                            "flex items-center gap-2 rounded-lg px-3 py-2 font-semibold transition",
+                            "bg-emerald-50 text-emerald-700 hover:bg-emerald-100": categories_active,
+                            "text-slate-600 hover:bg-slate-100 hover:text-slate-900": !categories_active
+                          ) do %>
+                <svg class="h-5 w-5" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317a1.724 1.724 0 013.35 0 1.724 1.724 0 002.573 1.066 1.724 1.724 0 012.366 2.366 1.724 1.724 0 001.066 2.573 1.724 1.724 0 010 3.35 1.724 1.724 0 00-1.066 2.573 1.724 1.724 0 01-2.366 2.366 1.724 1.724 0 00-2.573 1.066 1.724 1.724 0 01-3.35 0 1.724 1.724 0 00-2.573-1.066 1.724 1.724 0 01-2.366-2.366 1.724 1.724 0 00-1.066-2.573 1.724 1.724 0 010-3.35 1.724 1.724 0 001.066-2.573 1.724 1.724 0 012.366-2.366 1.724 1.724 0 002.573-1.066z"></path>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                </svg>
+                カテゴリ管理
+              <% end %>
+            </div>
+          </nav>
+        </details>
+
+        <nav class="hidden items-start gap-2 text-sm md:flex" aria-label="メインメニュー">
+          <%= link_to "アイテム一覧", items_path, class: item_db_active ? active_nav_class : inactive_nav_class %>
+          <%= link_to "在庫あり", items_path(stock: "available"), class: stock_box_active ? active_nav_class : inactive_nav_class %>
+          <%= link_to "使用中", in_use_items_path, class: in_use_active ? active_nav_class : inactive_nav_class %>
+
+          <details class="relative" data-desktop-menu="history">
+            <summary class="<%= history_nav_active ? active_nav_class : inactive_nav_class %> inline-flex cursor-pointer list-none items-center gap-2">
+              <span>履歴</span>
+              <span class="text-xs" aria-hidden="true" data-menu-chevron>▼</span>
+            </summary>
+            <div class="absolute left-0 z-20 mt-2 grid min-w-48 gap-2 rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
+              <%= link_to "使い切り", used_up_items_path, class: current_page?(used_up_items_path) ? active_nav_class : inactive_nav_class %>
+              <%= link_to "使用中止", discontinued_items_path, class: current_page?(discontinued_items_path) ? active_nav_class : inactive_nav_class %>
+            </div>
+          </details>
+
+          <%= link_to "マイレビュー", reviews_usage_logs_path, class: reviews_active ? active_nav_class : inactive_nav_class %>
+          <%= link_to categories_path,
+                      class: class_names(
+                        "ml-auto inline-flex items-center gap-2 rounded-full px-3 py-1.5 font-medium transition",
+                        "bg-emerald-50 text-emerald-700 hover:bg-emerald-100": categories_active,
+                        "border border-slate-300 bg-white text-slate-600 hover:bg-slate-50 hover:text-slate-900": !categories_active
+                      ) do %>
+            <svg class="h-4 w-4" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317a1.724 1.724 0 013.35 0 1.724 1.724 0 002.573 1.066 1.724 1.724 0 012.366 2.366 1.724 1.724 0 001.066 2.573 1.724 1.724 0 010 3.35 1.724 1.724 0 00-1.066 2.573 1.724 1.724 0 01-2.366 2.366 1.724 1.724 0 00-2.573 1.066 1.724 1.724 0 01-3.35 0 1.724 1.724 0 00-2.573-1.066 1.724 1.724 0 01-2.366-2.366 1.724 1.724 0 00-1.066-2.573 1.724 1.724 0 010-3.35 1.724 1.724 0 001.066-2.573 1.724 1.724 0 012.366-2.366 1.724 1.724 0 002.573-1.066z"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+            </svg>
+            カテゴリ管理
+          <% end %>
         </nav>
       <% end %>
     </div>
