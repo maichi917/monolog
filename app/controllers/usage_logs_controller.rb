@@ -13,7 +13,7 @@ class UsageLogsController < ApplicationController
   end
 
   def reviews
-    @page_title = "評価・レビュー履歴"
+    @page_title = "マイレビュー"
     @search_query = params[:q].to_s.strip
     @selected_category_id = params[:category_id].to_s
     @categories = current_user.categories.order(:name)

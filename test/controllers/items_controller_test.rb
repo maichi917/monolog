@@ -15,6 +15,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     get items_path, params: { q: "化粧" }
 
     assert_response :success
+    assert_select "h1", text: "アイテム一覧"
     assert_includes response.body, items(:one).name
     assert_no_match items(:two).name, response.body
     assert_no_match other_user_item.name, response.body
@@ -26,6 +27,43 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "input[name='q'][value='化粧']"
     assert_select "a[href='#{items_path}']", text: "リセット"
+  end
+
+  test "header shows mobile menu and desktop navigation" do
+    get items_path
+
+    assert_response :success
+    assert_select "details.md\\:hidden" do
+      assert_select "summary", text: /メニュー/
+      assert_select "nav[aria-label='スマートフォンメニュー']" do
+        assert_select "details:not([open])", count: 1
+        assert_select "a[href='#{items_path}']", text: "アイテム一覧"
+        assert_select "a[href='#{items_path(stock: "available")}']", text: "在庫あり"
+        assert_select "a[href='#{in_use_items_path}']", text: "使用中"
+        assert_select "details[data-menu-group='history']" do
+          assert_select "summary span", text: "履歴"
+          assert_select "[data-menu-chevron]", text: "▼"
+          assert_select "a[href='#{used_up_items_path}']", text: "使い切り"
+          assert_select "a[href='#{discontinued_items_path}']", text: "使用中止"
+        end
+        assert_select "a[href='#{reviews_usage_logs_path}']", text: "マイレビュー"
+        assert_select "details[data-menu-group='other']", count: 0
+        assert_select "a[href='#{categories_path}']", text: "カテゴリ管理"
+      end
+    end
+    assert_select "nav[aria-label='メインメニュー'].md\\:flex" do
+      assert_select "a.bg-emerald-50[href='#{items_path}']", text: "アイテム一覧"
+      assert_select "a[href='#{items_path(stock: "available")}']", text: "在庫あり"
+      assert_select "a[href='#{in_use_items_path}']", text: "使用中"
+      assert_select "details[data-desktop-menu='history']" do
+        assert_select "summary span", text: "履歴"
+        assert_select "[data-menu-chevron]", text: "▼"
+        assert_select "a[href='#{used_up_items_path}']", text: "使い切り"
+        assert_select "a[href='#{discontinued_items_path}']", text: "使用中止"
+      end
+      assert_select "a[href='#{reviews_usage_logs_path}']", text: "マイレビュー"
+      assert_select "a.ml-auto[href='#{categories_path}']", text: "カテゴリ管理"
+    end
   end
 
   test "index shows a message when search has no results" do
@@ -470,6 +508,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     get discontinued_items_path, params: { q: "化粧" }
 
     assert_response :success
+    assert_select "h1", text: "使用中止"
     assert_includes response.body, matching_item.name
     assert_no_match other_item.name, response.body
     assert_select "input[name='q'][value='化粧']"
@@ -605,6 +644,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     get used_up_items_path, params: { q: "化粧" }
 
     assert_response :success
+    assert_select "h1", text: "使い切り"
     assert_includes response.body, matching_item.name
     assert_no_match other_item.name, response.body
     assert_select "input[name='q'][value='化粧']"
