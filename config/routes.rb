@@ -34,6 +34,4 @@ Rails.application.routes.draw do
       get :reviews
     end
   end
-
-  resources :categories, only: %i[index create destroy]
 end
