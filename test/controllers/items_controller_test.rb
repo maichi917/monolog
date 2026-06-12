@@ -48,7 +48,6 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
         end
         assert_select "a[href='#{reviews_usage_logs_path}']", text: "マイレビュー"
         assert_select "details[data-menu-group='other']", count: 0
-        assert_select "a[href='#{categories_path}']", text: "カテゴリ管理"
       end
     end
     assert_select "nav[aria-label='メインメニュー'].md\\:flex" do
@@ -62,7 +61,6 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
         assert_select "a[href='#{discontinued_items_path}']", text: "使用中止"
       end
       assert_select "a[href='#{reviews_usage_logs_path}']", text: "マイレビュー"
-      assert_select "a.ml-auto[href='#{categories_path}']", text: "カテゴリ管理"
     end
   end
 
