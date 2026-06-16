@@ -66,6 +66,28 @@ class Item < ApplicationRecord
     )
   end
 
+  def finish_and_continue_using!(user, usage_log, finished_at)
+    with_lock do
+      usage_log.reload
+      unless usage_log.item_id == id && usage_log.in_use?
+        errors.add(:base, "使用状態が更新されています")
+        raise ActiveRecord::RecordInvalid, self
+      end
+
+      unless stock_available?
+        errors.add(:stock_quantity, "がありません")
+        raise ActiveRecord::RecordInvalid, self
+      end
+
+      continued_at = finished_at.presence || Time.current
+      usage_log.update!(
+        finished_at: continued_at,
+        finish_reason: :used_up
+      )
+      start_using!(user, continued_at)
+    end
+  end
+
   def discontinue_using!(finished_at, discontinued_reason: nil)
     current_usage_log.update!(
       finished_at: finished_at.presence || Time.current,

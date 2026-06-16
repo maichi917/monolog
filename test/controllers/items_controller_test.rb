@@ -255,6 +255,69 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_nil usage_log.review
   end
 
+  test "finish_using starts next stock when continue_using is selected" do
+    item = items(:one)
+    item.start_using!(@user, Time.zone.local(2026, 5, 10))
+    usage_log = item.current_usage_log
+
+    assert_difference -> { item.usage_logs.count }, 1 do
+      patch finish_using_item_path(item), params: {
+        finished_at: "2026-05-12",
+        usage_log_id: usage_log.id,
+        continue_using: "1"
+      }
+    end
+
+    assert_redirected_to edit_usage_log_path(usage_log)
+    assert_equal "アイテムを使い切り、次の使用を開始しました", flash[:notice]
+    assert_equal 0, item.reload.stock_quantity
+    assert_equal Time.zone.local(2026, 5, 12), usage_log.reload.finished_at
+    assert_equal "used_up", usage_log.finish_reason
+    assert_equal Time.zone.local(2026, 5, 12), item.current_usage_log.started_at
+  end
+
+  test "finish_using does not change usage log when continue_using is selected without stock" do
+    item = items(:one)
+    item.update!(stock_quantity: 1)
+    item.start_using!(@user, Time.zone.local(2026, 5, 10))
+    usage_log = item.current_usage_log
+
+    assert_no_difference -> { item.usage_logs.count } do
+      patch finish_using_item_path(item), params: {
+        finished_at: "2026-05-12",
+        usage_log_id: usage_log.id,
+        continue_using: "1"
+      }
+    end
+
+    assert_redirected_to in_use_items_path
+    assert_equal 0, item.reload.stock_quantity
+    assert_nil usage_log.reload.finished_at
+    assert item.using?
+  end
+
+  test "finish_using does not consume another stock when the same form is submitted twice" do
+    item = items(:one)
+    item.update!(stock_quantity: 3)
+    item.start_using!(@user, Time.zone.local(2026, 5, 10))
+    usage_log = item.current_usage_log
+    params = {
+      finished_at: "2026-05-12",
+      usage_log_id: usage_log.id,
+      continue_using: "1"
+    }
+
+    patch finish_using_item_path(item), params: params
+
+    assert_no_difference -> { item.usage_logs.count } do
+      patch finish_using_item_path(item), params: params
+    end
+
+    assert_redirected_to in_use_items_path
+    assert_equal 1, item.reload.stock_quantity
+    assert_equal 1, item.usage_logs.in_use.count
+  end
+
   test "discontinue_using discontinues current usage log and redirects to in-use page" do
     item = items(:one)
     item.start_using!(@user, Time.zone.local(2026, 5, 10))
@@ -291,6 +354,20 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "input[name='finished_at']"
+    assert_select "input[name='usage_log_id'][value='#{item.current_usage_log.id}']"
+    assert_select "input[name='continue_using']"
+    assert_select "span", text: "続けて新しく使う"
+  end
+
+  test "finish_using_form does not show continue option when stock is empty" do
+    item = items(:one)
+    item.update!(stock_quantity: 1)
+    item.start_using!(@user, Time.zone.local(2026, 5, 10))
+
+    get finish_using_form_item_path(item)
+
+    assert_response :success
+    assert_select "input[name='continue_using']", count: 0
   end
 
   test "finish_using_form redirects when item is not in use" do
