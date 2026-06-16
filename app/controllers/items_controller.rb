@@ -146,16 +146,39 @@ class ItemsController < ApplicationController
 
   def finish_using
     @item = current_user.items.find(params[:id])
-    usage_log = @item.current_usage_log
+    usage_log =
+      if params[:usage_log_id].present?
+        @item.usage_logs.in_use.find_by(id: params[:usage_log_id])
+      else
+        @item.current_usage_log
+      end
 
     if usage_log.blank?
       redirect_to in_use_items_path, alert: "使用中のアイテムがありません"
       return
     end
 
-    @item.finish_using!(params[:finished_at])
+    continue_using = ActiveModel::Type::Boolean.new.cast(params[:continue_using])
 
-    redirect_to edit_usage_log_path(usage_log), notice: "アイテムを使い切りました🎉"
+    if continue_using
+      begin
+        @item.finish_and_continue_using!(current_user, usage_log, params[:finished_at])
+      rescue ActiveRecord::RecordInvalid
+        redirect_to in_use_items_path, alert: "在庫または使用状態が更新されたため、続けて使用を開始できませんでした"
+        return
+      end
+    else
+      @item.finish_using!(params[:finished_at])
+    end
+
+    notice =
+      if continue_using
+        "アイテムを使い切り、次の使用を開始しました"
+      else
+        "アイテムを使い切りました🎉"
+      end
+
+    redirect_to edit_usage_log_path(usage_log), notice: notice
   end
 
   def discontinue_using_form

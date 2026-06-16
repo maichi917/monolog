@@ -76,6 +76,72 @@ class ItemTest < ActiveSupport::TestCase
     assert_nil usage_log.review
   end
 
+  test "finish_and_continue_using! finishes current log and starts next stock" do
+    item = items(:one)
+    item.start_using!(users(:one), Time.zone.local(2026, 5, 10))
+    continued_at = Time.zone.local(2026, 5, 12)
+
+    assert_difference -> { item.usage_logs.count }, 1 do
+      item.finish_and_continue_using!(users(:one), item.current_usage_log, continued_at)
+    end
+
+    finished_log = item.usage_logs.finished.first
+    current_log = item.current_usage_log
+    assert_equal 0, item.reload.stock_quantity
+    assert_equal continued_at, finished_log.finished_at
+    assert_equal "used_up", finished_log.finish_reason
+    assert_equal continued_at, current_log.started_at
+    assert_equal users(:one), current_log.user
+  end
+
+  test "finish_and_continue_using! rolls back when next usage log cannot be created" do
+    item = items(:one)
+    item.start_using!(users(:one), Time.zone.local(2026, 5, 10))
+
+    assert_no_difference -> { item.usage_logs.count } do
+      assert_raises ActiveRecord::RecordInvalid do
+        item.finish_and_continue_using!(nil, item.current_usage_log, Time.zone.local(2026, 5, 12))
+      end
+    end
+
+    assert_equal 1, item.reload.stock_quantity
+    assert item.using?
+    assert_nil item.current_usage_log.finished_at
+  end
+
+  test "finish_and_continue_using! does not finish current log when stock is empty" do
+    item = items(:one)
+    item.update!(stock_quantity: 1)
+    item.start_using!(users(:one), Time.zone.local(2026, 5, 10))
+
+    assert_no_difference -> { item.usage_logs.count } do
+      assert_raises ActiveRecord::RecordInvalid do
+        item.finish_and_continue_using!(users(:one), item.current_usage_log, Time.zone.local(2026, 5, 12))
+      end
+    end
+
+    assert_equal 0, item.reload.stock_quantity
+    assert item.using?
+    assert_nil item.current_usage_log.finished_at
+  end
+
+  test "finish_and_continue_using! does not finish a usage log twice" do
+    item = items(:one)
+    item.update!(stock_quantity: 3)
+    item.start_using!(users(:one), Time.zone.local(2026, 5, 10))
+    usage_log = item.current_usage_log
+    item.finish_and_continue_using!(users(:one), usage_log, Time.zone.local(2026, 5, 12))
+
+    assert_no_difference -> { item.usage_logs.count } do
+      assert_raises ActiveRecord::RecordInvalid do
+        item.finish_and_continue_using!(users(:one), usage_log, Time.zone.local(2026, 5, 12))
+      end
+    end
+
+    assert_equal 1, item.reload.stock_quantity
+    assert_equal 1, item.usage_logs.in_use.count
+  end
+
   test "discontinue_using! discontinues current usage log" do
     item = items(:one)
     item.start_using!(users(:one), Time.zone.local(2026, 5, 10))
