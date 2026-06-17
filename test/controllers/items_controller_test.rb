@@ -40,7 +40,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
         assert_select "a[href='#{items_path(status: "available")}']", text: "在庫あり", count: 0
         assert_select "a[href='#{in_use_items_path}']", text: "使用中", count: 0
         assert_select "a[href='#{used_up_items_path}']", text: "履歴"
-        assert_select "a[href='#{reviews_usage_logs_path}']", text: "マイレビュー", count: 0
+        assert_select "a[href='#{reviews_usage_logs_path}']", text: "レビュー", count: 0
         assert_select "details[data-menu-group='other']", count: 0
       end
     end
@@ -49,7 +49,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
       assert_select "a[href='#{items_path(status: "available")}']", text: "在庫あり", count: 0
       assert_select "a[href='#{in_use_items_path}']", text: "使用中", count: 0
       assert_select "a[href='#{used_up_items_path}']", text: "履歴"
-      assert_select "a[href='#{reviews_usage_logs_path}']", text: "マイレビュー", count: 0
+      assert_select "a[href='#{reviews_usage_logs_path}']", text: "レビュー", count: 0
     end
   end
 
@@ -68,7 +68,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "span.bg-red-50", text: "在庫なし"
-    assert_select "dd.font-bold.text-red-700", text: item.stock_quantity.to_s
+    assert_select "span.font-bold.text-red-700", text: item.stock_quantity.to_s
   end
 
   test "index shows status filters" do
@@ -98,6 +98,16 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_includes response.body, item.name
     assert_no_match items(:two).name, response.body
+  end
+
+  test "index shows finish using link for in-use item" do
+    item = items(:one)
+    item.start_using!(@user, Time.current)
+
+    get items_path, params: { status: "in_use" }
+
+    assert_response :success
+    assert_select "a[href='#{finish_using_form_item_path(item)}']", text: "使い切る"
   end
 
   test "index filters out-of-stock items by status" do
@@ -543,7 +553,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "使用中止"
     assert_includes response.body, "使用期間"
     assert_includes response.body, "理由は未入力です"
-    assert_select "a[href='#{usage_log_path(item.usage_logs.finished.first)}']", text: "詳細を見る"
+    assert_select "a[href='#{usage_log_path(item.usage_logs.finished.first)}']", text: "詳細"
   end
 
   test "discontinued page shows discontinued reason when present" do

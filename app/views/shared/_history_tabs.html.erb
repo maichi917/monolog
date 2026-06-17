@@ -5,7 +5,7 @@
   <%= link_to "使用中止",
               discontinued_items_path,
               class: current_page?(discontinued_items_path) ? category_filter_class("discontinued", "discontinued") : category_filter_class(nil, "discontinued") %>
-  <%= link_to "マイレビュー",
+  <%= link_to "レビュー",
               reviews_usage_logs_path,
               class: current_page?(reviews_usage_logs_path) ? category_filter_class("reviews", "reviews") : category_filter_class(nil, "reviews") %>
 </div>

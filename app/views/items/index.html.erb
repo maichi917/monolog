@@ -56,12 +56,6 @@
               </div>
 
               <dl class="mt-2 flex flex-wrap items-center gap-2 text-sm">
-                <div class="inline-flex items-baseline gap-1.5 rounded-lg bg-slate-50 px-2.5 py-1">
-                  <dt class="text-xs font-medium text-slate-500">在庫</dt>
-                  <dd class="font-sans text-lg font-bold leading-none tracking-wide <%= item.out_of_stock? ? "text-red-700" : "text-slate-900" %>">
-                    <%= item.stock_quantity %>
-                  </dd>
-                </div>
                 <div class="inline-flex max-w-full items-center gap-1.5 rounded-lg bg-slate-50 px-2.5 py-1 text-slate-700">
                   <dt class="text-xs font-medium text-slate-500">カテゴリ</dt>
                   <dd class="min-w-0 truncate"><%= item.category&.name || "未設定" %></dd>
@@ -69,25 +63,37 @@
               </dl>
             </div>
 
-            <div class="flex shrink-0 flex-wrap items-center justify-end gap-2">
-              <% if item.using? %>
-                <%= link_to "在庫を追加",
-                            edit_item_path(item),
-                            class: "inline-flex items-center justify-center rounded-lg bg-yellow-500 px-3 py-2 text-sm font-semibold text-white transition hover:bg-amber-600" %>
-              <% elsif item.stock_available? %>
-                <button type="button" class="btn-primary px-3 py-1.5" data-disclosure-toggle>
-                  使い始める
-                </button>
-                <%= link_to "在庫を追加",
-                            edit_item_path(item),
-                            class: "inline-flex items-center justify-center rounded-lg bg-yellow-500 px-3 py-2 text-sm font-semibold text-white transition hover:bg-amber-600" %>
-              <% else %>
-                <%= link_to "在庫を追加",
-                            edit_item_path(item),
-                            class: "inline-flex items-center justify-center rounded-lg bg-yellow-500 px-3 py-2 text-sm font-semibold text-white transition hover:bg-amber-600" %>
-              <% end %>
+            <div class="flex shrink-0 items-center justify-end gap-3">
+              <div class="inline-flex min-w-16 items-baseline justify-center gap-1.5 rounded-lg bg-slate-50 px-2.5 py-1">
+                <span class="text-xs font-medium text-slate-500">在庫</span>
+                <span class="font-sans text-lg font-bold leading-none tracking-wide <%= item.out_of_stock? ? "text-red-700" : "text-slate-900" %>">
+                  <%= item.stock_quantity %>
+                </span>
+              </div>
 
-              <%= link_to "詳細", item_path(item), class: "btn-secondary px-3 py-1.5" %>
+              <div class="flex flex-wrap items-center justify-end gap-2">
+                <% if item.using? %>
+                  <%= link_to "使い切る",
+                              finish_using_form_item_path(item),
+                              class: "btn-danger px-3 py-1.5" %>
+                  <%= link_to "在庫を追加",
+                              edit_item_path(item),
+                              class: "inline-flex items-center justify-center rounded-lg bg-yellow-500 px-3 py-2 text-sm font-semibold text-white transition hover:bg-amber-600" %>
+                <% elsif item.stock_available? %>
+                  <button type="button" class="btn-primary px-3 py-1.5" data-disclosure-toggle>
+                    使い始める
+                  </button>
+                  <%= link_to "在庫を追加",
+                              edit_item_path(item),
+                              class: "inline-flex items-center justify-center rounded-lg bg-yellow-500 px-3 py-2 text-sm font-semibold text-white transition hover:bg-amber-600" %>
+                <% else %>
+                  <%= link_to "在庫を追加",
+                              edit_item_path(item),
+                              class: "inline-flex items-center justify-center rounded-lg bg-yellow-500 px-3 py-2 text-sm font-semibold text-white transition hover:bg-amber-600" %>
+                <% end %>
+
+                <%= link_to "詳細", item_path(item), class: "btn-secondary px-3 py-1.5" %>
+              </div>
             </div>
           </div>
 

@@ -37,7 +37,7 @@ class UsageLogsControllerTest < ActionDispatch::IntegrationTest
     get reviews_usage_logs_path
 
     assert_response :success
-    assert_select "a.bg-emerald-600[href='#{reviews_usage_logs_path}']", text: "マイレビュー"
+    assert_select "a.bg-emerald-600[href='#{reviews_usage_logs_path}']", text: "レビュー"
     assert_includes response.body, @item.name
     assert_select "dd", text: /★★★★\s*☆/
     assert_includes response.body, "また使いたい"
@@ -181,7 +181,7 @@ class UsageLogsControllerTest < ActionDispatch::IntegrationTest
     get reviews_usage_logs_path
 
     assert_response :success
-    assert_select "a[href='#{reviews_usage_logs_path}']", text: "マイレビュー"
+    assert_select "a[href='#{reviews_usage_logs_path}']", text: "レビュー"
   end
 
   test "update saves rating and review" do
