@@ -72,6 +72,27 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_select "a[href='#{items_path}']", text: "検索条件をリセット"
   end
 
+  test "index highlights out of stock item" do
+    item = items(:two)
+
+    get items_path
+
+    assert_response :success
+    assert_select "span.bg-red-50", text: "在庫なし"
+    assert_select "dd.font-bold.text-red-700", text: item.stock_quantity.to_s
+  end
+
+  test "index shows restock link for every item" do
+    item = items(:one)
+    out_of_stock_item = items(:two)
+
+    get items_path
+
+    assert_response :success
+    assert_select "a[href='#{edit_item_path(item)}']", text: "在庫を追加する"
+    assert_select "a[href='#{edit_item_path(out_of_stock_item)}']", text: "在庫を追加する"
+  end
+
   test "index filters items by category" do
     items(:one).update!(category: categories(:hair_care))
     items(:two).update!(category: categories(:skin_care))
@@ -1030,6 +1051,26 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_includes response.body, categories(:hair_care).name
+  end
+
+  test "show highlights out of stock item and shows restock link" do
+    item = items(:two)
+
+    get item_path(item)
+
+    assert_response :success
+    assert_select "span.bg-red-50", text: "在庫なし"
+    assert_select "dd.font-bold.text-red-700", text: item.stock_quantity.to_s
+    assert_select "a[href='#{edit_item_path(item)}']", text: "在庫を追加する"
+  end
+
+  test "show shows restock link for item with stock" do
+    item = items(:one)
+
+    get item_path(item)
+
+    assert_response :success
+    assert_select "a[href='#{edit_item_path(item)}']", text: "在庫を追加する"
   end
 
   test "update with invalid image rerenders edit page" do
