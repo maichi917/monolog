@@ -2,14 +2,9 @@
   <%= render "shared/search_form",
              url: used_up_items_path,
              query: @search_query,
-             hidden_params: { category_id: @selected_category_id },
-             show_reset: @search_query.present? || @selected_category_id.present?,
-             reset_url: used_up_items_path do %>
-    <%= render "shared/category_disclosure",
-               categories: @categories,
-               selected_category_id: @selected_category_id,
-               filter_params: { q: @search_query.presence } %>
-  <% end %>
+             hidden_params: {},
+             show_reset: @search_query.present?,
+             reset_url: used_up_items_path %>
 
   <%= render "shared/history_tabs" %>
 
@@ -86,7 +81,7 @@
     </div>
   <% else %>
     <div class="ui-empty-state">
-      <% if @search_query.present? || @selected_category_id.present? %>
+      <% if @search_query.present? %>
         <p class="text-lg">条件に合う使い切り履歴がありません</p>
         <p class="mt-2 text-sm">検索条件を変更して、もう一度お試しください。</p>
         <%= link_to "検索条件をリセット", used_up_items_path, class: "btn-secondary mt-5" %>

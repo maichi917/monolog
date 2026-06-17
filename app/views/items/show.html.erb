@@ -68,7 +68,7 @@
           </p>
           <div class="grid gap-2 sm:grid-cols-2">
             <%= link_to "使い切り日を入力する", finish_using_form_item_path(@item, return_to: "show"), class: "btn-primary w-full" %>
-            <%= link_to "在庫を追加する",
+            <%= link_to "在庫を追加",
                         edit_item_path(@item),
                         class: "inline-flex w-full items-center justify-center rounded-lg bg-yellow-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-amber-600" %>
           </div>
@@ -78,7 +78,7 @@
           <button type="button" class="btn-primary w-full" data-disclosure-toggle>
             使い始める
           </button>
-          <%= link_to "在庫を追加する",
+          <%= link_to "在庫を追加",
                       edit_item_path(@item),
                       class: "inline-flex w-full items-center justify-center rounded-lg bg-yellow-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-amber-600" %>
         </div>
@@ -103,7 +103,7 @@
           <p class="text-sm font-medium text-red-700">
             在庫がないため、使用を開始できません。
           </p>
-          <%= link_to "在庫を追加する",
+          <%= link_to "在庫を追加",
                       edit_item_path(@item),
                       class: "inline-flex w-full items-center justify-center rounded-lg bg-yellow-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-amber-600" %>
         </div>

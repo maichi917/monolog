@@ -116,7 +116,6 @@ class UsageLogsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_includes response.body, @item.name
     assert_no_match other_item.name, response.body
-    assert_select "a.bg-emerald-600", text: categories(:hair_care).name
   end
 
   test "reviews combines item name and category filters" do
@@ -135,7 +134,7 @@ class UsageLogsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_includes response.body, @item.name
     assert_no_match other_item.name, response.body
-    assert_select "input[type='hidden'][name='category_id'][value='#{categories(:hair_care).id}']"
+    assert_select "input[type='hidden'][name='category_id']", count: 0
   end
 
   test "reviews filters usage logs for uncategorized items" do
@@ -151,7 +150,6 @@ class UsageLogsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_includes response.body, other_item.name
     assert_no_match @item.name, response.body
-    assert_select "a.bg-emerald-600", text: "未分類"
   end
 
   test "reviews keeps search and category filters in pagination links" do

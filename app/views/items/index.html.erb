@@ -3,27 +3,17 @@
              url: items_path,
              query: @search_query,
              hidden_params: {
-               status: @selected_status.presence,
-               category_id: @selected_category_id
+               status: @selected_status.presence
              },
-             show_reset: @search_query.present? || @selected_category_id.present?,
+             show_reset: @search_query.present?,
              reset_url: items_path(status: @selected_status.presence),
              action_path: new_item_path,
              action_label: "アイテム登録",
-             action_class: "btn-primary h-10 shrink-0" do %>
-    <%= render "shared/category_disclosure",
-               categories: @categories,
-               selected_category_id: @selected_category_id,
-               filter_params: {
-                 q: @search_query.presence,
-                 status: @selected_status.presence
-               } %>
-  <% end %>
+             action_class: "btn-primary h-10 shrink-0" %>
 
   <div class="mb-4 flex flex-wrap gap-2">
     <% status_filter_params = {
-      q: @search_query.presence,
-      category_id: @selected_category_id.presence
+      q: @search_query.presence
     } %>
     <%= link_to "すべて",
                 items_path(status_filter_params),
@@ -81,18 +71,18 @@
 
             <div class="flex shrink-0 flex-wrap items-center justify-end gap-2">
               <% if item.using? %>
-                <%= link_to "在庫を追加する",
+                <%= link_to "在庫を追加",
                             edit_item_path(item),
                             class: "inline-flex items-center justify-center rounded-lg bg-yellow-500 px-3 py-2 text-sm font-semibold text-white transition hover:bg-amber-600" %>
               <% elsif item.stock_available? %>
                 <button type="button" class="btn-primary px-3 py-1.5" data-disclosure-toggle>
                   使い始める
                 </button>
-                <%= link_to "在庫を追加する",
+                <%= link_to "在庫を追加",
                             edit_item_path(item),
                             class: "inline-flex items-center justify-center rounded-lg bg-yellow-500 px-3 py-2 text-sm font-semibold text-white transition hover:bg-amber-600" %>
               <% else %>
-                <%= link_to "在庫を追加する",
+                <%= link_to "在庫を追加",
                             edit_item_path(item),
                             class: "inline-flex items-center justify-center rounded-lg bg-yellow-500 px-3 py-2 text-sm font-semibold text-white transition hover:bg-amber-600" %>
               <% end %>
@@ -130,7 +120,7 @@
       <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
       </svg>
-      <% if @search_query.present? || @selected_category_id.present? %>
+      <% if @search_query.present? %>
         <p class="mt-4 text-lg">条件に合うアイテムがありません</p>
         <p class="mt-2 text-sm">検索条件を変更して、もう一度お試しください。</p>
         <%= link_to "検索条件をリセット",
