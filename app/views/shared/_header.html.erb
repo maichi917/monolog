@@ -13,9 +13,6 @@
         <% active_nav_class = "rounded-full bg-emerald-50 px-3 py-1.5 font-medium text-emerald-700 transition hover:bg-emerald-100" %>
         <% inactive_nav_class = "rounded-full bg-slate-100 px-3 py-1.5 font-medium text-slate-700 transition hover:bg-slate-200" %>
         <% item_index_page = controller_name == "items" && action_name == "index" %>
-        <% item_db_active = item_index_page && params[:stock].blank? %>
-        <% stock_box_active = item_index_page && params[:stock] == "available" %>
-        <% in_use_active = controller_name == "items" && action_name == "in_use" %>
         <% history_nav_active = controller_name == "items" && action_name.in?(%w[used_up discontinued]) %>
         <% reviews_active = controller_name == "usage_logs" && action_name == "reviews" %>
 
@@ -29,9 +26,7 @@
 
           <nav class="mt-2 divide-y divide-slate-100 rounded-lg border border-slate-200 bg-white px-3 text-sm" aria-label="スマートフォンメニュー">
             <div class="grid gap-2 py-3">
-              <%= link_to "アイテム一覧", items_path, class: item_db_active ? active_nav_class : inactive_nav_class %>
-              <%= link_to "在庫あり", items_path(stock: "available"), class: stock_box_active ? active_nav_class : inactive_nav_class %>
-              <%= link_to "使用中", in_use_items_path, class: in_use_active ? active_nav_class : inactive_nav_class %>
+              <%= link_to "アイテム", items_path, class: item_index_page ? active_nav_class : inactive_nav_class %>
             </div>
 
             <details class="py-3" data-menu-group="history">
@@ -53,9 +48,7 @@
         </details>
 
         <nav class="hidden items-start gap-2 text-sm md:flex" aria-label="メインメニュー">
-          <%= link_to "アイテム一覧", items_path, class: item_db_active ? active_nav_class : inactive_nav_class %>
-          <%= link_to "在庫あり", items_path(stock: "available"), class: stock_box_active ? active_nav_class : inactive_nav_class %>
-          <%= link_to "使用中", in_use_items_path, class: in_use_active ? active_nav_class : inactive_nav_class %>
+          <%= link_to "アイテム", items_path, class: item_index_page ? active_nav_class : inactive_nav_class %>
 
           <details class="relative" data-desktop-menu="history">
             <summary class="<%= history_nav_active ? active_nav_class : inactive_nav_class %> inline-flex cursor-pointer list-none items-center gap-2">

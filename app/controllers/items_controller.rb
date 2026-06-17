@@ -6,17 +6,22 @@ class ItemsController < ApplicationController
     @items = current_user.items.visible.includes(:category).order(created_at: :desc)
     @search_query = params[:q].to_s.strip
     @selected_category_id = params[:category_id].to_s
+    @selected_status = params[:status].to_s
     @categories = current_user.categories.order(:name)
     @items = @items.by_name(@search_query)
                    .by_category(@selected_category_id)
 
-    if params[:stock] == "available"
-      @page_title = "ストックBOX"
-      @items = @items.where("stock_quantity > 0")
-    else
-      @page_title = "アイテム一覧"
+    in_use_item_ids = current_user.usage_logs.in_use.select(:item_id)
+    case @selected_status
+    when "available"
+      @items = @items.where("stock_quantity > 0").where.not(id: in_use_item_ids)
+    when "in_use"
+      @items = @items.where(id: in_use_item_ids)
+    when "out_of_stock"
+      @items = @items.where(stock_quantity: 0).where.not(id: in_use_item_ids)
     end
 
+    @page_title = "アイテム"
     @items = @items.page(params[:page])
   end
 
