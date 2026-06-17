@@ -1,19 +1,17 @@
 <div class="ui-container-wide">
-  <div class="mb-6 flex items-center justify-between">
-    <h1 class="brand-font text-2xl font-bold text-slate-900"><%= @page_title %></h1>
-  </div>
-
-  <%= render "shared/category_filters",
-             categories: @categories,
-             selected_category_id: @selected_category_id,
-             filter_params: { q: @search_query.presence } %>
-
   <%= render "shared/search_form",
              url: discontinued_items_path,
              query: @search_query,
              hidden_params: { category_id: @selected_category_id },
              show_reset: @search_query.present? || @selected_category_id.present?,
-             reset_url: discontinued_items_path %>
+             reset_url: discontinued_items_path do %>
+    <%= render "shared/category_disclosure",
+               categories: @categories,
+               selected_category_id: @selected_category_id,
+               filter_params: { q: @search_query.presence } %>
+  <% end %>
+
+  <%= render "shared/history_tabs" %>
 
   <% if @usage_logs.any? %>
     <div class="grid gap-4 lg:grid-cols-2">

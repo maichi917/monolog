@@ -36,17 +36,11 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_select "details.md\\:hidden" do
       assert_select "summary", text: /メニュー/
       assert_select "nav[aria-label='スマートフォンメニュー']" do
-        assert_select "details:not([open])", count: 1
         assert_select "a[href='#{items_path}']", text: "アイテム"
         assert_select "a[href='#{items_path(status: "available")}']", text: "在庫あり", count: 0
         assert_select "a[href='#{in_use_items_path}']", text: "使用中", count: 0
-        assert_select "details[data-menu-group='history']" do
-          assert_select "summary span", text: "履歴"
-          assert_select "[data-menu-chevron]", text: "▼"
-          assert_select "a[href='#{used_up_items_path}']", text: "使い切り"
-          assert_select "a[href='#{discontinued_items_path}']", text: "使用中止"
-        end
-        assert_select "a[href='#{reviews_usage_logs_path}']", text: "マイレビュー"
+        assert_select "a[href='#{used_up_items_path}']", text: "履歴"
+        assert_select "a[href='#{reviews_usage_logs_path}']", text: "マイレビュー", count: 0
         assert_select "details[data-menu-group='other']", count: 0
       end
     end
@@ -54,13 +48,8 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
       assert_select "a.bg-emerald-50[href='#{items_path}']", text: "アイテム"
       assert_select "a[href='#{items_path(status: "available")}']", text: "在庫あり", count: 0
       assert_select "a[href='#{in_use_items_path}']", text: "使用中", count: 0
-      assert_select "details[data-desktop-menu='history']" do
-        assert_select "summary span", text: "履歴"
-        assert_select "[data-menu-chevron]", text: "▼"
-        assert_select "a[href='#{used_up_items_path}']", text: "使い切り"
-        assert_select "a[href='#{discontinued_items_path}']", text: "使用中止"
-      end
-      assert_select "a[href='#{reviews_usage_logs_path}']", text: "マイレビュー"
+      assert_select "a[href='#{used_up_items_path}']", text: "履歴"
+      assert_select "a[href='#{reviews_usage_logs_path}']", text: "マイレビュー", count: 0
     end
   end
 
@@ -641,7 +630,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     get discontinued_items_path, params: { q: "化粧" }
 
     assert_response :success
-    assert_select "h1", text: "使用中止"
+    assert_select "a.bg-emerald-600[href='#{discontinued_items_path}']", text: "使用中止"
     assert_includes response.body, matching_item.name
     assert_no_match other_item.name, response.body
     assert_select "input[name='q'][value='化粧']"
@@ -777,7 +766,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     get used_up_items_path, params: { q: "化粧" }
 
     assert_response :success
-    assert_select "h1", text: "使い切り"
+    assert_select "a.bg-emerald-600[href='#{used_up_items_path}']", text: "使い切り"
     assert_includes response.body, matching_item.name
     assert_no_match other_item.name, response.body
     assert_select "input[name='q'][value='化粧']"

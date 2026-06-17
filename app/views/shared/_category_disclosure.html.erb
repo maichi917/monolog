@@ -1,0 +1,23 @@
+<details class="mt-3 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm" <%= "open" if selected_category_id.present? %>>
+  <summary class="flex h-6 cursor-pointer list-none items-center justify-between gap-3 text-slate-700">
+    <span class="font-semibold">
+      カテゴリ
+    </span>
+    <span class="min-w-0 truncate text-xs text-slate-500">
+      <% if selected_category_id == "uncategorized" %>
+        未分類
+      <% elsif selected_category_id.present? %>
+        <%= categories.find { |category| category.id.to_s == selected_category_id }&.name || "選択中" %>
+      <% else %>
+        すべて
+      <% end %>
+    </span>
+  </summary>
+
+  <div class="mt-3">
+    <%= render "shared/category_filters",
+               categories: categories,
+               selected_category_id: selected_category_id,
+               filter_params: filter_params %>
+  </div>
+</details>
