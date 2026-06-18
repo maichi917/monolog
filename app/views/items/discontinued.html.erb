@@ -1,87 +1,72 @@
 <div class="ui-container-wide">
-  <div class="mb-6 flex items-center justify-between">
-    <h1 class="brand-font text-2xl font-bold text-slate-900"><%= @page_title %></h1>
-  </div>
-
-  <%= render "shared/category_filters",
-             categories: @categories,
-             selected_category_id: @selected_category_id,
-             filter_params: { q: @search_query.presence } %>
-
   <%= render "shared/search_form",
              url: discontinued_items_path,
              query: @search_query,
-             hidden_params: { category_id: @selected_category_id },
-             show_reset: @search_query.present? || @selected_category_id.present?,
+             hidden_params: {},
+             show_reset: @search_query.present?,
              reset_url: discontinued_items_path %>
 
+  <%= render "shared/history_tabs" %>
+
   <% if @usage_logs.any? %>
-    <div class="grid gap-4 lg:grid-cols-2">
+    <div class="grid gap-3">
       <% @usage_logs.each do |usage_log| %>
         <% item = usage_log.item %>
 
-        <article class="ui-card">
-          <div class="flex gap-4">
+        <article class="border-b border-slate-200 bg-white py-3 shadow-none sm:rounded-lg sm:border sm:p-4 sm:shadow-sm">
+          <div class="flex items-center gap-3">
             <div class="shrink-0">
               <%= render "image",
                          item: item,
-                         size_class: "h-20 w-20",
-                         image_class: "h-20 w-20 rounded-lg object-cover",
-                         placeholder_icon_class: "h-8 w-8" %>
+                         size_class: "h-16 w-16",
+                         image_class: "h-16 w-16 rounded-lg object-cover",
+                         placeholder_icon_class: "h-7 w-7" %>
             </div>
 
             <div class="min-w-0 flex-1">
-              <div class="mb-2 flex flex-wrap items-start justify-between gap-2">
-                <h2 class="brand-font break-words text-lg font-bold text-slate-900">
+              <div class="flex flex-wrap items-center gap-2">
+                <h2 class="brand-font truncate text-lg font-bold text-slate-900">
                   <%= link_to item.name, item_path(item), class: "transition hover:text-emerald-700" %>
                 </h2>
                 <span class="rounded-full bg-red-50 px-3 py-1 text-xs font-semibold text-red-700">使用中止</span>
               </div>
 
-              <dl class="grid grid-cols-2 gap-3 text-sm">
-                <div>
-                  <dt class="text-xs text-slate-500">使い始め日</dt>
-                  <dd class="mt-1 text-slate-700">
-                    <%= usage_log.started_at&.strftime("%Y/%-m/%-d") || "-" %>
+              <dl class="mt-2 flex flex-wrap items-center gap-2 text-sm">
+                <div class="inline-flex items-center gap-1.5 rounded-lg bg-slate-50 px-2.5 py-1 text-slate-700">
+                  <dt class="text-xs font-medium text-slate-500">使用中止日</dt>
+                  <dd>
+                    <%= usage_log.finished_at&.strftime("%Y/%-m/%-d") || "-" %>
                   </dd>
                 </div>
-
-                <div>
-                  <dt class="text-xs text-slate-500">使用中止日</dt>
-                  <dd class="mt-1 text-slate-700">
-                    <%= usage_log.finished_at&.strftime("%Y/%-m/%-d") || "-" %>
+                <div class="inline-flex items-center gap-1.5 rounded-lg bg-slate-50 px-2.5 py-1 text-slate-700">
+                  <dt class="text-xs font-medium text-slate-500">使用期間</dt>
+                  <dd>
+                    <% if usage_log.started_at.present? && usage_log.finished_at.present? %>
+                      <%= "#{(usage_log.finished_at.to_date - usage_log.started_at.to_date).to_i + 1}日" %>
+                    <% else %>
+                      -
+                    <% end %>
                   </dd>
                 </div>
               </dl>
             </div>
-          </div>
 
-          <div class="mt-4 space-y-3">
-            <% if usage_log.discontinued_reason.present? %>
-              <div class="rounded-lg bg-red-50 p-3 text-sm">
-                <p class="text-xs font-semibold text-red-700">使用中止理由</p>
-                <p class="mt-1 whitespace-pre-wrap text-slate-700"><%= usage_log.discontinued_reason %></p>
-              </div>
-            <% else %>
-              <div class="rounded-lg bg-slate-50 p-3 text-sm">
-                <p class="text-xs font-semibold text-slate-500">使用中止理由</p>
-                <p class="mt-1 text-slate-500">理由は未入力です</p>
-              </div>
-            <% end %>
-
-            <div class="text-xs text-slate-500">
-              <span>使用期間: </span>
-              <% if usage_log.started_at.present? && usage_log.finished_at.present? %>
-                <span><%= "#{(usage_log.finished_at.to_date - usage_log.started_at.to_date).to_i + 1}日" %></span>
-              <% else %>
-                <span>-</span>
-              <% end %>
+            <div class="flex shrink-0 items-center justify-end">
+              <%= link_to "詳細", usage_log_path(usage_log), class: "btn-secondary px-3 py-1.5" %>
             </div>
           </div>
 
-          <div class="mt-4 flex items-center justify-end gap-4 border-t border-slate-100 pt-4">
-            <%= link_to "詳細を見る", usage_log_path(usage_log), class: "btn-secondary px-3 py-1.5" %>
-          </div>
+          <% if usage_log.discontinued_reason.present? %>
+            <p class="mt-3 line-clamp-2 rounded-lg bg-red-50 px-3 py-2 text-sm text-slate-700">
+              <span class="font-semibold text-red-700">使用中止理由</span>
+              <span class="ml-2 whitespace-pre-wrap"><%= usage_log.discontinued_reason %></span>
+            </p>
+          <% else %>
+            <p class="mt-3 rounded-lg bg-slate-50 px-3 py-2 text-sm text-slate-500">
+              <span class="font-semibold">使用中止理由</span>
+              <span class="ml-2">理由は未入力です</span>
+            </p>
+          <% end %>
         </article>
       <% end %>
     </div>
@@ -91,7 +76,7 @@
     </div>
   <% else %>
     <div class="ui-empty-state">
-      <% if @search_query.present? || @selected_category_id.present? %>
+      <% if @search_query.present? %>
         <p class="text-lg">条件に合う使用中止履歴がありません</p>
         <p class="mt-2 text-sm">検索条件を変更して、もう一度お試しください。</p>
         <%= link_to "検索条件をリセット", discontinued_items_path, class: "btn-secondary mt-5" %>

@@ -1,21 +1,35 @@
 <%= form_with url: url,
               method: :get,
               local: true,
-              class: "mb-6 rounded-lg bg-slate-50 p-3" do %>
+              class: "mb-4 rounded-lg bg-slate-50 p-3" do %>
   <% hidden_params.each do |name, value| %>
     <%= hidden_field_tag name, value if value.present? %>
   <% end %>
 
-  <div class="flex gap-2">
-    <div class="flex-1">
-      <%= search_field_tag :q,
-                           query,
-                           placeholder: "アイテム名で検索",
-                           class: "form-input h-10" %>
+  <div class="flex items-center justify-between gap-4">
+    <div class="flex w-full max-w-md items-center gap-2">
+      <span class="shrink-0 text-slate-400" aria-hidden="true">
+        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m21 21-4.35-4.35M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15Z"></path>
+        </svg>
+      </span>
+
+      <div class="flex-1">
+        <%= search_field_tag :q,
+                             query,
+                             placeholder: "アイテム名で検索",
+                             class: "form-input h-10" %>
+      </div>
     </div>
 
-    <%= submit_tag "検索", name: nil, class: "btn-primary h-10 shrink-0 cursor-pointer" %>
+    <% if local_assigns[:action_path].present? && local_assigns[:action_label].present? %>
+      <%= link_to local_assigns[:action_label],
+                  local_assigns[:action_path],
+                  class: local_assigns.fetch(:action_class, "btn-primary h-10 shrink-0") %>
+    <% end %>
   </div>
+
+  <%= yield if block_given? %>
 
   <% if show_reset %>
     <div class="mt-2 text-right">

@@ -15,7 +15,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     get items_path, params: { q: "化粧" }
 
     assert_response :success
-    assert_select "h1", text: "アイテム一覧"
+    assert_select "h2", text: items(:one).name
     assert_includes response.body, items(:one).name
     assert_no_match items(:two).name, response.body
     assert_no_match other_user_item.name, response.body
@@ -36,31 +36,20 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_select "details.md\\:hidden" do
       assert_select "summary", text: /メニュー/
       assert_select "nav[aria-label='スマートフォンメニュー']" do
-        assert_select "details:not([open])", count: 1
-        assert_select "a[href='#{items_path}']", text: "アイテム一覧"
-        assert_select "a[href='#{items_path(stock: "available")}']", text: "在庫あり"
-        assert_select "a[href='#{in_use_items_path}']", text: "使用中"
-        assert_select "details[data-menu-group='history']" do
-          assert_select "summary span", text: "履歴"
-          assert_select "[data-menu-chevron]", text: "▼"
-          assert_select "a[href='#{used_up_items_path}']", text: "使い切り"
-          assert_select "a[href='#{discontinued_items_path}']", text: "使用中止"
-        end
-        assert_select "a[href='#{reviews_usage_logs_path}']", text: "マイレビュー"
+        assert_select "a[href='#{items_path}']", text: "アイテム"
+        assert_select "a[href='#{items_path(status: "available")}']", text: "在庫あり", count: 0
+        assert_select "a[href='#{in_use_items_path}']", text: "使用中", count: 0
+        assert_select "a[href='#{used_up_items_path}']", text: "履歴"
+        assert_select "a[href='#{reviews_usage_logs_path}']", text: "レビュー", count: 0
         assert_select "details[data-menu-group='other']", count: 0
       end
     end
     assert_select "nav[aria-label='メインメニュー'].md\\:flex" do
-      assert_select "a.bg-emerald-50[href='#{items_path}']", text: "アイテム一覧"
-      assert_select "a[href='#{items_path(stock: "available")}']", text: "在庫あり"
-      assert_select "a[href='#{in_use_items_path}']", text: "使用中"
-      assert_select "details[data-desktop-menu='history']" do
-        assert_select "summary span", text: "履歴"
-        assert_select "[data-menu-chevron]", text: "▼"
-        assert_select "a[href='#{used_up_items_path}']", text: "使い切り"
-        assert_select "a[href='#{discontinued_items_path}']", text: "使用中止"
-      end
-      assert_select "a[href='#{reviews_usage_logs_path}']", text: "マイレビュー"
+      assert_select "a.bg-emerald-50[href='#{items_path}']", text: "アイテム"
+      assert_select "a[href='#{items_path(status: "available")}']", text: "在庫あり", count: 0
+      assert_select "a[href='#{in_use_items_path}']", text: "使用中", count: 0
+      assert_select "a[href='#{used_up_items_path}']", text: "履歴"
+      assert_select "a[href='#{reviews_usage_logs_path}']", text: "レビュー", count: 0
     end
   end
 
@@ -79,7 +68,54 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "span.bg-red-50", text: "在庫なし"
-    assert_select "dd.font-bold.text-red-700", text: item.stock_quantity.to_s
+    assert_select "span.font-bold.text-red-700", text: item.stock_quantity.to_s
+  end
+
+  test "index shows status filters" do
+    get items_path
+
+    assert_response :success
+    assert_select "a[href='#{items_path}']", text: "すべて"
+    assert_select "a[href='#{items_path(status: "available")}']", text: "在庫あり"
+    assert_select "a[href='#{items_path(status: "in_use")}']", text: "使用中"
+    assert_select "a[href='#{items_path(status: "out_of_stock")}']", text: "在庫なし"
+  end
+
+  test "index filters available items by status" do
+    get items_path, params: { status: "available" }
+
+    assert_response :success
+    assert_includes response.body, items(:one).name
+    assert_no_match items(:two).name, response.body
+  end
+
+  test "index filters in-use items by status" do
+    item = items(:one)
+    item.start_using!(@user, Time.current)
+
+    get items_path, params: { status: "in_use" }
+
+    assert_response :success
+    assert_includes response.body, item.name
+    assert_no_match items(:two).name, response.body
+  end
+
+  test "index shows finish using link for in-use item" do
+    item = items(:one)
+    item.start_using!(@user, Time.current)
+
+    get items_path, params: { status: "in_use" }
+
+    assert_response :success
+    assert_select "a[href='#{finish_using_form_item_path(item)}']", text: "使い切る"
+  end
+
+  test "index filters out-of-stock items by status" do
+    get items_path, params: { status: "out_of_stock" }
+
+    assert_response :success
+    assert_includes response.body, items(:two).name
+    assert_no_match items(:one).name, response.body
   end
 
   test "index shows restock link for every item" do
@@ -89,8 +125,8 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     get items_path
 
     assert_response :success
-    assert_select "a[href='#{edit_item_path(item)}']", text: "在庫を追加する"
-    assert_select "a[href='#{edit_item_path(out_of_stock_item)}']", text: "在庫を追加する"
+    assert_select "a[href='#{edit_item_path(item)}']", text: "在庫を追加"
+    assert_select "a[href='#{edit_item_path(out_of_stock_item)}']", text: "在庫を追加"
   end
 
   test "index filters items by category" do
@@ -143,39 +179,6 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_no_match other_item.name, response.body
   end
 
-  test "index shows current user's category tags and uncategorized tag" do
-    other_category = users(:two).categories.create!(name: "他ユーザーカテゴリ")
-
-    get items_path
-
-    assert_response :success
-    assert_select "a[href='#{items_path}']", text: "すべて"
-    assert_select "a[href='#{items_path(category_id: categories(:hair_care).id)}']",
-                  text: categories(:hair_care).name
-    assert_select "a[href='#{items_path(category_id: "uncategorized")}']", text: "未分類"
-    assert_select "a", text: other_category.name, count: 0
-  end
-
-  test "index highlights selected category tag" do
-    category = categories(:hair_care)
-
-    get items_path, params: { category_id: category.id }
-
-    assert_response :success
-    assert_select "a.bg-emerald-600[href='#{items_path(category_id: category.id)}']",
-                  text: category.name
-  end
-
-  test "index category tags keep name and stock filters" do
-    category = categories(:hair_care)
-
-    get items_path, params: { q: "化粧", stock: "available" }
-
-    assert_response :success
-    assert_select "a[href='#{items_path(q: "化粧", stock: "available", category_id: category.id)}']",
-                  text: category.name
-  end
-
   test "index search form keeps selected category" do
     category = categories(:hair_care)
 
@@ -185,11 +188,31 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_select "input[type='hidden'][name='category_id'][value='#{category.id}']"
   end
 
-  test "index shows reset link when category is selected" do
+  test "index shows category filter links before status filters" do
+    category = categories(:hair_care)
+
+    get items_path
+
+    assert_response :success
+    assert_select "div", text: "カテゴリ"
+    assert_select "a[href='#{items_path(category_id: category.id)}']", text: category.name
+    assert_select "a[href='#{items_path(category_id: "uncategorized")}']", text: "未設定"
+  end
+
+  test "index status filters keep selected category" do
+    category = categories(:hair_care)
+
+    get items_path, params: { category_id: category.id }
+
+    assert_response :success
+    assert_select "a[href='#{items_path(category_id: category.id, status: "available")}']", text: "在庫あり"
+  end
+
+  test "index does not show reset link when only category is selected" do
     get items_path, params: { category_id: categories(:hair_care).id }
 
     assert_response :success
-    assert_select "a[href='#{items_path}']", text: "リセット"
+    assert_select "a[href='#{items_path}']", text: "リセット", count: 0
   end
 
   test "index shows a message when category filter has no results" do
@@ -198,11 +221,11 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     get items_path, params: { category_id: empty_category.id }
 
     assert_response :success
-    assert_includes response.body, "条件に合うアイテムがありません"
-    assert_select "a[href='#{items_path}']", text: "検索条件をリセット"
+    assert_includes response.body, "アイテムがありません"
+    assert_select "a[href='#{items_path}']", text: "検索条件をリセット", count: 0
   end
 
-  test "index keeps search category and stock filters in pagination links" do
+  test "index keeps search category and status filters in pagination links" do
     category = categories(:hair_care)
     11.times do |number|
       @user.items.create!(
@@ -215,7 +238,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     get items_path, params: {
       q: "検索対象",
       category_id: category.id,
-      stock: "available"
+      status: "available"
     }
 
     assert_response :success
@@ -223,7 +246,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
       page: 2,
       q: "検索対象",
       category_id: category.id,
-      stock: "available"
+      status: "available"
     )}']"
   end
 
@@ -472,7 +495,6 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_includes response.body, matching_item.name
     assert_no_match other_item.name, response.body
-    assert_select "a.bg-emerald-600", text: categories(:hair_care).name
   end
 
   test "in_use page combines item name and category filters" do
@@ -503,7 +525,6 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_includes response.body, items(:two).name
     assert_no_match items(:one).name, response.body
-    assert_select "a.bg-emerald-600", text: "未分類"
   end
 
   test "in_use page shows category tags for current user only" do
@@ -552,7 +573,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "使用中止"
     assert_includes response.body, "使用期間"
     assert_includes response.body, "理由は未入力です"
-    assert_select "a[href='#{usage_log_path(item.usage_logs.finished.first)}']", text: "詳細を見る"
+    assert_select "a[href='#{usage_log_path(item.usage_logs.finished.first)}']", text: "詳細"
   end
 
   test "discontinued page shows discontinued reason when present" do
@@ -583,13 +604,13 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     get discontinued_items_path
 
     assert_response :success
-    assert_select "article.ui-card", count: 10
+    assert_select "article", count: 10
     assert_select "a[href='#{discontinued_items_path(page: 2)}']"
 
     get discontinued_items_path(page: 2)
 
     assert_response :success
-    assert_select "article.ui-card", count: 1
+    assert_select "article", count: 1
   end
 
   test "discontinued page searches discontinued logs by item name" do
@@ -604,7 +625,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     get discontinued_items_path, params: { q: "化粧" }
 
     assert_response :success
-    assert_select "h1", text: "使用中止"
+    assert_select "a.bg-emerald-600[href='#{discontinued_items_path}']", text: "使用中止"
     assert_includes response.body, matching_item.name
     assert_no_match other_item.name, response.body
     assert_select "input[name='q'][value='化粧']"
@@ -650,7 +671,6 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_includes response.body, matching_item.name
     assert_no_match other_item.name, response.body
-    assert_select "a.bg-emerald-600", text: categories(:hair_care).name
   end
 
   test "discontinued page combines item name and category filters" do
@@ -669,7 +689,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_includes response.body, items(:one).name
     assert_no_match items(:two).name, response.body
-    assert_select "input[type='hidden'][name='category_id'][value='#{categories(:hair_care).id}']"
+    assert_select "input[type='hidden'][name='category_id']", count: 0
   end
 
   test "discontinued page filters usage logs for uncategorized items" do
@@ -685,7 +705,6 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_includes response.body, items(:two).name
     assert_no_match items(:one).name, response.body
-    assert_select "a.bg-emerald-600", text: "未分類"
   end
 
   test "discontinued page keeps search and category filters in pagination links" do
@@ -724,7 +743,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     get used_up_items_path
 
     assert_response :success
-    assert_select "article.ui-card", count: 1
+    assert_select "article", count: 1
     assert_includes response.body, "2回"
   end
 
@@ -740,7 +759,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     get used_up_items_path, params: { q: "化粧" }
 
     assert_response :success
-    assert_select "h1", text: "使い切り"
+    assert_select "a.bg-emerald-600[href='#{used_up_items_path}']", text: "使い切り"
     assert_includes response.body, matching_item.name
     assert_no_match other_item.name, response.body
     assert_select "input[name='q'][value='化粧']"
@@ -786,7 +805,6 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_includes response.body, matching_item.name
     assert_no_match other_item.name, response.body
-    assert_select "a.bg-emerald-600", text: categories(:hair_care).name
   end
 
   test "used_up page combines item name and category filters" do
@@ -805,7 +823,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_includes response.body, items(:one).name
     assert_no_match items(:two).name, response.body
-    assert_select "input[type='hidden'][name='category_id'][value='#{categories(:hair_care).id}']"
+    assert_select "input[type='hidden'][name='category_id']", count: 0
   end
 
   test "used_up page filters usage logs for uncategorized items" do
@@ -821,7 +839,6 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_includes response.body, items(:two).name
     assert_no_match items(:one).name, response.body
-    assert_select "a.bg-emerald-600", text: "未分類"
   end
 
   test "used_up page keeps search and category filters in pagination links" do
@@ -1034,13 +1051,13 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     get items_path
 
     assert_response :success
-    assert_select "article.ui-card", count: 10
+    assert_select "article", count: 10
     assert_select "a[href='#{items_path(page: 2)}']"
 
     get items_path(page: 2)
 
     assert_response :success
-    assert_select "article.ui-card", count: 1
+    assert_select "article", count: 1
   end
 
   test "show shows item category" do
@@ -1061,7 +1078,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "span.bg-red-50", text: "在庫なし"
     assert_select "dd.font-bold.text-red-700", text: item.stock_quantity.to_s
-    assert_select "a[href='#{edit_item_path(item)}']", text: "在庫を追加する"
+    assert_select "a[href='#{edit_item_path(item)}']", text: "在庫を追加"
   end
 
   test "show shows restock link for item with stock" do
@@ -1070,7 +1087,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     get item_path(item)
 
     assert_response :success
-    assert_select "a[href='#{edit_item_path(item)}']", text: "在庫を追加する"
+    assert_select "a[href='#{edit_item_path(item)}']", text: "在庫を追加"
   end
 
   test "update with invalid image rerenders edit page" do
