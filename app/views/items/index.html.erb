@@ -3,36 +3,65 @@
              url: items_path,
              query: @search_query,
              hidden_params: {
+               category_id: @selected_category_id.presence,
                status: @selected_status.presence
              },
              show_reset: @search_query.present?,
-             reset_url: items_path(status: @selected_status.presence),
+             reset_url: items_path(
+               category_id: @selected_category_id.presence,
+               status: @selected_status.presence
+             ),
              action_path: new_item_path,
              action_label: "アイテム登録",
              action_class: "btn-primary h-10 shrink-0" %>
 
-  <div class="mb-4 flex flex-wrap gap-2">
-    <% status_filter_params = {
-      q: @search_query.presence
+  <div class="mb-4">
+    <% category_filter_params = {
+      q: @search_query.presence,
+      status: @selected_status.presence
     } %>
-    <%= link_to "すべて",
-                items_path(status_filter_params),
-                class: category_filter_class(@selected_status, nil) %>
-    <%= link_to "在庫あり",
-                items_path(status_filter_params.merge(status: "available")),
-                class: category_filter_class(@selected_status, "available") %>
-    <%= link_to "使用中",
-                items_path(status_filter_params.merge(status: "in_use")),
-                class: category_filter_class(@selected_status, "in_use") %>
-    <%= link_to "在庫なし",
-                items_path(status_filter_params.merge(status: "out_of_stock")),
-                class: category_filter_class(@selected_status, "out_of_stock") %>
+    <div class="mb-2 text-xs font-semibold text-slate-500">カテゴリ</div>
+    <div class="flex flex-wrap gap-2">
+      <%= link_to "すべて",
+                  items_path(category_filter_params),
+                  class: category_filter_class(@selected_category_id, nil) %>
+      <% @categories.each do |category| %>
+        <%= link_to category.name,
+                    items_path(category_filter_params.merge(category_id: category.id)),
+                    class: category_filter_class(@selected_category_id, category.id) %>
+      <% end %>
+      <%= link_to "未設定",
+                  items_path(category_filter_params.merge(category_id: "uncategorized")),
+                  class: category_filter_class(@selected_category_id, "uncategorized") %>
+    </div>
+  </div>
+
+  <div class="mb-4">
+    <% status_filter_params = {
+      q: @search_query.presence,
+      category_id: @selected_category_id.presence
+    } %>
+    <div class="mb-2 text-xs font-semibold text-slate-500">ステータス</div>
+    <div class="flex flex-wrap gap-2">
+      <%= link_to "すべて",
+                  items_path(status_filter_params),
+                  class: category_filter_class(@selected_status, nil) %>
+      <%= link_to "在庫あり",
+                  items_path(status_filter_params.merge(status: "available")),
+                  class: category_filter_class(@selected_status, "available") %>
+      <%= link_to "使用中",
+                  items_path(status_filter_params.merge(status: "in_use")),
+                  class: category_filter_class(@selected_status, "in_use") %>
+      <%= link_to "在庫なし",
+                  items_path(status_filter_params.merge(status: "out_of_stock")),
+                  class: category_filter_class(@selected_status, "out_of_stock") %>
+    </div>
   </div>
 
   <% if @items.any? %>
     <div class="grid gap-3">
       <% @items.each do |item| %>
-        <article class="ui-card" data-disclosure>
+        <article class="border-b border-slate-200 bg-white py-3 shadow-none sm:rounded-lg sm:border sm:p-4 sm:shadow-sm" data-disclosure>
           <div class="flex items-center gap-3">
             <div class="shrink-0">
               <%= render "image",

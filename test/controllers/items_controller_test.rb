@@ -179,13 +179,33 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_no_match other_item.name, response.body
   end
 
-  test "index search form does not keep selected category" do
+  test "index search form keeps selected category" do
     category = categories(:hair_care)
 
     get items_path, params: { category_id: category.id }
 
     assert_response :success
-    assert_select "input[type='hidden'][name='category_id']", count: 0
+    assert_select "input[type='hidden'][name='category_id'][value='#{category.id}']"
+  end
+
+  test "index shows category filter links before status filters" do
+    category = categories(:hair_care)
+
+    get items_path
+
+    assert_response :success
+    assert_select "div", text: "カテゴリ"
+    assert_select "a[href='#{items_path(category_id: category.id)}']", text: category.name
+    assert_select "a[href='#{items_path(category_id: "uncategorized")}']", text: "未設定"
+  end
+
+  test "index status filters keep selected category" do
+    category = categories(:hair_care)
+
+    get items_path, params: { category_id: category.id }
+
+    assert_response :success
+    assert_select "a[href='#{items_path(category_id: category.id, status: "available")}']", text: "在庫あり"
   end
 
   test "index does not show reset link when only category is selected" do
@@ -584,13 +604,13 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     get discontinued_items_path
 
     assert_response :success
-    assert_select "article.ui-card", count: 10
+    assert_select "article", count: 10
     assert_select "a[href='#{discontinued_items_path(page: 2)}']"
 
     get discontinued_items_path(page: 2)
 
     assert_response :success
-    assert_select "article.ui-card", count: 1
+    assert_select "article", count: 1
   end
 
   test "discontinued page searches discontinued logs by item name" do
@@ -723,7 +743,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     get used_up_items_path
 
     assert_response :success
-    assert_select "article.ui-card", count: 1
+    assert_select "article", count: 1
     assert_includes response.body, "2回"
   end
 
@@ -1031,13 +1051,13 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     get items_path
 
     assert_response :success
-    assert_select "article.ui-card", count: 10
+    assert_select "article", count: 10
     assert_select "a[href='#{items_path(page: 2)}']"
 
     get items_path(page: 2)
 
     assert_response :success
-    assert_select "article.ui-card", count: 1
+    assert_select "article", count: 1
   end
 
   test "show shows item category" do
