@@ -102,14 +102,14 @@
 
               <div class="flex flex-wrap items-center justify-end gap-2">
                 <% if item.using? %>
-                  <%= link_to "使い切る",
-                              finish_using_form_item_path(item),
-                              class: "btn-danger px-3 py-1.5" %>
+                  <button type="button" class="btn-danger px-3 py-1.5" data-disclosure-toggle data-disclosure-target="finish-using">
+                    使い切る
+                  </button>
                   <%= link_to "在庫を追加",
                               edit_item_path(item),
                               class: "inline-flex items-center justify-center rounded-lg bg-yellow-500 px-3 py-2 text-sm font-semibold text-white transition hover:bg-amber-600" %>
                 <% elsif item.stock_available? %>
-                  <button type="button" class="btn-primary px-3 py-1.5" data-disclosure-toggle>
+                  <button type="button" class="btn-primary px-3 py-1.5" data-disclosure-toggle data-disclosure-target="start-using">
                     使い始める
                   </button>
                   <%= link_to "在庫を追加",
@@ -126,21 +126,74 @@
             </div>
           </div>
 
-          <% if item.stock_available? %>
-            <div class="mt-3 hidden rounded-lg border border-emerald-100 bg-emerald-50 p-3" data-disclosure-panel>
-              <%= form_with url: start_using_item_path(item), method: :patch, local: true, class: "space-y-3" do %>
-                <div>
-                  <%= label_tag :started_at, "使い始め日", class: "form-label" %>
-                  <%= date_field_tag :started_at, Date.current, class: "form-input bg-white" %>
+          <% if item.using? %>
+            <div class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/40 px-4 py-6" data-disclosure-panel="finish-using" data-modal-panel role="dialog" aria-modal="true" aria-labelledby="finish-using-title-<%= item.id %>">
+              <button type="button" class="absolute inset-0 cursor-default" data-disclosure-cancel aria-label="閉じる"></button>
+
+              <div class="relative w-full max-w-sm rounded-lg bg-white p-5 shadow-xl">
+                <div class="mb-4">
+                  <p id="finish-using-title-<%= item.id %>" class="brand-font text-lg font-bold text-slate-900">使い切り日を入力</p>
+                  <p class="mt-1 text-sm text-slate-500"><%= item.name %></p>
                 </div>
 
-                <div class="grid gap-2 sm:grid-cols-2">
-                  <%= submit_tag "この日から使う", class: "btn-primary cursor-pointer", data: { turbo_confirm: "使用を開始しますか?" } %>
-                  <button type="button" class="btn-secondary" data-disclosure-cancel>
-                    キャンセル
-                  </button>
+                <%= form_with url: finish_using_item_path(item), method: :patch, local: true, class: "space-y-4" do %>
+                  <%= hidden_field_tag :usage_log_id, item.current_usage_log.id %>
+
+                  <div>
+                    <%= label_tag :finished_at, "使い切り日", class: "form-label" %>
+                    <%= date_field_tag :finished_at, Date.current, class: "form-input bg-white" %>
+                  </div>
+
+                  <% if item.stock_available? %>
+                    <label class="flex cursor-pointer items-start gap-3 rounded-lg border border-emerald-200 bg-emerald-50 p-3">
+                      <%= check_box_tag :continue_using,
+                                        "1",
+                                        false,
+                                        class: "mt-1 h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500" %>
+                      <span>
+                        <span class="block font-semibold text-emerald-900">続けて新しく使う</span>
+                        <span class="mt-1 block text-sm leading-relaxed text-emerald-800">
+                          在庫を1個減らし、使い切り日と同じ日から次の使用を開始します。
+                        </span>
+                      </span>
+                    </label>
+                  <% end %>
+
+                  <div class="grid gap-2">
+                    <%= submit_tag "使い切る", class: "btn-danger w-full cursor-pointer" %>
+                    <button type="button" class="btn-secondary w-full" data-disclosure-cancel>
+                      キャンセル
+                    </button>
+                  </div>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
+
+          <% if item.stock_available? %>
+            <div class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/40 px-4 py-6" data-disclosure-panel="start-using" data-modal-panel role="dialog" aria-modal="true" aria-labelledby="start-using-title-<%= item.id %>">
+              <button type="button" class="absolute inset-0 cursor-default" data-disclosure-cancel aria-label="閉じる"></button>
+
+              <div class="relative w-full max-w-sm rounded-lg bg-white p-5 shadow-xl">
+                <div class="mb-4">
+                  <p id="start-using-title-<%= item.id %>" class="brand-font text-lg font-bold text-slate-900">使い始め日を入力</p>
+                  <p class="mt-1 text-sm text-slate-500"><%= item.name %></p>
                 </div>
-              <% end %>
+
+                <%= form_with url: start_using_item_path(item), method: :patch, local: true, class: "space-y-4" do %>
+                  <div>
+                    <%= label_tag :started_at, "使い始め日", class: "form-label" %>
+                    <%= date_field_tag :started_at, Date.current, class: "form-input bg-white" %>
+                  </div>
+
+                  <div class="grid gap-2">
+                    <%= submit_tag "この日から使う", class: "btn-primary w-full cursor-pointer" %>
+                    <button type="button" class="btn-secondary w-full" data-disclosure-cancel>
+                      キャンセル
+                    </button>
+                  </div>
+                <% end %>
+              </div>
             </div>
           <% end %>
         </article>

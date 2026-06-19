@@ -23,7 +23,7 @@
         <div>
           <%= form.label :rating, "星評価（レビューする場合は必須）", class: "form-label" %>
           <%= form.select :rating,
-                          [["評価なし", ""]] + (1..5).map { |rating| ["#{rating} ★", rating] },
+                          [["評価なし", ""]] + (1..5).map { |rating| ["⭐️ #{rating}", rating] },
                           {},
                           class: "form-input" %>
         </div>

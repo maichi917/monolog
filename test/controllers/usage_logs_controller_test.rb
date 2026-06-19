@@ -16,6 +16,7 @@ class UsageLogsControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "select[name='usage_log[rating]']"
+    assert_select "option[value='5']", text: "⭐️ 5"
     assert_select "textarea[name='usage_log[review]']"
     assert_select "a[href='#{used_up_items_path}']", text: "レビューしない"
   end
@@ -116,6 +117,8 @@ class UsageLogsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_includes response.body, @item.name
     assert_no_match other_item.name, response.body
+    assert_select "a.bg-emerald-600[href='#{reviews_usage_logs_path(category_id: categories(:hair_care).id)}']", text: categories(:hair_care).name
+    assert_select "a[href='#{reviews_usage_logs_path(category_id: "uncategorized")}']", text: "未設定"
   end
 
   test "reviews combines item name and category filters" do
@@ -134,7 +137,42 @@ class UsageLogsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_includes response.body, @item.name
     assert_no_match other_item.name, response.body
-    assert_select "input[type='hidden'][name='category_id']", count: 0
+    assert_select "input[type='hidden'][name='category_id'][value='#{categories(:hair_care).id}']"
+  end
+
+  test "reviews filters usage logs by rating" do
+    @usage_log.update!(rating: 4, review: "また使いたい")
+    other_item = items(:two)
+    other_item.update!(stock_quantity: 1)
+    other_item.start_using!(@user, Time.zone.local(2026, 5, 11))
+    other_item.finish_using!(Time.zone.local(2026, 5, 13), rating: 5)
+
+    get reviews_usage_logs_path, params: { rating: "4" }
+
+    assert_response :success
+    assert_includes response.body, @item.name
+    assert_no_match other_item.name, response.body
+    assert_select "a.bg-emerald-600[href='#{reviews_usage_logs_path(rating: 4)}']", text: /⭐️\s*4/
+  end
+
+  test "reviews search form keeps selected rating" do
+    @usage_log.update!(rating: 4)
+
+    get reviews_usage_logs_path, params: { rating: "4" }
+
+    assert_response :success
+    assert_select "input[type='hidden'][name='rating'][value='4']"
+  end
+
+  test "reviews rating filters keep selected category" do
+    category = categories(:hair_care)
+    @item.update!(category: category)
+    @usage_log.update!(rating: 4)
+
+    get reviews_usage_logs_path, params: { category_id: category.id }
+
+    assert_response :success
+    assert_select "a[href='#{reviews_usage_logs_path(category_id: category.id, rating: 4)}']", text: /⭐️\s*4/
   end
 
   test "reviews filters usage logs for uncategorized items" do
@@ -152,7 +190,7 @@ class UsageLogsControllerTest < ActionDispatch::IntegrationTest
     assert_no_match @item.name, response.body
   end
 
-  test "reviews keeps search and category filters in pagination links" do
+  test "reviews keeps search category and rating filters in pagination links" do
     category = categories(:hair_care)
     11.times do |number|
       item = @user.items.create!(
@@ -166,14 +204,16 @@ class UsageLogsControllerTest < ActionDispatch::IntegrationTest
 
     get reviews_usage_logs_path, params: {
       q: "検索対象",
-      category_id: category.id
+      category_id: category.id,
+      rating: "4"
     }
 
     assert_response :success
     assert_select "a[href='#{reviews_usage_logs_path(
       page: 2,
       q: "検索対象",
-      category_id: category.id
+      category_id: category.id,
+      rating: "4"
     )}']"
   end
 

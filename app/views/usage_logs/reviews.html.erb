@@ -2,11 +2,58 @@
   <%= render "shared/search_form",
              url: reviews_usage_logs_path,
              query: @search_query,
-             hidden_params: {},
+             hidden_params: {
+               category_id: @selected_category_id.presence,
+               rating: @selected_rating.presence
+             },
              show_reset: @search_query.present?,
-             reset_url: reviews_usage_logs_path %>
+             reset_url: reviews_usage_logs_path(
+               category_id: @selected_category_id.presence,
+               rating: @selected_rating.presence
+             ) %>
 
   <%= render "shared/history_tabs" %>
+
+  <div class="mb-4">
+    <% category_filter_params = {
+      q: @search_query.presence,
+      rating: @selected_rating.presence
+    } %>
+    <div class="mb-2 text-xs font-semibold text-slate-500">カテゴリ</div>
+    <div class="flex flex-wrap gap-2">
+      <%= link_to "すべて",
+                  reviews_usage_logs_path(category_filter_params),
+                  class: category_filter_class(@selected_category_id, nil) %>
+      <% @categories.each do |category| %>
+        <%= link_to category.name,
+                    reviews_usage_logs_path(category_filter_params.merge(category_id: category.id)),
+                    class: category_filter_class(@selected_category_id, category.id) %>
+      <% end %>
+      <%= link_to "未設定",
+                  reviews_usage_logs_path(category_filter_params.merge(category_id: "uncategorized")),
+                  class: category_filter_class(@selected_category_id, "uncategorized") %>
+    </div>
+  </div>
+
+  <div class="mb-4">
+    <% rating_filter_params = {
+      q: @search_query.presence,
+      category_id: @selected_category_id.presence
+    } %>
+    <div class="mb-2 text-xs font-semibold text-slate-500">評価</div>
+    <div class="flex flex-wrap gap-2">
+      <%= link_to "すべて",
+                  reviews_usage_logs_path(rating_filter_params),
+                  class: category_filter_class(@selected_rating, nil) %>
+      <% 5.downto(1) do |rating| %>
+        <%= link_to reviews_usage_logs_path(rating_filter_params.merge(rating: rating)),
+                    class: category_filter_class(@selected_rating, rating) do %>
+          <span aria-hidden="true">⭐️</span>
+          <span class="font-sans font-bold"><%= rating %></span>
+        <% end %>
+      <% end %>
+    </div>
+  </div>
 
   <% if @usage_logs.any? %>
     <div class="grid gap-3">
@@ -54,15 +101,15 @@
           </div>
 
           <% if usage_log.review.present? %>
-            <p class="mt-3 line-clamp-2 whitespace-pre-wrap rounded-lg bg-slate-50 px-3 py-2 text-sm leading-6 text-slate-700">
-              <span class="font-semibold text-slate-500">レビュー</span>
-              <span class="ml-2"><%= usage_log.review %></span>
-            </p>
+            <div class="mt-3 rounded-lg bg-slate-50 px-3 py-2 text-sm leading-6">
+              <p class="font-semibold text-slate-500">レビュー</p>
+              <p class="mt-1 line-clamp-2 whitespace-pre-wrap break-words text-slate-700"><%= usage_log.review %></p>
+            </div>
           <% else %>
-            <p class="mt-3 rounded-lg bg-slate-50 px-3 py-2 text-sm leading-6 text-slate-500">
-              <span class="font-semibold">レビュー</span>
-              <span class="ml-2">レビューなし</span>
-            </p>
+            <div class="mt-3 rounded-lg bg-slate-50 px-3 py-2 text-sm leading-6 text-slate-500">
+              <p class="font-semibold">レビュー</p>
+              <p class="mt-1">レビューなし</p>
+            </div>
           <% end %>
         </article>
       <% end %>
