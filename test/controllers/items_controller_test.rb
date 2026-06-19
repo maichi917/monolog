@@ -908,6 +908,14 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_select "[data-submit-loading]", text: "アイテムを登録しています..."
   end
 
+  test "new page image input supports camera capture" do
+    get new_item_path
+
+    assert_response :success
+    assert_select "input[type='file'][name='item[image]'][accept='image/jpeg,image/png'][capture='environment']"
+    assert_includes response.body, "JPEG / PNG、10MB以下の画像を選択・撮影してください"
+  end
+
   test "new page has category select and new category field" do
     get new_item_path
 
@@ -922,6 +930,14 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "[data-submit-loading]", text: "アイテム情報を更新しています..."
+  end
+
+  test "edit page image input supports camera capture" do
+    get edit_item_path(items(:one))
+
+    assert_response :success
+    assert_select "input[type='file'][name='item[image]'][accept='image/jpeg,image/png'][capture='environment']"
+    assert_includes response.body, "JPEG / PNG、10MB以下の画像を選択・撮影してください"
   end
 
   test "create assigns selected category to item" do
