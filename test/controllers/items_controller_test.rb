@@ -100,14 +100,16 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_no_match items(:two).name, response.body
   end
 
-  test "index shows finish using link for in-use item" do
+  test "index shows finish using modal for in-use item" do
     item = items(:one)
     item.start_using!(@user, Time.current)
 
     get items_path, params: { status: "in_use" }
 
     assert_response :success
-    assert_select "a[href='#{finish_using_form_item_path(item)}']", text: "使い切る"
+    assert_select "button[data-disclosure-target='finish-using']", text: "使い切る"
+    assert_select "form[action='#{finish_using_item_path(item)}'] input[name='finished_at']"
+    assert_select "form[action='#{finish_using_item_path(item)}'] input[name='usage_log_id']"
   end
 
   test "index filters out-of-stock items by status" do
@@ -671,6 +673,8 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_includes response.body, matching_item.name
     assert_no_match other_item.name, response.body
+    assert_select "a.bg-emerald-600[href='#{discontinued_items_path(category_id: categories(:hair_care).id)}']", text: categories(:hair_care).name
+    assert_select "a[href='#{discontinued_items_path(category_id: "uncategorized")}']", text: "未設定"
   end
 
   test "discontinued page combines item name and category filters" do
@@ -689,7 +693,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_includes response.body, items(:one).name
     assert_no_match items(:two).name, response.body
-    assert_select "input[type='hidden'][name='category_id']", count: 0
+    assert_select "input[type='hidden'][name='category_id'][value='#{categories(:hair_care).id}']"
   end
 
   test "discontinued page filters usage logs for uncategorized items" do
@@ -745,6 +749,19 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "article", count: 1
     assert_includes response.body, "2回"
+  end
+
+  test "used_up page shows legacy finished logs without finish reason" do
+    item = items(:one)
+    item.start_using!(@user, Time.zone.local(2026, 5, 10))
+    item.finish_using!(Time.zone.local(2026, 5, 12), rating: 4)
+    item.usage_logs.finished.first.update!(finish_reason: nil)
+
+    get used_up_items_path
+
+    assert_response :success
+    assert_includes response.body, item.name
+    assert_includes response.body, "1回"
   end
 
   test "used_up page searches used up logs by item name" do
@@ -805,6 +822,8 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_includes response.body, matching_item.name
     assert_no_match other_item.name, response.body
+    assert_select "a.bg-emerald-600[href='#{used_up_items_path(category_id: categories(:hair_care).id)}']", text: categories(:hair_care).name
+    assert_select "a[href='#{used_up_items_path(category_id: "uncategorized")}']", text: "未設定"
   end
 
   test "used_up page combines item name and category filters" do
@@ -823,7 +842,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_includes response.body, items(:one).name
     assert_no_match items(:two).name, response.body
-    assert_select "input[type='hidden'][name='category_id']", count: 0
+    assert_select "input[type='hidden'][name='category_id'][value='#{categories(:hair_care).id}']"
   end
 
   test "used_up page filters usage logs for uncategorized items" do

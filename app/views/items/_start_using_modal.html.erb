@@ -1,0 +1,24 @@
+<div class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/40 px-4 py-6" data-disclosure-panel="start-using" data-modal-panel role="dialog" aria-modal="true" aria-labelledby="start-using-title-<%= item.id %>">
+  <button type="button" class="absolute inset-0 cursor-default" data-disclosure-cancel aria-label="閉じる"></button>
+
+  <div class="relative w-full max-w-sm rounded-lg bg-white p-5 shadow-xl">
+    <div class="mb-4">
+      <p id="start-using-title-<%= item.id %>" class="brand-font text-lg font-bold text-slate-900">使い始め日を入力</p>
+      <p class="mt-1 text-sm text-slate-500"><%= item.name %></p>
+    </div>
+
+    <%= form_with url: start_using_item_path(item), method: :patch, local: true, class: "space-y-4" do %>
+      <div>
+        <%= label_tag :started_at, "使い始め日", class: "form-label" %>
+        <%= date_field_tag :started_at, Date.current, class: "form-input bg-white" %>
+      </div>
+
+      <div class="grid gap-2">
+        <%= submit_tag "この日から使う", class: "btn-primary w-full cursor-pointer" %>
+        <button type="button" class="btn-secondary w-full" data-disclosure-cancel>
+          キャンセル
+        </button>
+      </div>
+    <% end %>
+  </div>
+</div>

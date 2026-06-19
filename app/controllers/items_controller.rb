@@ -46,7 +46,7 @@ class ItemsController < ApplicationController
     @categories = current_user.categories.order(:name)
     finished_usage_logs = current_user.usage_logs
                                       .finished
-                                      .used_up
+                                      .used_up_history
                                       .by_item_name(@search_query)
                                       .by_item_category(@selected_category_id)
                                       .includes(:item)
@@ -56,7 +56,7 @@ class ItemsController < ApplicationController
     ).page(params[:page])
     @used_up_counts_by_item_id = current_user.usage_logs
                                              .finished
-                                             .used_up
+                                             .used_up_history
                                              .group(:item_id)
                                              .count
   end

@@ -2,11 +2,33 @@
   <%= render "shared/search_form",
              url: discontinued_items_path,
              query: @search_query,
-             hidden_params: {},
+             hidden_params: {
+               category_id: @selected_category_id.presence
+             },
              show_reset: @search_query.present?,
-             reset_url: discontinued_items_path %>
+             reset_url: discontinued_items_path(category_id: @selected_category_id.presence) %>
 
   <%= render "shared/history_tabs" %>
+
+  <div class="mb-4">
+    <% category_filter_params = {
+      q: @search_query.presence
+    } %>
+    <div class="mb-2 text-xs font-semibold text-slate-500">カテゴリ</div>
+    <div class="flex flex-wrap gap-2">
+      <%= link_to "すべて",
+                  discontinued_items_path(category_filter_params),
+                  class: category_filter_class(@selected_category_id, nil) %>
+      <% @categories.each do |category| %>
+        <%= link_to category.name,
+                    discontinued_items_path(category_filter_params.merge(category_id: category.id)),
+                    class: category_filter_class(@selected_category_id, category.id) %>
+      <% end %>
+      <%= link_to "未設定",
+                  discontinued_items_path(category_filter_params.merge(category_id: "uncategorized")),
+                  class: category_filter_class(@selected_category_id, "uncategorized") %>
+    </div>
+  </div>
 
   <% if @usage_logs.any? %>
     <div class="grid gap-3">
