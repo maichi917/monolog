@@ -908,13 +908,23 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_select "[data-submit-loading]", text: "アイテムを登録しています..."
   end
 
-  test "new page has category select and new category field" do
+  test "new page has category combobox" do
     get new_item_path
 
     assert_response :success
-    assert_select "select[name='item[category_id]']"
-    assert_select "input[name='item[new_category_name]']"
-    assert_includes response.body, categories(:hair_care).name
+    assert_select "input[name='item[new_category_name]'][list='item-category-options']"
+    assert_select "datalist#item-category-options option[value='#{categories(:hair_care).name}']"
+    assert_includes response.body, "候補から選ぶか、新しいカテゴリ名を入力してください"
+  end
+
+  test "edit page shows current category in category combobox" do
+    item = items(:one)
+    item.update!(category: categories(:hair_care))
+
+    get edit_item_path(item)
+
+    assert_response :success
+    assert_select "input[name='item[new_category_name]'][value='#{categories(:hair_care).name}']"
   end
 
   test "edit page has submit loading message" do
@@ -960,6 +970,27 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     item = @user.items.order(:created_at).last
     assert_redirected_to items_path
     assert_equal "日用品", item.category.name
+  end
+
+  test "create assigns existing category from category combobox" do
+    category = categories(:hair_care)
+
+    assert_no_difference -> { @user.categories.count } do
+      assert_difference -> { @user.items.count }, 1 do
+        post items_path, params: {
+          item: {
+            name: "トリートメント",
+            price: 900,
+            stock_quantity: 1,
+            new_category_name: category.name
+          }
+        }
+      end
+    end
+
+    item = @user.items.order(:created_at).last
+    assert_redirected_to items_path
+    assert_equal category, item.category
   end
 
   test "create rerenders new when new category is invalid" do
@@ -1015,7 +1046,25 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "メイク", item.reload.category.name
   end
 
-  test "update removes category from item" do
+  test "update changes category from category combobox" do
+    item = items(:one)
+    item.update!(category: categories(:hair_care))
+    category = categories(:skin_care)
+
+    patch item_path(item), params: {
+      item: {
+        name: item.name,
+        price: item.price,
+        stock_quantity: item.stock_quantity,
+        new_category_name: category.name
+      }
+    }
+
+    assert_redirected_to items_path
+    assert_equal category, item.reload.category
+  end
+
+  test "update removes category from item when category combobox is blank" do
     item = items(:one)
     item.update!(category: categories(:hair_care))
 
@@ -1024,7 +1073,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
         name: item.name,
         price: item.price,
         stock_quantity: item.stock_quantity,
-        remove_category: "1"
+        new_category_name: ""
       }
     }
 

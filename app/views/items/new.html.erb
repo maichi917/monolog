@@ -26,23 +26,7 @@
         </div>
 
         <!-- カテゴリ -->
-        <div class="space-y-3">
-          <div>
-            <%= f.label :category_id, "カテゴリ", class: "form-label" %>
-            <%= f.collection_select :category_id,
-                                    @categories,
-                                    :id,
-                                    :name,
-                                    { include_blank: "カテゴリを選択してください" },
-                                    { class: "form-input" } %>
-          </div>
-
-          <div>
-            <%= f.label :new_category_name, "カテゴリが見つからない場合", class: "form-label" %>
-            <%= f.text_field :new_category_name, class: "form-input", placeholder: "例: ヘアケア", maxlength: 20 %>
-            <p class="form-help">入力すると、新しいカテゴリを追加してこのアイテムに設定します。</p>
-          </div>
-        </div>
+        <%= render "category_combobox", form: f, item: @item, categories: @categories %>
 
         <!-- 画像プレビュー -->
         <div>
