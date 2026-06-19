@@ -80,11 +80,26 @@
                           class: "font-medium text-red-600 transition duration-150 hover:text-red-800" %>
             </div>
           <% end %>
-          <%= f.file_field :image,
-                           accept: "image/jpeg,image/png",
-                           capture: "environment",
-                           class: "mt-4 block w-full text-sm text-slate-700" %>
-          <p class="form-help">JPEG / PNG、10MB以下の画像を選択・撮影してください</p>
+          <div class="mt-4 grid gap-3 md:block">
+            <%= f.file_field :image,
+                             accept: "image/jpeg,image/png",
+                             capture: "environment",
+                             id: "item_image_camera",
+                             class: "sr-only md:hidden" %>
+            <label for="item_image_camera" class="btn-primary block cursor-pointer text-center md:hidden">
+              カメラを起動
+            </label>
+
+            <%= f.file_field :image,
+                             accept: "image/jpeg,image/png",
+                             id: "item_image_file",
+                             class: "sr-only md:not-sr-only md:block md:w-full md:text-sm md:text-slate-700" %>
+            <label for="item_image_file" class="btn-secondary block cursor-pointer text-center md:hidden">
+              フォルダからアップロード
+            </label>
+          </div>
+          <p class="form-help md:hidden">JPEG / PNG、10MB以下。撮影またはフォルダからアップロードできます。</p>
+          <p class="form-help hidden md:block">JPEG / PNG、10MB以下の画像を選択してください</p>
           <div class="alert-success hidden" data-upload-progress></div>
         </div>
 
