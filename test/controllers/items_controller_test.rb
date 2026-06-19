@@ -912,8 +912,12 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     get new_item_path
 
     assert_response :success
-    assert_select "input[type='file'][name='item[image]'][accept='image/jpeg,image/png'][capture='environment']"
-    assert_includes response.body, "JPEG / PNG、10MB以下の画像を選択・撮影してください"
+    assert_select "input#item_image_camera[type='file'][name='item[image]'][accept='image/jpeg,image/png'][capture='environment']"
+    assert_select "label[for='item_image_camera'].md\\:hidden", text: "カメラを起動"
+    assert_select "input#item_image_file[type='file'][name='item[image]'][accept='image/jpeg,image/png']"
+    assert_select "label[for='item_image_file'].md\\:hidden", text: "フォルダからアップロード"
+    assert_includes response.body, "撮影またはフォルダからアップロードできます"
+    assert_includes response.body, "JPEG / PNG、10MB以下の画像を選択してください"
   end
 
   test "new page has category select and new category field" do
@@ -936,8 +940,12 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     get edit_item_path(items(:one))
 
     assert_response :success
-    assert_select "input[type='file'][name='item[image]'][accept='image/jpeg,image/png'][capture='environment']"
-    assert_includes response.body, "JPEG / PNG、10MB以下の画像を選択・撮影してください"
+    assert_select "input#item_image_camera[type='file'][name='item[image]'][accept='image/jpeg,image/png'][capture='environment']"
+    assert_select "label[for='item_image_camera'].md\\:hidden", text: "カメラを起動"
+    assert_select "input#item_image_file[type='file'][name='item[image]'][accept='image/jpeg,image/png']"
+    assert_select "label[for='item_image_file'].md\\:hidden", text: "フォルダからアップロード"
+    assert_includes response.body, "撮影またはフォルダからアップロードできます"
+    assert_includes response.body, "JPEG / PNG、10MB以下の画像を選択してください"
   end
 
   test "create assigns selected category to item" do
