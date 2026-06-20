@@ -61,67 +61,76 @@
   <% if @items.any? %>
     <div class="grid gap-3">
       <% @items.each do |item| %>
-        <article class="border-b border-slate-200 bg-white py-3 shadow-none sm:rounded-lg sm:border sm:p-4 sm:shadow-sm" data-disclosure>
-          <div class="flex items-center gap-3">
-            <div class="shrink-0">
-              <%= render "image",
-                         item: item,
-                         size_class: "h-16 w-16",
-                         image_class: "h-16 w-16 rounded-lg object-cover",
-                         placeholder_icon_class: "h-7 w-7" %>
-            </div>
-
-            <div class="min-w-0 flex-1">
-              <div class="flex flex-wrap items-center gap-2">
-                <h2 class="brand-font truncate text-lg font-bold text-slate-900"><%= item.name %></h2>
-
-                <% if item.using? %>
-                  <span class="rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-800">使用中</span>
-                <% elsif item.stock_available? %>
-                  <span class="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">在庫あり</span>
-                <% else %>
-                  <span class="rounded-full border border-red-200 bg-red-50 px-3 py-1 text-xs font-semibold text-red-700">在庫なし</span>
-                <% end %>
+        <article class="border-b border-slate-200 bg-white py-2.5 shadow-none sm:rounded-lg sm:border sm:p-4 sm:shadow-sm" data-disclosure>
+          <div class="flex items-center gap-2 sm:gap-3">
+            <%= link_to item_path(item),
+                        class: "flex min-w-0 flex-1 items-center gap-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 sm:focus:ring-offset-0",
+                        aria: { label: "#{item.name}の詳細を見る" } do %>
+              <div class="shrink-0">
+                <%= render "image",
+                           item: item,
+                           size_class: "h-14 w-14 sm:h-16 sm:w-16",
+                           image_class: "h-14 w-14 rounded-lg object-cover sm:h-16 sm:w-16",
+                           placeholder_icon_class: "h-6 w-6 sm:h-7 sm:w-7" %>
               </div>
 
-              <dl class="mt-2 flex flex-wrap items-center gap-2 text-sm">
-                <div class="inline-flex max-w-full items-center gap-1.5 rounded-lg bg-slate-50 px-2.5 py-1 text-slate-700">
-                  <dt class="text-xs font-medium text-slate-500">カテゴリ</dt>
-                  <dd class="min-w-0 truncate"><%= item.category&.name || "未設定" %></dd>
-                </div>
-              </dl>
-            </div>
+              <div class="min-w-0 flex-1">
+                <h2 class="brand-font truncate text-lg font-bold text-slate-900"><%= item.name %></h2>
 
-            <div class="flex shrink-0 items-center justify-end gap-3">
-              <div class="inline-flex min-w-16 items-baseline justify-center gap-1.5 rounded-lg bg-slate-50 px-2.5 py-1">
+                <dl class="mt-0.5 grid grid-cols-2 gap-x-2 gap-y-0.5 text-[11px] text-slate-700 sm:mt-1 sm:flex sm:flex-wrap sm:items-center sm:gap-2 sm:text-xs">
+                  <div class="flex min-w-0 items-center gap-1">
+                    <dt class="shrink-0 font-medium text-slate-500">状態</dt>
+                    <dd class="min-w-0">
+                      <% if item.using? %>
+                        <span class="inline-flex rounded-full bg-amber-100 px-1.5 py-0.5 font-semibold text-amber-800 sm:px-2">使用中</span>
+                      <% elsif item.stock_available? %>
+                        <span class="inline-flex rounded-full bg-emerald-50 px-1.5 py-0.5 font-semibold text-emerald-700 sm:px-2">在庫あり</span>
+                      <% else %>
+                        <span class="inline-flex rounded-full border border-red-200 bg-red-50 px-1.5 py-0.5 font-semibold text-red-700 sm:px-2">在庫なし</span>
+                      <% end %>
+                    </dd>
+                  </div>
+                  <div class="flex min-w-0 items-center gap-1">
+                    <dt class="shrink-0 font-medium text-slate-500">カテゴリ</dt>
+                    <dd class="min-w-0 truncate"><%= item.category&.name || "未設定" %></dd>
+                  </div>
+                </dl>
+              </div>
+
+            <% end %>
+
+            <div class="flex shrink-0 items-center justify-end gap-2 sm:gap-3">
+              <div class="inline-flex min-w-14 items-baseline justify-center gap-1 rounded-lg bg-slate-50 px-2 py-1 sm:min-w-16 sm:gap-1.5 sm:px-2.5">
                 <span class="text-xs font-medium text-slate-500">在庫</span>
-                <span class="font-sans text-lg font-bold leading-none tracking-wide <%= item.out_of_stock? ? "text-red-700" : "text-slate-900" %>">
+                <span class="font-sans text-base font-bold leading-none tracking-wide sm:text-lg <%= item.out_of_stock? ? "text-red-700" : "text-slate-900" %>">
                   <%= item.stock_quantity %>
                 </span>
               </div>
 
-              <div class="flex flex-wrap items-center justify-end gap-2">
-                <% if item.using? %>
-                  <button type="button" class="btn-danger px-3 py-1.5" data-disclosure-toggle data-disclosure-target="finish-using">
-                    使い切る
-                  </button>
-                  <%= link_to "在庫を追加",
-                              edit_item_path(item),
-                              class: "inline-flex items-center justify-center rounded-lg bg-yellow-500 px-3 py-2 text-sm font-semibold text-white transition hover:bg-amber-600" %>
-                <% elsif item.stock_available? %>
-                  <button type="button" class="btn-primary px-3 py-1.5" data-disclosure-toggle data-disclosure-target="start-using">
-                    使い始める
-                  </button>
-                  <%= link_to "在庫を追加",
-                              edit_item_path(item),
-                              class: "inline-flex items-center justify-center rounded-lg bg-yellow-500 px-3 py-2 text-sm font-semibold text-white transition hover:bg-amber-600" %>
-                <% else %>
-                  <%= link_to "在庫を追加",
-                              edit_item_path(item),
-                              class: "inline-flex items-center justify-center rounded-lg bg-yellow-500 px-3 py-2 text-sm font-semibold text-white transition hover:bg-amber-600" %>
-                <% end %>
+              <div class="grid grid-cols-[4rem_auto] items-stretch gap-1.5 sm:flex sm:w-auto sm:flex-wrap sm:items-center sm:justify-end sm:gap-2">
+                <div class="grid gap-1.5">
+                  <% if item.using? %>
+                    <button type="button" class="btn-danger px-2 py-1.5 text-xs leading-tight sm:px-3 sm:text-sm" data-disclosure-toggle data-disclosure-target="finish-using">
+                      使い切る
+                    </button>
+                    <%= link_to "在庫を追加",
+                                edit_item_path(item),
+                                class: "inline-flex items-center justify-center rounded-lg bg-yellow-500 px-2 py-1.5 text-center text-xs font-semibold leading-tight text-white transition hover:bg-amber-600 sm:px-3 sm:py-2 sm:text-sm" %>
+                  <% elsif item.stock_available? %>
+                    <button type="button" class="btn-primary px-2 py-1.5 text-xs leading-tight sm:px-3 sm:text-sm" data-disclosure-toggle data-disclosure-target="start-using">
+                      使い始める
+                    </button>
+                    <%= link_to "在庫を追加",
+                                edit_item_path(item),
+                                class: "inline-flex items-center justify-center rounded-lg bg-yellow-500 px-2 py-1.5 text-center text-xs font-semibold leading-tight text-white transition hover:bg-amber-600 sm:px-3 sm:py-2 sm:text-sm" %>
+                  <% else %>
+                    <%= link_to "在庫を追加",
+                                edit_item_path(item),
+                                class: "inline-flex items-center justify-center rounded-lg bg-yellow-500 px-2 py-1.5 text-center text-xs font-semibold leading-tight text-white transition hover:bg-amber-600 sm:px-3 sm:py-2 sm:text-sm" %>
+                  <% end %>
+                </div>
 
-                <%= link_to "詳細", item_path(item), class: "btn-secondary px-3 py-1.5" %>
+                <%= link_to "詳細", item_path(item), class: "btn-secondary hidden h-full items-center justify-center px-2 py-1 text-[11px] leading-tight sm:flex sm:h-auto sm:px-3 sm:py-1.5 sm:text-sm" %>
               </div>
             </div>
           </div>
