@@ -131,6 +131,16 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_select "a[href='#{edit_item_path(out_of_stock_item)}']", text: "在庫を追加"
   end
 
+  test "index links item information to detail page and hides detail button on mobile" do
+    item = items(:one)
+
+    get items_path
+
+    assert_response :success
+    assert_select "a[aria-label='#{item.name}の詳細を見る'][href='#{item_path(item)}']"
+    assert_select "a.hidden[href='#{item_path(item)}']", text: "詳細"
+  end
+
   test "index filters items by category" do
     items(:one).update!(category: categories(:hair_care))
     items(:two).update!(category: categories(:skin_care))
