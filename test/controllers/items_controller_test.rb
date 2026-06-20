@@ -29,20 +29,19 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_select "a[href='#{items_path}']", text: "リセット"
   end
 
-  test "header shows mobile menu and desktop navigation" do
+  test "header shows mobile and desktop navigation" do
     get items_path
 
     assert_response :success
-    assert_select "details.md\\:hidden" do
-      assert_select "summary", text: /メニュー/
-      assert_select "nav[aria-label='スマートフォンメニュー']" do
-        assert_select "a[href='#{items_path}']", text: "アイテム"
-        assert_select "a[href='#{items_path(status: "available")}']", text: "在庫あり", count: 0
-        assert_select "a[href='#{in_use_items_path}']", text: "使用中", count: 0
-        assert_select "a[href='#{used_up_items_path}']", text: "履歴"
-        assert_select "a[href='#{reviews_usage_logs_path}']", text: "レビュー", count: 0
-        assert_select "details[data-menu-group='other']", count: 0
-      end
+    assert_select "details.md\\:hidden", count: 0
+    assert_select "summary", text: /メニュー/, count: 0
+    assert_select "nav[aria-label='スマートフォンメニュー'].md\\:hidden" do
+      assert_select "a.bg-emerald-50[href='#{items_path}']", text: "アイテム"
+      assert_select "a[href='#{items_path(status: "available")}']", text: "在庫あり", count: 0
+      assert_select "a[href='#{in_use_items_path}']", text: "使用中", count: 0
+      assert_select "a[href='#{used_up_items_path}']", text: "履歴"
+      assert_select "a[href='#{reviews_usage_logs_path}']", text: "レビュー", count: 0
+      assert_select "details[data-menu-group='other']", count: 0
     end
     assert_select "nav[aria-label='メインメニュー'].md\\:flex" do
       assert_select "a.bg-emerald-50[href='#{items_path}']", text: "アイテム"
