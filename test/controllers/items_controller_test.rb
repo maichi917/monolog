@@ -1122,6 +1122,17 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_includes response.body, categories(:hair_care).name
   end
 
+  test "show uses consistent finish using button label for in-use item" do
+    item = items(:one)
+    item.start_using!(@user, Time.zone.local(2026, 5, 10))
+
+    get item_path(item)
+
+    assert_response :success
+    assert_select "button[data-disclosure-target='finish-using']", text: "使い切る"
+    assert_select "button", text: "使い切り日を入力する", count: 0
+  end
+
   test "show highlights out of stock item and shows restock link" do
     item = items(:two)
 
