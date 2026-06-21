@@ -32,6 +32,23 @@ class StaticPagesControllerTest < ActionDispatch::IntegrationTest
     assert_select "h1", "利用規約"
   end
 
+  test "使い方ページを表示できる" do
+    get guide_path
+
+    assert_response :success
+    assert_select "h1", "ものログでできること"
+    assert_select "h2", "基本の流れ"
+    assert_select "a[href='#{items_path}']", "アイテムを見る"
+    assert_select "a[href='#{used_up_items_path}']", "履歴を見る"
+  end
+
+  test "フッターから使い方ページに移動できる" do
+    get root_path
+
+    assert_response :success
+    assert_select "footer a[href='#{guide_path}']", "使い方"
+  end
+
   test "フッターから利用規約ページに移動できる" do
     get root_path
 
