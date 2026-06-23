@@ -33,6 +33,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     get items_path
 
     assert_response :success
+    assert_select "img[src*='logo-mark'][alt='']"
     assert_select "details.md\\:hidden", count: 0
     assert_select "summary", text: /メニュー/, count: 0
     assert_select "nav[aria-label='スマートフォンメニュー'].md\\:hidden" do
