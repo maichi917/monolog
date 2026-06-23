@@ -20,6 +20,8 @@ class StaticPagesControllerTest < ActionDispatch::IntegrationTest
     assert_select "meta[name='twitter:title'][content='ものログ']"
     assert_select "meta[name='twitter:description'][content]"
     assert_select "meta[name='twitter:image'][content]"
+    assert_select "link[rel='icon'][href='/favicon.ico'][sizes='any']"
+    assert_select "link[rel='apple-touch-icon'][href='/apple-touch-icon.png']"
 
     og_image = css_select("meta[property='og:image']").first["content"]
     assert_match %r{\Ahttp://www\.example\.com/assets/ogp(?:-[a-f0-9]+)?\.png\z}, og_image
