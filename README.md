@@ -95,7 +95,7 @@ https://monolog-note.com/
 | フロントエンド | Tailwind CSS / Hotwire（Turbo, Stimulus） |
 | データベース | PostgreSQL |
 | 認証 | Devise |
-| 画像管理 | Active Storage / image_processing / libvips |
+| 画像管理 | Active Storage / Cloudflare R2 / image_processing / libvips |
 | ページネーション | Kaminari |
 | i18n | rails-i18n / devise-i18n |
 | テスト | Minitest |
