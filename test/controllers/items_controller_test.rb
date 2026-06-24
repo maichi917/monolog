@@ -958,6 +958,22 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "JPEG / PNG、10MB以下の画像を選択してください"
   end
 
+  test "new page has brand name field" do
+    get new_item_path
+
+    assert_response :success
+    assert_select "label[for='item_brand_name']", "ブランド名"
+    assert_select "input[name='item[brand_name]'][maxlength='100']"
+  end
+
+  test "edit page has brand name field" do
+    get edit_item_path(items(:one))
+
+    assert_response :success
+    assert_select "label[for='item_brand_name']", "ブランド名"
+    assert_select "input[name='item[brand_name]'][maxlength='100']"
+  end
+
   test "create assigns selected category to item" do
     category = categories(:hair_care)
 
@@ -975,6 +991,40 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     item = @user.items.order(:created_at).last
     assert_redirected_to items_path
     assert_equal category, item.category
+  end
+
+  test "create saves brand name" do
+    assert_difference -> { @user.items.count }, 1 do
+      post items_path, params: {
+        item: {
+          name: "シャンプー",
+          brand_name: "ものログ製薬",
+          price: 1200,
+          stock_quantity: 1
+        }
+      }
+    end
+
+    item = @user.items.order(:created_at).last
+    assert_redirected_to items_path
+    assert_equal "ものログ製薬", item.brand_name
+  end
+
+  test "create saves item without brand name" do
+    assert_difference -> { @user.items.count }, 1 do
+      post items_path, params: {
+        item: {
+          name: "無印アイテム",
+          brand_name: "",
+          price: 500,
+          stock_quantity: 1
+        }
+      }
+    end
+
+    item = @user.items.order(:created_at).last
+    assert_redirected_to items_path
+    assert item.brand_name.blank?
   end
 
   test "create creates new category and assigns it to item" do
@@ -1029,6 +1079,22 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
 
     assert_redirected_to items_path
     assert_equal category, item.reload.category
+  end
+
+  test "update changes brand name" do
+    item = items(:one)
+
+    patch item_path(item), params: {
+      item: {
+        name: item.name,
+        brand_name: "ものログコスメ",
+        price: item.price,
+        stock_quantity: item.stock_quantity
+      }
+    }
+
+    assert_redirected_to items_path
+    assert_equal "ものログコスメ", item.reload.brand_name
   end
 
   test "update creates new category and assigns it to item" do
@@ -1093,6 +1159,16 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_includes response.body, categories(:hair_care).name
   end
 
+  test "index shows item brand name" do
+    item = items(:one)
+    item.update!(brand_name: "ものログ製薬")
+
+    get items_path
+
+    assert_response :success
+    assert_includes response.body, "ものログ製薬"
+  end
+
   test "index paginates items with ten items per page" do
     9.times do |number|
       @user.items.create!(
@@ -1123,6 +1199,17 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_includes response.body, categories(:hair_care).name
   end
 
+  test "show shows item brand name" do
+    item = items(:one)
+    item.update!(brand_name: "ものログ製薬")
+
+    get item_path(item)
+
+    assert_response :success
+    assert_includes response.body, "ブランド名"
+    assert_includes response.body, "ものログ製薬"
+  end
+
   test "show uses consistent finish using button label for in-use item" do
     item = items(:one)
     item.start_using!(@user, Time.zone.local(2026, 5, 10))
@@ -1141,7 +1228,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "span.bg-red-50", text: "在庫なし"
-    assert_select "dd.font-bold.text-red-700", text: item.stock_quantity.to_s
+    assert_select "dd.text-red-700", text: item.stock_quantity.to_s
     assert_select "a[href='#{edit_item_path(item)}']", text: "在庫を追加"
   end
 

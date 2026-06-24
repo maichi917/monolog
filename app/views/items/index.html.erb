@@ -76,8 +76,11 @@
 
               <div class="min-w-0 flex-1">
                 <h2 class="brand-font truncate text-lg font-bold text-slate-900"><%= item.name %></h2>
+                <% if item.brand_name.present? %>
+                  <p class="truncate text-xs font-medium text-emerald-700 sm:text-sm"><%= item.brand_name %></p>
+                <% end %>
 
-                <dl class="mt-0.5 grid grid-cols-2 gap-x-2 gap-y-0.5 text-[11px] text-slate-700 sm:mt-1 sm:flex sm:flex-wrap sm:items-center sm:gap-2 sm:text-xs">
+                <dl class="mt-0.5 grid grid-cols-2 gap-x-2 gap-y-1 text-[11px] text-slate-700 sm:mt-1 sm:flex sm:flex-wrap sm:items-center sm:gap-2 sm:text-xs">
                   <div class="flex min-w-0 items-center gap-1">
                     <dt class="shrink-0 font-medium text-slate-500">状態</dt>
                     <dd class="min-w-0">
@@ -92,7 +95,9 @@
                   </div>
                   <div class="flex min-w-0 items-center gap-1">
                     <dt class="shrink-0 font-medium text-slate-500">カテゴリ</dt>
-                    <dd class="min-w-0 truncate"><%= item.category&.name || "未設定" %></dd>
+                    <dd class="min-w-0 truncate <%= item.category.present? ? "text-slate-700" : "text-slate-400" %>">
+                      <%= item.category&.name || "未設定" %>
+                    </dd>
                   </div>
                 </dl>
               </div>

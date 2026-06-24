@@ -166,6 +166,21 @@ class ItemTest < ActiveSupport::TestCase
     assert item.valid?
   end
 
+  test "item can be saved without brand name" do
+    item = items(:one)
+    item.brand_name = nil
+
+    assert item.valid?
+  end
+
+  test "item rejects brand name over 100 characters" do
+    item = items(:one)
+    item.brand_name = "あ" * 101
+
+    assert_not item.valid?
+    assert_includes item.errors[:brand_name], "は100文字以内で入力してください"
+  end
+
   test "item accepts png image" do
     item = items(:one)
     item.image.attach(
