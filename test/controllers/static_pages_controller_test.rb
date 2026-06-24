@@ -80,7 +80,8 @@ class StaticPagesControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "h1", "お問い合わせ"
-    assert_select "p", "お問い合わせ窓口を準備中です"
+    assert_select "p", "お問い合わせフォーム"
+    assert_select "a[href*='docs.google.com/forms']", "Googleフォームを開く"
   end
 
   test "フッターからお問い合わせページに移動できる" do
