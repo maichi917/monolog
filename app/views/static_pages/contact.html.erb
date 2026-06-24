@@ -2,20 +2,28 @@
   <div class="space-y-5">
     <h1 class="brand-font text-center text-2xl font-bold text-slate-900">お問い合わせ</h1>
 
-    <div class="ui-card space-y-4 text-sm leading-relaxed text-slate-700">
+    <div class="ui-card space-y-5 text-sm leading-relaxed text-slate-700">
       <p>
         「ものログ」をご利用いただき、ありがとうございます。
       </p>
 
-      <div class="rounded-lg bg-slate-50 px-4 py-4">
-        <p class="font-bold text-slate-900">お問い合わせ窓口を準備中です</p>
+      <div class="rounded-lg bg-emerald-50 px-4 py-4">
+        <p class="font-bold text-slate-900">お問い合わせフォーム</p>
         <p class="mt-2">
-          現在、お問い合わせ先を準備しています。ご案内まで今しばらくお待ちください。
+          ご意見・不具合のご報告・その他のお問い合わせは、Googleフォームからお送りください。
         </p>
       </div>
 
-      <p class="text-slate-500">
-        お問い合わせ方法が決まり次第、このページでお知らせします。
+      <div class="text-center">
+        <%= link_to "Googleフォームを開く",
+                    "https://docs.google.com/forms/d/e/1FAIpQLSe-FQYI10R-WciP1i4lLKHGLXYOwPtCESXjUN-mP2s5MKZhTA/viewform?usp=publish-editor",
+                    target: "_blank",
+                    rel: "noopener",
+                    class: "inline-flex w-full items-center justify-center rounded-lg bg-emerald-600 px-4 py-3 font-bold text-white transition hover:bg-emerald-700 sm:w-auto" %>
+      </div>
+
+      <p class="text-xs text-slate-500">
+        内容を確認のうえ、必要に応じて返信いたします。
       </p>
     </div>
   </div>
