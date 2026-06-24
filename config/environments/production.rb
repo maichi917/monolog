@@ -2,6 +2,19 @@ require "active_support/core_ext/integer/time"
 
 Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
+  config.before_initialize do
+    required_r2_env_names = %w[
+      CLOUDFLARE_R2_ACCESS_KEY_ID
+      CLOUDFLARE_R2_SECRET_ACCESS_KEY
+      CLOUDFLARE_R2_BUCKET
+      CLOUDFLARE_R2_ENDPOINT
+    ]
+    missing_r2_env_names = required_r2_env_names.select { |name| ENV[name].blank? }
+
+    if missing_r2_env_names.any?
+      raise "Missing Cloudflare R2 environment variables: #{missing_r2_env_names.join(', ')}"
+    end
+  end
 
   # Code is not reloaded between requests.
   config.enable_reloading = false
@@ -36,8 +49,8 @@ Rails.application.configure do
   # config.action_dispatch.x_sendfile_header = "X-Sendfile" # for Apache
   # config.action_dispatch.x_sendfile_header = "X-Accel-Redirect" # for NGINX
 
-  # Store uploaded files on the local file system (see config/storage.yml for options).
-  config.active_storage.service = :local
+  # Store uploaded files on Cloudflare R2 so they persist across deploys.
+  config.active_storage.service = :cloudflare
 
   # Mount Action Cable outside main process or domain.
   # config.action_cable.mount_path = nil
