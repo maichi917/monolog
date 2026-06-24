@@ -25,6 +25,13 @@
           <%= f.text_field :name, class: "form-input" %>
         </div>
 
+        <!-- ブランド名 -->
+        <div>
+          <%= f.label :brand_name, "ブランド名", class: "form-label" %>
+          <%= f.text_field :brand_name, class: "form-input", placeholder: "例: ものログ製薬", maxlength: 100 %>
+          <p class="form-help">メーカー名やブランド名を残しておくと、あとから見返しやすくなります。</p>
+        </div>
+
         <!-- カテゴリ -->
         <div class="space-y-3">
           <% if @item.category.present? %>
