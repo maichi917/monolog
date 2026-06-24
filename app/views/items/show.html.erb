@@ -37,7 +37,7 @@
 
         <div class="rounded-lg bg-slate-50 p-3">
           <dt class="text-xs text-slate-500">在庫数</dt>
-          <dd class="mt-1 font-sans text-2xl font-bold tracking-wide <%= @item.out_of_stock? ? "text-red-700" : "text-slate-900" %>">
+          <dd class="mt-1 font-semibold <%= @item.out_of_stock? ? "text-red-700" : "text-slate-800" %>">
             <%= @item.stock_quantity %>
           </dd>
         </div>
@@ -45,6 +45,11 @@
         <div class="rounded-lg bg-slate-50 p-3">
           <dt class="text-xs text-slate-500">カテゴリ</dt>
           <dd class="mt-1 font-semibold text-slate-800"><%= @item.category&.name || "未設定" %></dd>
+        </div>
+
+        <div class="rounded-lg bg-slate-50 p-3">
+          <dt class="text-xs text-slate-500">ブランド名</dt>
+          <dd class="mt-1 font-semibold text-slate-800"><%= @item.brand_name.presence || "未設定" %></dd>
         </div>
       </dl>
     </div>
