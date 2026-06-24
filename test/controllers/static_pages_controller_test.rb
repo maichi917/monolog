@@ -38,11 +38,13 @@ class StaticPagesControllerTest < ActionDispatch::IntegrationTest
     get guide_path
 
     assert_response :success
-    assert_select "h1", "買ったものと使った感想を、あとから見返せるように"
+    assert_select "h1", "在庫管理からレビューまで、これひとつで"
     assert_select "h2", "基本の流れ"
     assert_select "a[href='#{items_path}']", "アイテムを見る"
     assert_select "a[href='#{used_up_items_path}']", "履歴を見る"
     assert_select "a[href='#{reviews_usage_logs_path}']", "レビューを見る"
+    assert_select "img[alt='アイテム一覧画面']"
+    assert_select "img[alt='レビュー一覧画面']"
   end
 
   test "フッターから使い方ページに移動できる" do
