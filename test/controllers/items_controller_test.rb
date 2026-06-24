@@ -41,6 +41,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
       assert_select "a[href='#{items_path(status: "available")}']", text: "在庫あり", count: 0
       assert_select "a[href='#{in_use_items_path}']", text: "使用中", count: 0
       assert_select "a[href='#{used_up_items_path}']", text: "履歴"
+      assert_select "a[href='#{guide_path}']", text: "使い方"
       assert_select "a[href='#{reviews_usage_logs_path}']", text: "レビュー", count: 0
       assert_select "details[data-menu-group='other']", count: 0
     end
@@ -49,6 +50,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
       assert_select "a[href='#{items_path(status: "available")}']", text: "在庫あり", count: 0
       assert_select "a[href='#{in_use_items_path}']", text: "使用中", count: 0
       assert_select "a[href='#{used_up_items_path}']", text: "履歴"
+      assert_select "a[href='#{guide_path}']", text: "使い方"
       assert_select "a[href='#{reviews_usage_logs_path}']", text: "レビュー", count: 0
     end
   end
