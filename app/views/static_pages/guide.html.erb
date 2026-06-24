@@ -1,33 +1,33 @@
 <div class="ui-container-wide">
-  <div class="mx-auto max-w-5xl space-y-6">
+  <div class="mx-auto max-w-5xl space-y-8">
     <section class="space-y-3">
       <p class="text-sm font-semibold text-emerald-700">使い方</p>
-      <h1 class="brand-font text-3xl font-bold text-slate-900">ものログでできること</h1>
+      <h1 class="brand-font text-3xl font-bold text-slate-900">買ったものと使った感想を、あとから見返せるように</h1>
       <p class="max-w-3xl text-sm leading-relaxed text-slate-600">
-        ものログは、日用品やコスメなどの在庫と使用履歴を記録して、次の買い物やリピート判断を楽にするアプリです。
-        いま家にある数、使っているもの、使い切ったあとの評価をひとつの流れで残せます。
+        ものログは、家にあるものや使い切ったものを少しずつ記録していくアプリです。
+        はじめは在庫メモとして、レビューがたまってきたら「次も買う？」を決めるための自分用ログとして使えます。
       </p>
     </section>
 
     <section class="grid gap-4 md:grid-cols-3">
       <div class="ui-card space-y-2">
-        <p class="text-sm font-bold text-slate-900">在庫を見える化</p>
+        <p class="text-sm font-bold text-slate-900">まずは持っているものを登録</p>
         <p class="text-sm leading-relaxed text-slate-600">
-          アイテムごとに在庫数を管理できます。買い足したときは一覧からすぐに在庫を追加できます。
+          日用品やコスメを、アイテム名・ブランド名・カテゴリ・在庫数でまとめます。完璧に入れようとせず、よく使うものからで大丈夫です。
         </p>
       </div>
 
       <div class="ui-card space-y-2">
-        <p class="text-sm font-bold text-slate-900">使用中を記録</p>
+        <p class="text-sm font-bold text-slate-900">使い始めと使い切りを残す</p>
         <p class="text-sm leading-relaxed text-slate-600">
-          使い始めた日を残すことで、どれくらいの期間使えたかをあとから確認できます。
+          いつ使い始めて、いつ使い切ったかを残しておくと、ひとつの商品がどれくらいもったか見返しやすくなります。
         </p>
       </div>
 
       <div class="ui-card space-y-2">
-        <p class="text-sm font-bold text-slate-900">レビューを残す</p>
+        <p class="text-sm font-bold text-slate-900">レビューが買い物メモになる</p>
         <p class="text-sm leading-relaxed text-slate-600">
-          使い切ったあとに評価とレビューを記録できます。次に買うときの判断材料になります。
+          使い切ったあとに評価と感想を残しておくと、次に売り場や通販で迷ったときの手がかりになります。
         </p>
       </div>
     </section>
@@ -36,51 +36,93 @@
       <div class="space-y-1">
         <h2 class="brand-font text-2xl font-bold text-slate-900">基本の流れ</h2>
         <p class="text-sm leading-relaxed text-slate-600">
-          最初はアイテムを登録し、そのあと在庫や使用履歴を更新していきます。
+          よく使うものを登録して、買い足したり使い切ったりしたタイミングで更新していきます。
         </p>
       </div>
 
-      <ol class="grid gap-3 text-sm md:grid-cols-2">
-        <li class="rounded-lg border border-slate-200 bg-slate-50 p-4">
-          <span class="font-bold text-emerald-700">1. アイテムを登録する</span>
-          <p class="mt-2 leading-relaxed text-slate-600">
-            名前、カテゴリ、在庫数、必要に応じて画像を登録します。スマホでは撮影してそのまま登録できます。
-          </p>
+      <ol class="space-y-4 text-sm">
+        <li class="grid gap-4 rounded-lg border border-slate-200 bg-slate-50 p-4 md:grid-cols-[minmax(0,1fr)_minmax(240px,360px)]">
+          <div>
+            <span class="font-bold text-emerald-700">1. アイテムを登録する</span>
+            <p class="mt-2 leading-relaxed text-slate-600">
+              アイテム名、ブランド名、カテゴリ、在庫数を入れます。画像やメモは、あとから見分けたいものに付け足せます。
+            </p>
+          </div>
+          <div class="overflow-hidden rounded-lg border border-dashed border-slate-300 bg-white">
+            <div class="flex aspect-[4/3] items-center justify-center bg-white px-6 text-center">
+              <p class="text-xs font-semibold text-slate-400">アイテム登録画面のスクリーンショット予定</p>
+            </div>
+          </div>
         </li>
 
-        <li class="rounded-lg border border-slate-200 bg-slate-50 p-4">
-          <span class="font-bold text-emerald-700">2. 在庫を管理する</span>
-          <p class="mt-2 leading-relaxed text-slate-600">
-            アイテム一覧で在庫数を確認します。買い足したときは「在庫追加」から数を増やします。
-          </p>
+        <li class="grid gap-4 rounded-lg border border-slate-200 bg-slate-50 p-4 md:grid-cols-[minmax(0,1fr)_minmax(240px,360px)]">
+          <div>
+            <span class="font-bold text-emerald-700">2. 在庫数を管理する</span>
+            <p class="mt-2 leading-relaxed text-slate-600">
+              アイテム一覧で手元の数を確認します。買い足したら「在庫を追加」から数を増やします。
+            </p>
+          </div>
+          <div class="overflow-hidden rounded-lg border border-dashed border-slate-300 bg-white">
+            <div class="flex aspect-[4/3] items-center justify-center bg-white px-6 text-center">
+              <p class="text-xs font-semibold text-slate-400">アイテム一覧画面のスクリーンショット予定</p>
+            </div>
+          </div>
         </li>
 
-        <li class="rounded-lg border border-slate-200 bg-slate-50 p-4">
-          <span class="font-bold text-emerald-700">3. 使い始める</span>
-          <p class="mt-2 leading-relaxed text-slate-600">
-            在庫があるアイテムは「使い始める」から使用開始日を記録できます。使用中のアイテムとして管理されます。
-          </p>
+        <li class="grid gap-4 rounded-lg border border-slate-200 bg-slate-50 p-4 md:grid-cols-[minmax(0,1fr)_minmax(240px,360px)]">
+          <div>
+            <span class="font-bold text-emerald-700">3. 使い始める</span>
+            <p class="mt-2 leading-relaxed text-slate-600">
+              在庫があるアイテムは「使い始める」から使用開始日を残します。いま使っているものとして表示されます。
+            </p>
+          </div>
+          <div class="overflow-hidden rounded-lg border border-dashed border-slate-300 bg-white">
+            <div class="flex aspect-[4/3] items-center justify-center bg-white px-6 text-center">
+              <p class="text-xs font-semibold text-slate-400">アイテム詳細画面のスクリーンショット予定</p>
+            </div>
+          </div>
         </li>
 
-        <li class="rounded-lg border border-slate-200 bg-slate-50 p-4">
-          <span class="font-bold text-emerald-700">4. 使い切る</span>
-          <p class="mt-2 leading-relaxed text-slate-600">
-            使い終わったら「使い切る」から使い切り日を記録します。使用履歴として残ります。
-          </p>
+        <li class="grid gap-4 rounded-lg border border-slate-200 bg-slate-50 p-4 md:grid-cols-[minmax(0,1fr)_minmax(240px,360px)]">
+          <div>
+            <span class="font-bold text-emerald-700">4. 使い切る</span>
+            <p class="mt-2 leading-relaxed text-slate-600">
+              使い終わったら「使い切る」から使い切り日を残します。次のストックがあれば、そのまま使い始めることもできます。
+            </p>
+          </div>
+          <div class="overflow-hidden rounded-lg border border-dashed border-slate-300 bg-white">
+            <div class="flex aspect-[4/3] items-center justify-center bg-white px-6 text-center">
+              <p class="text-xs font-semibold text-slate-400">使い切り画面のスクリーンショット予定</p>
+            </div>
+          </div>
         </li>
 
-        <li class="rounded-lg border border-slate-200 bg-slate-50 p-4">
-          <span class="font-bold text-emerald-700">5. 評価とレビューを書く</span>
-          <p class="mt-2 leading-relaxed text-slate-600">
-            星評価とメモを残しておくと、リピートするかどうかを後から判断しやすくなります。
-          </p>
+        <li class="grid gap-4 rounded-lg border border-slate-200 bg-slate-50 p-4 md:grid-cols-[minmax(0,1fr)_minmax(240px,360px)]">
+          <div>
+            <span class="font-bold text-emerald-700">5. 評価・レビューを残す</span>
+            <p class="mt-2 leading-relaxed text-slate-600">
+              星評価と感想を書いておきます。使い心地、香り、減り方など、未来の自分が思い出したいことを残せます。
+            </p>
+          </div>
+          <div class="overflow-hidden rounded-lg border border-dashed border-slate-300 bg-white">
+            <div class="flex aspect-[4/3] items-center justify-center bg-white px-6 text-center">
+              <p class="text-xs font-semibold text-slate-400">レビュー入力画面のスクリーンショット予定</p>
+            </div>
+          </div>
         </li>
 
-        <li class="rounded-lg border border-slate-200 bg-slate-50 p-4">
-          <span class="font-bold text-emerald-700">6. 履歴を見返す</span>
-          <p class="mt-2 leading-relaxed text-slate-600">
-            使い切り、使用中止、レビューを履歴ページから確認できます。カテゴリや評価でも絞り込めます。
-          </p>
+        <li class="grid gap-4 rounded-lg border border-slate-200 bg-slate-50 p-4 md:grid-cols-[minmax(0,1fr)_minmax(240px,360px)]">
+          <div>
+            <span class="font-bold text-emerald-700">6. マイレビューを見返す</span>
+            <p class="mt-2 leading-relaxed text-slate-600">
+              レビューがたまると、自分だけの買い物メモになります。カテゴリや評価で絞り込んで見返せます。
+            </p>
+          </div>
+          <div class="overflow-hidden rounded-lg border border-dashed border-slate-300 bg-white">
+            <div class="flex aspect-[4/3] items-center justify-center bg-white px-6 text-center">
+              <p class="text-xs font-semibold text-slate-400">レビュー一覧画面のスクリーンショット予定</p>
+            </div>
+          </div>
         </li>
       </ol>
     </section>
@@ -89,7 +131,7 @@
       <div class="ui-card space-y-3">
         <h2 class="brand-font text-xl font-bold text-slate-900">アイテムページ</h2>
         <p class="text-sm leading-relaxed text-slate-600">
-          いま持っているものを確認する場所です。カテゴリやステータスで絞り込みながら、在庫数や使用中かどうかを確認できます。
+          いま持っているものを見る場所です。ブランド名や在庫数を見ながら、買い足しや使い始めの記録をします。
         </p>
         <%= link_to "アイテムを見る", items_path, class: "btn-primary" %>
       </div>
@@ -97,9 +139,12 @@
       <div class="ui-card space-y-3">
         <h2 class="brand-font text-xl font-bold text-slate-900">履歴ページ</h2>
         <p class="text-sm leading-relaxed text-slate-600">
-          過去の使用記録を見返す場所です。使い切ったもの、使用を中止したもの、レビュー済みのものを確認できます。
+          使い切ったものやレビュー済みのものを見返す場所です。次に買うものを決めるときにも使えます。
         </p>
-        <%= link_to "履歴を見る", used_up_items_path, class: "btn-secondary" %>
+        <div class="flex flex-wrap gap-2">
+          <%= link_to "履歴を見る", used_up_items_path, class: "btn-secondary" %>
+          <%= link_to "レビューを見る", reviews_usage_logs_path, class: "btn-secondary" %>
+        </div>
       </div>
     </section>
   </div>
