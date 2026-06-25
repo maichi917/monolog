@@ -83,6 +83,29 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_select "a[href='#{items_path(status: "out_of_stock")}']", text: "在庫なし"
   end
 
+  test "index filters favorite items" do
+    favorite_item = items(:one)
+    favorite_item.update!(favorite: true)
+
+    get items_path, params: { favorite: "1" }
+
+    assert_response :success
+    assert_includes response.body, favorite_item.name
+    assert_no_match items(:two).name, response.body
+    assert_select "a[href='#{items_path(favorite: "1")}']", text: /お気に入り/
+    assert_select "form[action='#{toggle_favorite_item_path(favorite_item)}']"
+  end
+
+  test "toggle_favorite switches item favorite state" do
+    item = items(:one)
+
+    assert_changes -> { item.reload.favorite? }, from: false, to: true do
+      patch toggle_favorite_item_path(item)
+    end
+
+    assert_redirected_to item_path(item)
+  end
+
   test "index filters available items by status" do
     get items_path, params: { status: "available" }
 
@@ -202,15 +225,18 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_select "input[type='hidden'][name='category_id'][value='#{category.id}']"
   end
 
-  test "index shows category filter links before status filters" do
+  test "index shows category links in filter drawer" do
     category = categories(:hair_care)
 
     get items_path
 
     assert_response :success
-    assert_select "div", text: "カテゴリ"
-    assert_select "a[href='#{items_path(category_id: category.id)}']", text: category.name
-    assert_select "a[href='#{items_path(category_id: "uncategorized")}']", text: "未設定"
+    assert_select "button[data-disclosure-target='filters']", text: /絞り込み/
+    assert_select "div[data-disclosure-panel='filters']" do
+      assert_select "h3", text: "Category"
+      assert_select "a[href='#{items_path(category_id: category.id)}']", text: category.name
+      assert_select "a[href='#{items_path(category_id: "uncategorized")}']", text: "未設定"
+    end
   end
 
   test "index status filters keep selected category" do

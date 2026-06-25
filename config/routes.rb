@@ -15,6 +15,7 @@ Rails.application.routes.draw do
       patch :finish_using
       get :discontinue_using_form, path: :discontinue_using
       patch :discontinue_using
+      patch :toggle_favorite
       delete :image, action: :destroy_image
     end
 
