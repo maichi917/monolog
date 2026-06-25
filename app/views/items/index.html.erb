@@ -1,61 +1,154 @@
-<div class="ui-container-wide">
+<div class="ui-container-wide" data-disclosure>
   <%= render "shared/search_form",
              url: items_path,
              query: @search_query,
              hidden_params: {
                category_id: @selected_category_id.presence,
-               status: @selected_status.presence
+               status: @selected_status.presence,
+               favorite: @selected_favorite.presence
              },
              show_reset: @search_query.present?,
              reset_url: items_path(
                category_id: @selected_category_id.presence,
-               status: @selected_status.presence
+               status: @selected_status.presence,
+               favorite: @selected_favorite.presence
              ),
              action_path: new_item_path,
              action_label: "アイテム登録",
              action_class: "btn-primary h-10 shrink-0" %>
 
-  <div class="mb-4">
-    <% category_filter_params = {
-      q: @search_query.presence,
-      status: @selected_status.presence
-    } %>
-    <div class="mb-2 text-xs font-semibold text-slate-500">カテゴリ</div>
-    <div class="flex flex-wrap gap-2">
-      <%= link_to "すべて",
-                  items_path(category_filter_params),
-                  class: category_filter_class(@selected_category_id, nil) %>
-      <% @categories.each do |category| %>
-        <%= link_to category.name,
-                    items_path(category_filter_params.merge(category_id: category.id)),
-                    class: category_filter_class(@selected_category_id, category.id) %>
-      <% end %>
-      <%= link_to "未設定",
-                  items_path(category_filter_params.merge(category_id: "uncategorized")),
-                  class: category_filter_class(@selected_category_id, "uncategorized") %>
-    </div>
-  </div>
-
-  <div class="mb-4">
+  <div class="mb-4 space-y-3">
     <% status_filter_params = {
       q: @search_query.presence,
-      category_id: @selected_category_id.presence
+      category_id: @selected_category_id.presence,
+      favorite: @selected_favorite.presence
     } %>
-    <div class="mb-2 text-xs font-semibold text-slate-500">ステータス</div>
-    <div class="flex flex-wrap gap-2">
-      <%= link_to "すべて",
-                  items_path(status_filter_params),
-                  class: category_filter_class(@selected_status, nil) %>
-      <%= link_to "在庫あり",
-                  items_path(status_filter_params.merge(status: "available")),
-                  class: category_filter_class(@selected_status, "available") %>
-      <%= link_to "使用中",
-                  items_path(status_filter_params.merge(status: "in_use")),
-                  class: category_filter_class(@selected_status, "in_use") %>
-      <%= link_to "在庫なし",
-                  items_path(status_filter_params.merge(status: "out_of_stock")),
-                  class: category_filter_class(@selected_status, "out_of_stock") %>
+    <div class="flex items-center gap-2">
+      <button type="button"
+              class="inline-flex h-9 shrink-0 items-center gap-2 rounded-full border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700"
+              data-disclosure-toggle
+              data-disclosure-target="filters"
+              aria-expanded="false">
+        <span class="text-base leading-none" aria-hidden="true">☰</span>
+        <span>絞り込み</span>
+      </button>
+
+      <nav class="flex min-w-0 flex-1 gap-1 overflow-x-auto rounded-full bg-slate-100 p-1 text-sm" aria-label="ステータス">
+        <%= link_to "すべて",
+                    items_path(status_filter_params),
+                    class: class_names(
+                      "shrink-0 rounded-full px-3 py-1.5 font-semibold transition",
+                      @selected_status.blank? ? "bg-white text-emerald-700 shadow-sm" : "text-slate-600 hover:bg-white/70"
+                    ) %>
+        <%= link_to "使用中",
+                    items_path(status_filter_params.merge(status: "in_use")),
+                    class: class_names(
+                      "shrink-0 rounded-full px-3 py-1.5 font-semibold transition",
+                      @selected_status == "in_use" ? "bg-white text-emerald-700 shadow-sm" : "text-slate-600 hover:bg-white/70"
+                    ) %>
+        <%= link_to "在庫あり",
+                    items_path(status_filter_params.merge(status: "available")),
+                    class: class_names(
+                      "shrink-0 rounded-full px-3 py-1.5 font-semibold transition",
+                      @selected_status == "available" ? "bg-white text-emerald-700 shadow-sm" : "text-slate-600 hover:bg-white/70"
+                    ) %>
+        <%= link_to "在庫なし",
+                    items_path(status_filter_params.merge(status: "out_of_stock")),
+                    class: class_names(
+                      "shrink-0 rounded-full px-3 py-1.5 font-semibold transition",
+                      @selected_status == "out_of_stock" ? "bg-white text-emerald-700 shadow-sm" : "text-slate-600 hover:bg-white/70"
+                    ) %>
+      </nav>
     </div>
+
+    <% active_filter_labels = [] %>
+    <% active_filter_labels << "お気に入り" if @selected_favorite == "1" %>
+    <% active_filter_labels << (@selected_category_id == "uncategorized" ? "カテゴリ: 未設定" : "カテゴリ: #{@categories.find { |category| category.id.to_s == @selected_category_id }&.name}") if @selected_category_id.present? %>
+    <% if active_filter_labels.any? %>
+      <div class="flex flex-wrap items-center gap-2 text-xs text-slate-500">
+        <% active_filter_labels.compact.each do |label| %>
+          <span class="rounded-full bg-emerald-50 px-2.5 py-1 font-semibold text-emerald-700"><%= label %></span>
+        <% end %>
+        <%= link_to "条件をクリア",
+                    items_path(q: @search_query.presence, status: @selected_status.presence),
+                    class: "font-semibold text-slate-500 underline-offset-4 hover:text-slate-800 hover:underline" %>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="fixed inset-0 z-50 hidden bg-slate-900/30" data-disclosure-panel="filters" data-modal-panel role="dialog" aria-modal="true" aria-labelledby="item-filters-title">
+    <button type="button" class="absolute inset-0 cursor-default" data-disclosure-cancel aria-label="閉じる"></button>
+
+    <aside class="relative flex h-full w-80 max-w-[86vw] flex-col bg-white shadow-xl">
+      <div class="flex items-center justify-between border-b border-slate-100 px-5 py-4">
+        <h2 id="item-filters-title" class="brand-font text-lg font-bold text-slate-900">絞り込み</h2>
+        <button type="button" class="rounded-full p-2 text-slate-500 transition hover:bg-slate-100 hover:text-slate-900" data-disclosure-cancel aria-label="閉じる">
+          ×
+        </button>
+      </div>
+
+      <div class="flex-1 space-y-7 overflow-y-auto px-5 py-5">
+        <% side_filter_params = {
+          q: @search_query.presence,
+          status: @selected_status.presence,
+          category_id: @selected_category_id.presence
+        } %>
+        <section>
+          <h3 class="mb-3 text-xs font-bold uppercase tracking-wide text-slate-400">Like</h3>
+          <div class="grid gap-2">
+            <%= link_to "すべて",
+                        items_path(side_filter_params.except(:category_id).merge(category_id: @selected_category_id.presence)),
+                        class: class_names(
+                          "rounded-lg px-3 py-2 text-sm font-semibold transition",
+                          @selected_favorite.blank? ? "bg-slate-900 text-white" : "text-slate-700 hover:bg-slate-50"
+                        ) %>
+            <%= link_to "♡ お気に入りのみ",
+                        items_path(side_filter_params.merge(favorite: "1")),
+                        class: class_names(
+                          "rounded-lg px-3 py-2 text-sm font-semibold transition",
+                          @selected_favorite == "1" ? "bg-slate-900 text-white" : "text-slate-700 hover:bg-slate-50"
+                        ) %>
+          </div>
+        </section>
+
+        <section>
+          <h3 class="mb-3 text-xs font-bold uppercase tracking-wide text-slate-400">Category</h3>
+          <% category_filter_params = {
+            q: @search_query.presence,
+            status: @selected_status.presence,
+            favorite: @selected_favorite.presence
+          } %>
+          <div class="grid gap-1">
+            <%= link_to "すべて",
+                        items_path(category_filter_params),
+                        class: class_names(
+                          "rounded-lg px-3 py-2 text-sm font-semibold transition",
+                          @selected_category_id.blank? ? "bg-slate-900 text-white" : "text-slate-700 hover:bg-slate-50"
+                        ) %>
+            <% @categories.each do |category| %>
+              <%= link_to category.name,
+                          items_path(category_filter_params.merge(category_id: category.id)),
+                          class: class_names(
+                            "rounded-lg px-3 py-2 text-sm font-semibold transition",
+                            @selected_category_id == category.id.to_s ? "bg-slate-900 text-white" : "text-slate-700 hover:bg-slate-50"
+                          ) %>
+            <% end %>
+            <%= link_to "未設定",
+                        items_path(category_filter_params.merge(category_id: "uncategorized")),
+                        class: class_names(
+                          "rounded-lg px-3 py-2 text-sm font-semibold transition",
+                          @selected_category_id == "uncategorized" ? "bg-slate-900 text-white" : "text-slate-700 hover:bg-slate-50"
+                        ) %>
+          </div>
+        </section>
+      </div>
+
+      <div class="border-t border-slate-100 p-5">
+        <%= link_to "絞り込みをリセット",
+                    items_path(q: @search_query.presence),
+                    class: "btn-secondary w-full" %>
+      </div>
+    </aside>
   </div>
 
   <% if @items.any? %>
@@ -105,6 +198,8 @@
             <% end %>
 
             <div class="flex shrink-0 items-center justify-end gap-2 sm:gap-3">
+              <%= render "favorite_button", item: item, compact: true %>
+
               <div class="inline-flex min-w-14 items-baseline justify-center gap-1 rounded-lg bg-slate-50 px-2 py-1 sm:min-w-16 sm:gap-1.5 sm:px-2.5">
                 <span class="text-xs font-medium text-slate-500">在庫</span>
                 <span class="font-sans text-base font-bold leading-none tracking-wide sm:text-lg <%= item.out_of_stock? ? "text-red-700" : "text-slate-900" %>">

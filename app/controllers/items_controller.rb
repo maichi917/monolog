@@ -7,9 +7,11 @@ class ItemsController < ApplicationController
     @search_query = params[:q].to_s.strip
     @selected_category_id = params[:category_id].to_s
     @selected_status = params[:status].to_s
+    @selected_favorite = params[:favorite].to_s
     @categories = current_user.categories.order(:name)
     @items = @items.by_name(@search_query)
                    .by_category(@selected_category_id)
+    @items = @items.where(favorite: true) if @selected_favorite == "1"
 
     in_use_item_ids = current_user.usage_logs.in_use.select(:item_id)
     case @selected_status
@@ -122,6 +124,14 @@ class ItemsController < ApplicationController
     item = current_user.items.find(params[:id])
     item.image.purge
     redirect_to edit_item_path(item), notice: "画像を削除しました"
+  end
+
+  def toggle_favorite
+    item = current_user.items.find(params[:id])
+    item.update!(favorite: !item.favorite?)
+
+    notice = item.favorite? ? "お気に入りに追加しました" : "お気に入りを解除しました"
+    redirect_back fallback_location: item_path(item), notice: notice
   end
 
   def start_using
