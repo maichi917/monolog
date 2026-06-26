@@ -47,6 +47,28 @@ class Item < ApplicationRecord
     stock_quantity.to_i.zero?
   end
 
+  def average_usage_days
+    durations = usage_logs
+                .finished
+                .used_up_history
+                .where.not(started_at: nil)
+                .map { |log| (log.finished_at.to_date - log.started_at.to_date).to_i + 1 }
+                .select(&:positive?)
+
+    return if durations.blank?
+
+    (durations.sum.to_f / durations.size).round
+  end
+
+  def predicted_finish_date
+    return unless using?
+
+    average_days = average_usage_days
+    return if average_days.blank?
+
+    current_usage_log.started_at.to_date + (average_days - 1).days
+  end
+
   def start_using!(user, started_at)
     transaction do
       usage_logs.create!(

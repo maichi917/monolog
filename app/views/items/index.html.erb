@@ -169,6 +169,18 @@
                       <%= item.category&.name || "未設定" %>
                     </dd>
                   </div>
+                  <% if item.using? %>
+                    <div class="flex min-w-0 items-center gap-1">
+                      <dt class="shrink-0 font-medium text-slate-500">使い切り予測</dt>
+                      <dd class="min-w-0 truncate text-emerald-700">
+                        <% if item.predicted_finish_date.present? %>
+                          <%= item.predicted_finish_date.strftime("%-m/%-d") %>ごろ
+                        <% else %>
+                          データなし
+                        <% end %>
+                      </dd>
+                    </div>
+                  <% end %>
                 </dl>
               </div>
 
