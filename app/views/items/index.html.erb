@@ -24,14 +24,8 @@
       favorite: @selected_favorite.presence
     } %>
     <div class="flex items-center gap-2">
-      <button type="button"
-              class="inline-flex h-9 shrink-0 items-center gap-2 rounded-full border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700"
-              data-disclosure-toggle
-              data-disclosure-target="filters"
-              aria-expanded="false">
-        <span class="text-base leading-none" aria-hidden="true">☰</span>
-        <span>絞り込み</span>
-      </button>
+      <%= render "shared/filter_button",
+                 class_name: "inline-flex h-9 shrink-0 items-center gap-2 rounded-full border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700" %>
 
       <nav class="flex min-w-0 flex-1 gap-1 overflow-x-auto rounded-full bg-slate-100 p-1 text-sm" aria-label="ステータス">
         <%= link_to "すべて",
@@ -76,18 +70,9 @@
     <% end %>
   </div>
 
-  <div class="fixed inset-0 z-50 hidden bg-slate-900/30" data-disclosure-panel="filters" data-modal-panel role="dialog" aria-modal="true" aria-labelledby="item-filters-title">
-    <button type="button" class="absolute inset-0 cursor-default" data-disclosure-cancel aria-label="閉じる"></button>
-
-    <aside class="relative flex h-full w-80 max-w-[86vw] flex-col bg-white shadow-xl">
-      <div class="flex items-center justify-between border-b border-slate-100 px-5 py-4">
-        <h2 id="item-filters-title" class="brand-font text-lg font-bold text-slate-900">絞り込み</h2>
-        <button type="button" class="rounded-full p-2 text-slate-500 transition hover:bg-slate-100 hover:text-slate-900" data-disclosure-cancel aria-label="閉じる">
-          ×
-        </button>
-      </div>
-
-      <div class="flex-1 space-y-7 overflow-y-auto px-5 py-5">
+  <%= render "shared/filter_drawer",
+             title_id: "item-filters-title",
+             reset_path: items_path(q: @search_query.presence) do %>
         <% side_filter_params = {
           q: @search_query.presence,
           status: @selected_status.presence,
@@ -141,15 +126,7 @@
                         ) %>
           </div>
         </section>
-      </div>
-
-      <div class="border-t border-slate-100 p-5">
-        <%= link_to "絞り込みをリセット",
-                    items_path(q: @search_query.presence),
-                    class: "btn-secondary w-full" %>
-      </div>
-    </aside>
-  </div>
+  <% end %>
 
   <% if @items.any? %>
     <div class="grid gap-3">

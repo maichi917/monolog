@@ -1,0 +1,8 @@
+<button type="button"
+        class="<%= local_assigns.fetch(:class_name, "inline-flex h-9 items-center gap-2 rounded-full border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700") %>"
+        data-disclosure-toggle
+        data-disclosure-target="<%= local_assigns.fetch(:target, "filters") %>"
+        aria-expanded="false">
+  <span class="text-base leading-none" aria-hidden="true">☰</span>
+  <span><%= local_assigns.fetch(:label, "絞り込み") %></span>
+</button>

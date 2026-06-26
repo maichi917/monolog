@@ -1,4 +1,4 @@
-<div class="ui-container-wide">
+<div class="ui-container-wide" data-disclosure>
   <%= render "shared/search_form",
              url: discontinued_items_path,
              query: @search_query,
@@ -11,24 +11,32 @@
   <%= render "shared/history_tabs" %>
 
   <div class="mb-4">
+    <%= render "shared/filter_button" %>
+  </div>
+
+  <%= render "shared/filter_drawer",
+             title_id: "discontinued-filters-title",
+             reset_path: discontinued_items_path(q: @search_query.presence) do %>
+        <section>
+          <h3 class="mb-3 text-xs font-bold uppercase tracking-wide text-slate-400">Category</h3>
     <% category_filter_params = {
       q: @search_query.presence
     } %>
-    <div class="mb-2 text-xs font-semibold text-slate-500">カテゴリ</div>
-    <div class="flex flex-wrap gap-2">
-      <%= link_to "すべて",
-                  discontinued_items_path(category_filter_params),
-                  class: category_filter_class(@selected_category_id, nil) %>
-      <% @categories.each do |category| %>
-        <%= link_to category.name,
-                    discontinued_items_path(category_filter_params.merge(category_id: category.id)),
-                    class: category_filter_class(@selected_category_id, category.id) %>
-      <% end %>
-      <%= link_to "未設定",
-                  discontinued_items_path(category_filter_params.merge(category_id: "uncategorized")),
-                  class: category_filter_class(@selected_category_id, "uncategorized") %>
-    </div>
-  </div>
+          <div class="grid gap-2">
+            <%= link_to "すべて",
+                        discontinued_items_path(category_filter_params),
+                        class: category_filter_class(@selected_category_id, nil) %>
+            <% @categories.each do |category| %>
+              <%= link_to category.name,
+                          discontinued_items_path(category_filter_params.merge(category_id: category.id)),
+                          class: category_filter_class(@selected_category_id, category.id) %>
+            <% end %>
+            <%= link_to "未設定",
+                        discontinued_items_path(category_filter_params.merge(category_id: "uncategorized")),
+                        class: category_filter_class(@selected_category_id, "uncategorized") %>
+          </div>
+        </section>
+  <% end %>
 
   <% if @usage_logs.any? %>
     <div class="grid gap-3">
