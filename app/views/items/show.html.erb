@@ -76,6 +76,21 @@
           <p class="rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-800">
             このアイテムは使用中です。
           </p>
+          <div class="rounded-lg bg-emerald-50 px-3 py-3 text-sm text-emerald-800">
+            <p class="text-xs font-semibold text-emerald-700">使い切り予測</p>
+            <% if @item.predicted_finish_date.present? %>
+              <p class="mt-1 font-semibold">
+                <%= @item.predicted_finish_date.strftime("%Y/%-m/%-d") %>ごろ
+              </p>
+              <p class="mt-1 text-xs leading-5">
+                過去の使い切り履歴から、平均<%= @item.average_usage_days %>日で使い切る見込みです。
+              </p>
+            <% else %>
+              <p class="mt-1 text-xs leading-5">
+                使い切り履歴が足りないため、まだ予測できません。
+              </p>
+            <% end %>
+          </div>
           <div class="grid gap-2 sm:grid-cols-2">
             <button type="button" class="btn-danger w-full" data-disclosure-toggle data-disclosure-target="finish-using">
               使い切る

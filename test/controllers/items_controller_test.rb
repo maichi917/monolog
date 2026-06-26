@@ -137,6 +137,31 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_select "form[action='#{finish_using_item_path(item)}'] input[name='usage_log_id']"
   end
 
+  test "index shows predicted finish date for in-use item with used-up history" do
+    item = items(:one)
+    item.update!(stock_quantity: 2)
+    item.start_using!(@user, Time.zone.local(2026, 5, 1))
+    item.finish_using!(Time.zone.local(2026, 5, 10))
+    item.start_using!(@user, Time.zone.local(2026, 6, 1))
+
+    get items_path
+
+    assert_response :success
+    assert_includes response.body, "使い切り予測"
+    assert_includes response.body, "6/10ごろ"
+  end
+
+  test "index shows unavailable prediction message for in-use item without used-up history" do
+    item = items(:one)
+    item.start_using!(@user, Time.zone.local(2026, 6, 1))
+
+    get items_path
+
+    assert_response :success
+    assert_includes response.body, "使い切り予測"
+    assert_includes response.body, "データなし"
+  end
+
   test "index filters out-of-stock items by status" do
     get items_path, params: { status: "out_of_stock" }
 
@@ -1247,6 +1272,32 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "button[data-disclosure-target='finish-using']", text: "使い切る"
     assert_select "button", text: "使い切り日を入力する", count: 0
+  end
+
+  test "show displays predicted finish date for in-use item with used-up history" do
+    item = items(:one)
+    item.update!(stock_quantity: 2)
+    item.start_using!(@user, Time.zone.local(2026, 5, 1))
+    item.finish_using!(Time.zone.local(2026, 5, 10))
+    item.start_using!(@user, Time.zone.local(2026, 6, 1))
+
+    get item_path(item)
+
+    assert_response :success
+    assert_includes response.body, "使い切り予測"
+    assert_includes response.body, "2026/6/10ごろ"
+    assert_includes response.body, "平均10日"
+  end
+
+  test "show displays unavailable prediction message when history is missing" do
+    item = items(:one)
+    item.start_using!(@user, Time.zone.local(2026, 6, 1))
+
+    get item_path(item)
+
+    assert_response :success
+    assert_includes response.body, "使い切り予測"
+    assert_includes response.body, "使い切り履歴が足りないため、まだ予測できません。"
   end
 
   test "show highlights out of stock item and shows restock link" do

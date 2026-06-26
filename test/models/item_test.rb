@@ -160,6 +160,50 @@ class ItemTest < ActiveSupport::TestCase
     assert_nil usage_log.review
   end
 
+  test "average_usage_days uses finished used-up usage logs" do
+    item = items(:one)
+    item.start_using!(users(:one), Time.zone.local(2026, 5, 1))
+    item.finish_using!(Time.zone.local(2026, 5, 10))
+    item.update!(stock_quantity: 1)
+    item.start_using!(users(:one), Time.zone.local(2026, 5, 20))
+    item.finish_using!(Time.zone.local(2026, 5, 24))
+
+    assert_equal 8, item.average_usage_days
+  end
+
+  test "average_usage_days ignores discontinued usage logs" do
+    item = items(:one)
+    item.start_using!(users(:one), Time.zone.local(2026, 5, 1))
+    item.discontinue_using!(Time.zone.local(2026, 5, 30))
+
+    assert_nil item.average_usage_days
+  end
+
+  test "predicted_finish_date returns date from current usage start and average days" do
+    item = items(:one)
+    item.update!(stock_quantity: 2)
+    item.start_using!(users(:one), Time.zone.local(2026, 5, 1))
+    item.finish_using!(Time.zone.local(2026, 5, 10))
+    item.start_using!(users(:one), Time.zone.local(2026, 6, 1))
+
+    assert_equal Date.new(2026, 6, 10), item.predicted_finish_date
+  end
+
+  test "predicted_finish_date returns nil when item is not in use" do
+    item = items(:one)
+    item.start_using!(users(:one), Time.zone.local(2026, 5, 1))
+    item.finish_using!(Time.zone.local(2026, 5, 10))
+
+    assert_nil item.predicted_finish_date
+  end
+
+  test "predicted_finish_date returns nil when used-up history is missing" do
+    item = items(:one)
+    item.start_using!(users(:one), Time.zone.local(2026, 6, 1))
+
+    assert_nil item.predicted_finish_date
+  end
+
   test "item can be saved without image" do
     item = items(:one)
 
