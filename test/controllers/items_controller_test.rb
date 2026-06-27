@@ -1032,6 +1032,19 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_select "[data-submit-loading]", text: "アイテム情報を更新しています..."
   end
 
+  test "edit page has stock quantity stepper" do
+    item = items(:one)
+
+    get edit_item_path(item)
+
+    assert_response :success
+    assert_select "label[for='item_stock_quantity']", text: "在庫数"
+    assert_select "[data-stock-stepper]"
+    assert_select "button[data-stock-stepper-action='decrement'][aria-label='在庫数を1減らす']", text: "-"
+    assert_select "input[name='item[stock_quantity]'][min='0'][step='1'][value='#{item.stock_quantity}'][data-stock-stepper-input]"
+    assert_select "button[data-stock-stepper-action='increment'][aria-label='在庫数を1増やす']", text: "+"
+  end
+
   test "edit page image input supports camera capture" do
     get edit_item_path(items(:one))
 
@@ -1181,6 +1194,21 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
 
     assert_redirected_to items_path
     assert_equal "ものログコスメ", item.reload.brand_name
+  end
+
+  test "update changes stock quantity" do
+    item = items(:one)
+
+    patch item_path(item), params: {
+      item: {
+        name: item.name,
+        price: item.price,
+        stock_quantity: 4
+      }
+    }
+
+    assert_redirected_to items_path
+    assert_equal 4, item.reload.stock_quantity
   end
 
   test "update creates new category and assigns it to item" do
