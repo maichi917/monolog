@@ -1,0 +1,39 @@
+<div class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/40 px-4 py-6" data-disclosure-panel="discontinue-using" data-modal-panel role="dialog" aria-modal="true" aria-labelledby="discontinue-using-title-<%= item.id %>">
+  <button type="button" class="absolute inset-0 cursor-default" data-disclosure-cancel aria-label="閉じる"></button>
+
+  <div class="relative w-full max-w-sm rounded-lg bg-white p-5 shadow-xl">
+    <div class="mb-4">
+      <p id="discontinue-using-title-<%= item.id %>" class="brand-font text-lg font-bold text-slate-900">使用中止日を入力</p>
+      <p class="mt-1 text-sm text-slate-500"><%= item.name %></p>
+    </div>
+
+    <p class="mb-4 rounded-lg bg-red-50 px-3 py-2 text-sm leading-relaxed text-red-700">
+      肌に合わない、香りが苦手など、使い切らずにやめる場合はこちらで記録します。
+    </p>
+
+    <%= form_with url: discontinue_using_item_path(item), method: :patch, local: true, class: "space-y-4" do %>
+      <div>
+        <%= label_tag :finished_at, "使用中止日", class: "form-label" %>
+        <%= date_field_tag :finished_at, Date.current, class: "form-input bg-white" %>
+      </div>
+
+      <div>
+        <%= label_tag :discontinued_reason, "使用中止理由（任意）", class: "form-label" %>
+        <%= text_area_tag :discontinued_reason,
+                          nil,
+                          rows: 4,
+                          maxlength: 500,
+                          class: "form-input",
+                          placeholder: "例: 肌に合わなかった、香りが苦手だった など" %>
+        <p class="form-help">理由はあとから見返すためのメモです。空欄でも使用中止できます。</p>
+      </div>
+
+      <div class="grid gap-2">
+        <%= submit_tag "使用を中止する", class: "btn-danger w-full cursor-pointer", data: { turbo_confirm: "使用中止として記録しますか?" } %>
+        <button type="button" class="btn-secondary w-full" data-disclosure-cancel>
+          キャンセル
+        </button>
+      </div>
+    <% end %>
+  </div>
+</div>

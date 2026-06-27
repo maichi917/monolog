@@ -221,6 +221,18 @@ class ItemsController < ApplicationController
     redirect_to in_use_items_path, notice: "使用を中止しました"
   end
 
+  def add_stock
+    item = current_user.items.find(params[:id])
+    quantity = params[:quantity].to_i
+
+    if quantity.positive?
+      item.increment!(:stock_quantity, quantity)
+      redirect_back fallback_location: items_path, notice: "在庫を追加しました"
+    else
+      redirect_back fallback_location: items_path, alert: "追加する個数を入力してください"
+    end
+  end
+
   private
 
   def set_item
