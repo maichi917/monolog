@@ -38,6 +38,19 @@ document.addEventListener("submit", (event) => {
 })
 
 document.addEventListener("click", (event) => {
+  const stepperButton = event.target.closest("[data-stock-stepper-action]")
+  if (stepperButton) {
+    const stepper = stepperButton.closest("[data-stock-stepper]")
+    const input = stepper?.querySelector("[data-stock-stepper-input]")
+    if (!input) return
+
+    const currentValue = Number.parseInt(input.value || "0", 10)
+    const direction = stepperButton.dataset.stockStepperAction === "increment" ? 1 : -1
+    input.value = Math.max(0, currentValue + direction)
+    input.dispatchEvent(new Event("change", { bubbles: true }))
+    return
+  }
+
   const toggleButton = event.target.closest("[data-disclosure-toggle]")
   const cancelButton = event.target.closest("[data-disclosure-cancel]")
   const button = toggleButton || cancelButton
