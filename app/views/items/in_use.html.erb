@@ -20,7 +20,7 @@
       <% @usage_logs.each do |usage_log| %>
         <% item = usage_log.item %>
 
-        <article class="ui-card">
+        <article class="ui-card" data-disclosure>
           <div class="flex gap-4">
             <div class="shrink-0">
               <%= render "image",
@@ -56,20 +56,36 @@
                     <% end %>
                   </dd>
                 </div>
+
+                <div>
+                  <dt class="text-xs text-slate-500">在庫数</dt>
+                  <dd class="mt-1 font-semibold <%= item.out_of_stock? ? "text-red-700" : "text-slate-700" %>">
+                    <%= item.stock_quantity %>
+                  </dd>
+                </div>
               </dl>
             </div>
           </div>
 
           <div class="mt-4 border-t border-slate-100 pt-4">
             <div class="grid gap-2 sm:grid-cols-2">
-              <%= link_to "使い切る", finish_using_form_item_path(item), class: "btn-primary text-center" %>
-              <%= link_to "使用を中止する", discontinue_using_form_item_path(item), class: "btn-danger text-center" %>
+              <button type="button" class="btn-primary text-center" data-disclosure-toggle data-disclosure-target="finish-using">
+                使い切る
+              </button>
+              <button type="button" class="btn-danger text-center" data-disclosure-toggle data-disclosure-target="discontinue-using">
+                使用を中止する
+              </button>
             </div>
 
-            <div class="mt-3 flex items-center justify-end gap-4">
+            <div class="mt-3 flex flex-wrap items-center justify-end gap-3">
+              <%= render "add_stock_button" %>
               <%= link_to "詳細を見る", item_path(item), class: "btn-secondary px-3 py-1.5" %>
             </div>
           </div>
+
+          <%= render "add_stock_modal", item: item %>
+          <%= render "finish_using_modal", item: item %>
+          <%= render "discontinue_using_modal", item: item %>
         </article>
       <% end %>
     </div>

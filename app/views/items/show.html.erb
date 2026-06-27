@@ -95,9 +95,8 @@
             <button type="button" class="btn-danger w-full" data-disclosure-toggle data-disclosure-target="finish-using">
               使い切る
             </button>
-            <%= link_to "在庫を追加",
-                        edit_item_path(@item),
-                        class: "inline-flex w-full items-center justify-center rounded-lg bg-yellow-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-amber-600" %>
+            <%= render "add_stock_button",
+                       button_class: "inline-flex w-full items-center justify-center rounded-lg bg-yellow-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-amber-600" %>
           </div>
 
           <%= render "finish_using_modal", item: @item %>
@@ -107,9 +106,8 @@
           <button type="button" class="btn-primary w-full" data-disclosure-toggle data-disclosure-target="start-using">
             使い始める
           </button>
-          <%= link_to "在庫を追加",
-                      edit_item_path(@item),
-                      class: "inline-flex w-full items-center justify-center rounded-lg bg-yellow-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-amber-600" %>
+          <%= render "add_stock_button",
+                     button_class: "inline-flex w-full items-center justify-center rounded-lg bg-yellow-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-amber-600" %>
         </div>
 
         <%= render "start_using_modal", item: @item %>
@@ -118,11 +116,12 @@
           <p class="text-sm font-medium text-red-700">
             在庫がないため、使用を開始できません。
           </p>
-          <%= link_to "在庫を追加",
-                      edit_item_path(@item),
-                      class: "inline-flex w-full items-center justify-center rounded-lg bg-yellow-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-amber-600" %>
+          <%= render "add_stock_button",
+                     button_class: "inline-flex w-full items-center justify-center rounded-lg bg-yellow-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-amber-600" %>
         </div>
       <% end %>
+
+      <%= render "add_stock_modal", item: @item %>
     </div>
 
     <div class="border-t border-slate-100 pt-5">

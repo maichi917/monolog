@@ -202,20 +202,17 @@
                     <button type="button" class="btn-danger px-2 py-1.5 text-xs leading-tight sm:px-3 sm:text-sm" data-disclosure-toggle data-disclosure-target="finish-using">
                       使い切る
                     </button>
-                    <%= link_to "在庫を追加",
-                                edit_item_path(item),
-                                class: "inline-flex items-center justify-center rounded-lg bg-yellow-500 px-2 py-1.5 text-center text-xs font-semibold leading-tight text-white transition hover:bg-amber-600 sm:px-3 sm:py-2 sm:text-sm" %>
+                    <%= render "add_stock_button",
+                               button_class: "inline-flex items-center justify-center rounded-lg bg-yellow-500 px-2 py-1.5 text-center text-xs font-semibold leading-tight text-white transition hover:bg-amber-600 sm:px-3 sm:py-2 sm:text-sm" %>
                   <% elsif item.stock_available? %>
                     <button type="button" class="btn-primary px-2 py-1.5 text-xs leading-tight sm:px-3 sm:text-sm" data-disclosure-toggle data-disclosure-target="start-using">
                       使い始める
                     </button>
-                    <%= link_to "在庫を追加",
-                                edit_item_path(item),
-                                class: "inline-flex items-center justify-center rounded-lg bg-yellow-500 px-2 py-1.5 text-center text-xs font-semibold leading-tight text-white transition hover:bg-amber-600 sm:px-3 sm:py-2 sm:text-sm" %>
+                    <%= render "add_stock_button",
+                               button_class: "inline-flex items-center justify-center rounded-lg bg-yellow-500 px-2 py-1.5 text-center text-xs font-semibold leading-tight text-white transition hover:bg-amber-600 sm:px-3 sm:py-2 sm:text-sm" %>
                   <% else %>
-                    <%= link_to "在庫を追加",
-                                edit_item_path(item),
-                                class: "inline-flex items-center justify-center rounded-lg bg-yellow-500 px-2 py-1.5 text-center text-xs font-semibold leading-tight text-white transition hover:bg-amber-600 sm:px-3 sm:py-2 sm:text-sm" %>
+                    <%= render "add_stock_button",
+                               button_class: "inline-flex items-center justify-center rounded-lg bg-yellow-500 px-2 py-1.5 text-center text-xs font-semibold leading-tight text-white transition hover:bg-amber-600 sm:px-3 sm:py-2 sm:text-sm" %>
                   <% end %>
                 </div>
 
@@ -231,6 +228,8 @@
           <% if item.stock_available? %>
             <%= render "start_using_modal", item: item %>
           <% end %>
+
+          <%= render "add_stock_modal", item: item %>
         </article>
       <% end %>
     </div>

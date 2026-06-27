@@ -170,15 +170,16 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_no_match items(:one).name, response.body
   end
 
-  test "index shows restock link for every item" do
+  test "index shows add stock modal for every item" do
     item = items(:one)
     out_of_stock_item = items(:two)
 
     get items_path
 
     assert_response :success
-    assert_select "a[href='#{edit_item_path(item)}']", text: "在庫を追加"
-    assert_select "a[href='#{edit_item_path(out_of_stock_item)}']", text: "在庫を追加"
+    assert_select "button[data-disclosure-target='add-stock']", text: "在庫を追加"
+    assert_select "form[action='#{add_stock_item_path(item)}'] input[name='quantity']"
+    assert_select "form[action='#{add_stock_item_path(out_of_stock_item)}'] input[name='quantity']"
   end
 
   test "index links item information to detail page and hides detail button on mobile" do
@@ -349,6 +350,28 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_equal 1, item.reload.stock_quantity
   end
 
+  test "add_stock increases stock quantity" do
+    item = items(:two)
+
+    assert_difference -> { item.reload.stock_quantity }, 3 do
+      patch add_stock_item_path(item), params: { quantity: 3 }
+    end
+
+    assert_redirected_to items_path
+    assert_equal "在庫を追加しました", flash[:notice]
+  end
+
+  test "add_stock does not change stock quantity when quantity is invalid" do
+    item = items(:two)
+
+    assert_no_difference -> { item.reload.stock_quantity } do
+      patch add_stock_item_path(item), params: { quantity: 0 }
+    end
+
+    assert_redirected_to items_path
+    assert_equal "追加する個数を入力してください", flash[:alert]
+  end
+
   test "finish_using finishes current usage log and redirects to used-up page" do
     item = items(:one)
     item.start_using!(@user, Time.zone.local(2026, 5, 10))
@@ -503,24 +526,34 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to in_use_items_path
   end
 
-  test "in_use page has finish using link in item card" do
+  test "in_use page shows finish using modal in item card" do
     item = items(:one)
     item.start_using!(@user, Time.zone.local(2026, 5, 10))
 
     get in_use_items_path
 
     assert_response :success
-    assert_select "a[href='#{finish_using_form_item_path(item)}']", text: "使い切る"
+    assert_select "dt", text: "在庫数"
+    assert_select "button[data-disclosure-target='add-stock']", text: "在庫を追加"
+    assert_select "form[action='#{add_stock_item_path(item)}'] input[name='quantity']"
+    assert_includes response.body, "現在の在庫数"
+    assert_select "button[data-disclosure-target='finish-using']", text: "使い切る"
+    assert_select "form[action='#{finish_using_item_path(item)}'] input[name='finished_at']"
+    assert_select "form[action='#{finish_using_item_path(item)}'] input[name='usage_log_id']"
+    assert_select "button[data-disclosure-cancel]", text: "キャンセル"
   end
 
-  test "in_use page has discontinue using link in item card" do
+  test "in_use page shows discontinue using modal in item card" do
     item = items(:one)
     item.start_using!(@user, Time.zone.local(2026, 5, 10))
 
     get in_use_items_path
 
     assert_response :success
-    assert_select "a[href='#{discontinue_using_form_item_path(item)}']", text: "使用を中止する"
+    assert_select "button[data-disclosure-target='discontinue-using']", text: "使用を中止する"
+    assert_select "form[action='#{discontinue_using_item_path(item)}'] input[name='finished_at']"
+    assert_select "form[action='#{discontinue_using_item_path(item)}'] textarea[name='discontinued_reason']"
+    assert_select "button[data-disclosure-cancel]", text: "キャンセル"
   end
 
   test "in_use page searches current user's usage logs by item name" do
@@ -1300,7 +1333,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "使い切り履歴が足りないため、まだ予測できません。"
   end
 
-  test "show highlights out of stock item and shows restock link" do
+  test "show highlights out of stock item and shows add stock modal" do
     item = items(:two)
 
     get item_path(item)
@@ -1308,16 +1341,18 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "span.bg-red-50", text: "在庫なし"
     assert_select "dd.text-red-700", text: item.stock_quantity.to_s
-    assert_select "a[href='#{edit_item_path(item)}']", text: "在庫を追加"
+    assert_select "button[data-disclosure-target='add-stock']", text: "在庫を追加"
+    assert_select "form[action='#{add_stock_item_path(item)}'] input[name='quantity']"
   end
 
-  test "show shows restock link for item with stock" do
+  test "show shows add stock modal for item with stock" do
     item = items(:one)
 
     get item_path(item)
 
     assert_response :success
-    assert_select "a[href='#{edit_item_path(item)}']", text: "在庫を追加"
+    assert_select "button[data-disclosure-target='add-stock']", text: "在庫を追加"
+    assert_select "form[action='#{add_stock_item_path(item)}'] input[name='quantity']"
   end
 
   test "update with invalid image rerenders edit page" do
