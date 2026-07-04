@@ -3,10 +3,18 @@
              url: used_up_items_path,
              query: @search_query,
              hidden_params: {
-               category_id: @selected_category_id.presence
+               category_id: @selected_category_id.presence,
+               rating: @selected_rating.presence,
+               rating_status: @selected_rating_status.presence,
+               review_status: @selected_review_status.presence
              },
              show_reset: @search_query.present?,
-             reset_url: used_up_items_path(category_id: @selected_category_id.presence) %>
+             reset_url: used_up_items_path(
+               category_id: @selected_category_id.presence,
+               rating: @selected_rating.presence,
+               rating_status: @selected_rating_status.presence,
+               review_status: @selected_review_status.presence
+             ) %>
 
   <%= render "shared/history_tabs" %>
 
@@ -20,7 +28,10 @@
         <section>
           <h3 class="mb-3 text-xs font-bold uppercase tracking-wide text-slate-400">Category</h3>
     <% category_filter_params = {
-      q: @search_query.presence
+      q: @search_query.presence,
+      rating: @selected_rating.presence,
+      rating_status: @selected_rating_status.presence,
+      review_status: @selected_review_status.presence
     } %>
           <div class="grid gap-2">
             <%= link_to "すべて",
@@ -34,6 +45,65 @@
             <%= link_to "未設定",
                         used_up_items_path(category_filter_params.merge(category_id: "uncategorized")),
                         class: category_filter_class(@selected_category_id, "uncategorized") %>
+          </div>
+        </section>
+
+        <section>
+          <h3 class="mb-3 text-xs font-bold uppercase tracking-wide text-slate-400">Rating</h3>
+    <% rating_status_filter_params = {
+      q: @search_query.presence,
+      category_id: @selected_category_id.presence,
+      review_status: @selected_review_status.presence
+    } %>
+          <div class="grid gap-2">
+            <%= link_to "すべて",
+                        used_up_items_path(rating_status_filter_params),
+                        class: category_filter_class(@selected_rating_status.presence || @selected_rating.presence, nil) %>
+            <%= link_to "評価あり",
+                        used_up_items_path(rating_status_filter_params.merge(rating_status: "rated")),
+                        class: category_filter_class(@selected_rating_status, "rated") %>
+            <%= link_to "評価なし",
+                        used_up_items_path(rating_status_filter_params.merge(rating_status: "unrated")),
+                        class: category_filter_class(@selected_rating_status, "unrated") %>
+          </div>
+        </section>
+
+        <section>
+          <h3 class="mb-3 text-xs font-bold uppercase tracking-wide text-slate-400">Stars</h3>
+    <% rating_filter_params = {
+      q: @search_query.presence,
+      category_id: @selected_category_id.presence,
+      review_status: @selected_review_status.presence
+    } %>
+          <div class="grid gap-2">
+            <% 5.downto(1) do |rating| %>
+              <%= link_to used_up_items_path(rating_filter_params.merge(rating: rating)),
+                          class: category_filter_class(@selected_rating, rating) do %>
+                <span aria-hidden="true">⭐️</span>
+                <span class="font-sans font-bold"><%= rating %></span>
+              <% end %>
+            <% end %>
+          </div>
+        </section>
+
+        <section>
+          <h3 class="mb-3 text-xs font-bold uppercase tracking-wide text-slate-400">Review</h3>
+    <% review_filter_params = {
+      q: @search_query.presence,
+      category_id: @selected_category_id.presence,
+      rating: @selected_rating.presence,
+      rating_status: @selected_rating_status.presence
+    } %>
+          <div class="grid gap-2">
+            <%= link_to "すべて",
+                        used_up_items_path(review_filter_params),
+                        class: category_filter_class(@selected_review_status, nil) %>
+            <%= link_to "レビューあり",
+                        used_up_items_path(review_filter_params.merge(review_status: "reviewed")),
+                        class: category_filter_class(@selected_review_status, "reviewed") %>
+            <%= link_to "レビューなし",
+                        used_up_items_path(review_filter_params.merge(review_status: "unreviewed")),
+                        class: category_filter_class(@selected_review_status, "unreviewed") %>
           </div>
         </section>
   <% end %>
@@ -98,7 +168,7 @@
     </div>
   <% else %>
     <div class="ui-empty-state">
-      <% if @search_query.present? %>
+      <% if @search_query.present? || @selected_category_id.present? || @selected_rating.present? || @selected_rating_status.present? || @selected_review_status.present? %>
         <p class="text-lg">条件に合う使い切り履歴がありません</p>
         <p class="mt-2 text-sm">検索条件を変更して、もう一度お試しください。</p>
         <%= link_to "検索条件をリセット", used_up_items_path, class: "btn-secondary mt-5" %>
