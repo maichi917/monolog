@@ -45,12 +45,18 @@ class ItemsController < ApplicationController
     @page_title = "使い切り"
     @search_query = params[:q].to_s.strip
     @selected_category_id = params[:category_id].to_s
+    @selected_rating = params[:rating].to_s
+    @selected_rating_status = params[:rating_status].to_s
+    @selected_review_status = params[:review_status].to_s
     @categories = current_user.categories.order(:name)
     finished_usage_logs = current_user.usage_logs
                                       .finished
                                       .used_up_history
                                       .by_item_name(@search_query)
                                       .by_item_category(@selected_category_id)
+                                      .by_rating(@selected_rating)
+                                      .by_rating_status(@selected_rating_status)
+                                      .by_review_status(@selected_review_status)
                                       .includes(:item)
                                       .order(finished_at: :desc)
     @usage_logs = Kaminari.paginate_array(

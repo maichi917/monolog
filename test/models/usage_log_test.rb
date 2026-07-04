@@ -87,6 +87,78 @@ class UsageLogTest < ActiveSupport::TestCase
     assert_not_includes UsageLog.rated, unrated_log
   end
 
+  test "by_rating_status filters rated usage logs" do
+    rated_log = @item.usage_logs.create!(
+      user: @user,
+      started_at: Time.zone.local(2026, 5, 10),
+      finished_at: Time.zone.local(2026, 5, 12),
+      rating: 4
+    )
+    unrated_log = @item.usage_logs.create!(
+      user: @user,
+      started_at: Time.zone.local(2026, 5, 13),
+      finished_at: Time.zone.local(2026, 5, 15)
+    )
+
+    assert_includes UsageLog.by_rating_status("rated"), rated_log
+    assert_not_includes UsageLog.by_rating_status("rated"), unrated_log
+  end
+
+  test "by_rating_status filters unrated usage logs" do
+    rated_log = @item.usage_logs.create!(
+      user: @user,
+      started_at: Time.zone.local(2026, 5, 10),
+      finished_at: Time.zone.local(2026, 5, 12),
+      rating: 4
+    )
+    unrated_log = @item.usage_logs.create!(
+      user: @user,
+      started_at: Time.zone.local(2026, 5, 13),
+      finished_at: Time.zone.local(2026, 5, 15)
+    )
+
+    assert_includes UsageLog.by_rating_status("unrated"), unrated_log
+    assert_not_includes UsageLog.by_rating_status("unrated"), rated_log
+  end
+
+  test "by_review_status filters reviewed usage logs" do
+    reviewed_log = @item.usage_logs.create!(
+      user: @user,
+      started_at: Time.zone.local(2026, 5, 10),
+      finished_at: Time.zone.local(2026, 5, 12),
+      rating: 4,
+      review: "また使いたい"
+    )
+    no_review_log = @item.usage_logs.create!(
+      user: @user,
+      started_at: Time.zone.local(2026, 5, 13),
+      finished_at: Time.zone.local(2026, 5, 15),
+      rating: 5
+    )
+
+    assert_includes UsageLog.by_review_status("reviewed"), reviewed_log
+    assert_not_includes UsageLog.by_review_status("reviewed"), no_review_log
+  end
+
+  test "by_review_status filters usage logs without review" do
+    reviewed_log = @item.usage_logs.create!(
+      user: @user,
+      started_at: Time.zone.local(2026, 5, 10),
+      finished_at: Time.zone.local(2026, 5, 12),
+      rating: 4,
+      review: "また使いたい"
+    )
+    no_review_log = @item.usage_logs.create!(
+      user: @user,
+      started_at: Time.zone.local(2026, 5, 13),
+      finished_at: Time.zone.local(2026, 5, 15),
+      rating: 5
+    )
+
+    assert_includes UsageLog.by_review_status("unreviewed"), no_review_log
+    assert_not_includes UsageLog.by_review_status("unreviewed"), reviewed_log
+  end
+
   test "review requires rating" do
     usage_log = @item.usage_logs.build(
       user: @user,

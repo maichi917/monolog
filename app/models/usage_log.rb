@@ -18,6 +18,26 @@ class UsageLog < ApplicationRecord
 
     where(rating: rating)
   }
+  scope :by_rating_status, ->(status) {
+    case status
+    when "rated"
+      where.not(rating: nil)
+    when "unrated"
+      where(rating: nil)
+    else
+      all
+    end
+  }
+  scope :by_review_status, ->(status) {
+    case status
+    when "reviewed"
+      where.not(review: nil).where.not(review: "")
+    when "unreviewed"
+      where(review: [nil, ""])
+    else
+      all
+    end
+  }
   scope :by_item_name, ->(query) {
     return all if query.blank?
 

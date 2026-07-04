@@ -956,6 +956,86 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_no_match items(:one).name, response.body
   end
 
+  test "used_up page filters usage logs by rating status" do
+    rated_item = items(:one)
+    rated_item.start_using!(@user, Time.zone.local(2026, 5, 10))
+    rated_item.finish_using!(Time.zone.local(2026, 5, 12), rating: 4)
+    unrated_item = items(:two)
+    unrated_item.update!(stock_quantity: 1)
+    unrated_item.start_using!(@user, Time.zone.local(2026, 5, 11))
+    unrated_item.finish_using!(Time.zone.local(2026, 5, 13))
+
+    get used_up_items_path, params: { rating_status: "rated" }
+
+    assert_response :success
+    assert_includes response.body, rated_item.name
+    assert_no_match unrated_item.name, response.body
+    assert_select "a.bg-emerald-600[href='#{used_up_items_path(rating_status: "rated")}']", text: "評価あり"
+
+    get used_up_items_path, params: { rating_status: "unrated" }
+
+    assert_response :success
+    assert_includes response.body, unrated_item.name
+    assert_no_match rated_item.name, response.body
+  end
+
+  test "used_up page filters usage logs by rating" do
+    matching_item = items(:one)
+    matching_item.start_using!(@user, Time.zone.local(2026, 5, 10))
+    matching_item.finish_using!(Time.zone.local(2026, 5, 12), rating: 4)
+    other_item = items(:two)
+    other_item.update!(stock_quantity: 1)
+    other_item.start_using!(@user, Time.zone.local(2026, 5, 11))
+    other_item.finish_using!(Time.zone.local(2026, 5, 13), rating: 5)
+
+    get used_up_items_path, params: { rating: "4" }
+
+    assert_response :success
+    assert_includes response.body, matching_item.name
+    assert_no_match other_item.name, response.body
+    assert_select "a.bg-emerald-600[href='#{used_up_items_path(rating: 4)}']", text: /⭐️\s*4/
+  end
+
+  test "used_up page filters usage logs by review status" do
+    reviewed_item = items(:one)
+    reviewed_item.start_using!(@user, Time.zone.local(2026, 5, 10))
+    reviewed_item.finish_using!(
+      Time.zone.local(2026, 5, 12),
+      rating: 4,
+      review: "また使いたい"
+    )
+    no_review_item = items(:two)
+    no_review_item.update!(stock_quantity: 1)
+    no_review_item.start_using!(@user, Time.zone.local(2026, 5, 11))
+    no_review_item.finish_using!(Time.zone.local(2026, 5, 13), rating: 5)
+
+    get used_up_items_path, params: { review_status: "reviewed" }
+
+    assert_response :success
+    assert_includes response.body, reviewed_item.name
+    assert_no_match no_review_item.name, response.body
+    assert_select "a.bg-emerald-600[href='#{used_up_items_path(review_status: "reviewed")}']", text: "レビューあり"
+
+    get used_up_items_path, params: { review_status: "unreviewed" }
+
+    assert_response :success
+    assert_includes response.body, no_review_item.name
+    assert_no_match reviewed_item.name, response.body
+  end
+
+  test "used_up page search form keeps selected rating and review filters" do
+    get used_up_items_path, params: {
+      rating: "4",
+      rating_status: "rated",
+      review_status: "reviewed"
+    }
+
+    assert_response :success
+    assert_select "input[type='hidden'][name='rating'][value='4']"
+    assert_select "input[type='hidden'][name='rating_status'][value='rated']"
+    assert_select "input[type='hidden'][name='review_status'][value='reviewed']"
+  end
+
   test "used_up page keeps search and category filters in pagination links" do
     category = categories(:hair_care)
     11.times do |number|
@@ -978,6 +1058,35 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
       page: 2,
       q: "検索対象",
       category_id: category.id
+    )}']"
+  end
+
+  test "used_up page keeps rating and review filters in pagination links" do
+    11.times do |number|
+      item = @user.items.create!(
+        name: "レビュー検索対象#{number}",
+        stock_quantity: 1
+      )
+      item.start_using!(@user, Time.zone.local(2026, 5, 10))
+      item.finish_using!(
+        Time.zone.local(2026, 5, 12),
+        rating: 4,
+        review: "また使いたい"
+      )
+    end
+
+    get used_up_items_path, params: {
+      q: "レビュー検索対象",
+      rating: "4",
+      review_status: "reviewed"
+    }
+
+    assert_response :success
+    assert_select "a[href='#{used_up_items_path(
+      page: 2,
+      q: "レビュー検索対象",
+      rating: "4",
+      review_status: "reviewed"
     )}']"
   end
 
