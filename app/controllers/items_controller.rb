@@ -102,6 +102,8 @@ class ItemsController < ApplicationController
 
   def show
     @item = current_user.items.find(params[:id]) # ログイン中のユーザーのアイテムを取得
+    @average_rating = @item.average_rating
+    @rating_count = @item.rating_count
   end
 
   def edit

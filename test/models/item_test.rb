@@ -179,6 +179,30 @@ class ItemTest < ActiveSupport::TestCase
     assert_nil item.average_usage_days
   end
 
+  test "average_rating uses only usage logs with rating" do
+    item = items(:one)
+    item.start_using!(users(:one), Time.zone.local(2026, 5, 1))
+    item.finish_using!(Time.zone.local(2026, 5, 10), rating: 5)
+    item.update!(stock_quantity: 1)
+    item.start_using!(users(:one), Time.zone.local(2026, 5, 20))
+    item.finish_using!(Time.zone.local(2026, 5, 24), rating: 3)
+    item.update!(stock_quantity: 1)
+    item.start_using!(users(:one), Time.zone.local(2026, 6, 1))
+    item.finish_using!(Time.zone.local(2026, 6, 5))
+
+    assert_equal 4.0, item.average_rating
+    assert_equal 2, item.rating_count
+  end
+
+  test "average_rating returns nil when item has no ratings" do
+    item = items(:one)
+    item.start_using!(users(:one), Time.zone.local(2026, 5, 1))
+    item.finish_using!(Time.zone.local(2026, 5, 10))
+
+    assert_nil item.average_rating
+    assert_equal 0, item.rating_count
+  end
+
   test "predicted_finish_date returns date from current usage start and average days" do
     item = items(:one)
     item.update!(stock_quantity: 2)

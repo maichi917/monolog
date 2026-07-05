@@ -1433,6 +1433,36 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "ものログ製薬"
   end
 
+  test "show displays average rating and rating count" do
+    item = items(:one)
+    item.update!(stock_quantity: 3)
+    item.start_using!(@user, Time.zone.local(2026, 5, 1))
+    item.finish_using!(Time.zone.local(2026, 5, 10), rating: 5, review: "よかった")
+    item.start_using!(@user, Time.zone.local(2026, 5, 20))
+    item.finish_using!(Time.zone.local(2026, 5, 24), rating: 3)
+    item.start_using!(@user, Time.zone.local(2026, 6, 1))
+    item.finish_using!(Time.zone.local(2026, 6, 5))
+
+    get item_path(item)
+
+    assert_response :success
+    assert_includes response.body, "平均評価"
+    assert_includes response.body, "4.0"
+    assert_includes response.body, "評価件数"
+    assert_includes response.body, "2件"
+  end
+
+  test "show displays unrated message when item has no ratings" do
+    item = items(:one)
+
+    get item_path(item)
+
+    assert_response :success
+    assert_includes response.body, "平均評価"
+    assert_includes response.body, "未評価"
+    assert_includes response.body, "0件"
+  end
+
   test "show uses consistent finish using button label for in-use item" do
     item = items(:one)
     item.start_using!(@user, Time.zone.local(2026, 5, 10))
