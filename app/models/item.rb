@@ -60,6 +60,17 @@ class Item < ApplicationRecord
     (durations.sum.to_f / durations.size).round
   end
 
+  def average_rating
+    ratings = usage_logs.rated.pluck(:rating)
+    return if ratings.blank?
+
+    (ratings.sum.to_f / ratings.size).round(1)
+  end
+
+  def rating_count
+    usage_logs.rated.count
+  end
+
   def predicted_finish_date
     return unless using?
 

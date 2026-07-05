@@ -56,6 +56,23 @@
           <dt class="text-xs text-slate-500">ブランド名</dt>
           <dd class="mt-1 font-semibold text-slate-800"><%= @item.brand_name.presence || "未設定" %></dd>
         </div>
+
+        <div class="rounded-lg bg-slate-50 p-3">
+          <dt class="text-xs text-slate-500">平均評価</dt>
+          <dd class="mt-1 font-semibold text-slate-800">
+            <% if @average_rating.present? %>
+              <span class="text-yellow-500"><%= "★" * @average_rating.round %><span class="text-slate-300"><%= "☆" * (5 - @average_rating.round) %></span></span>
+              <span class="ml-1"><%= @average_rating %></span>
+            <% else %>
+              未評価
+            <% end %>
+          </dd>
+        </div>
+
+        <div class="rounded-lg bg-slate-50 p-3">
+          <dt class="text-xs text-slate-500">評価件数</dt>
+          <dd class="mt-1 font-semibold text-slate-800"><%= "#{@rating_count}件" %></dd>
+        </div>
       </dl>
     </div>
 
