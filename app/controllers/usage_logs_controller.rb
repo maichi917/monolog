@@ -27,6 +27,10 @@ class UsageLogsController < ApplicationController
                               .includes(:item)
                               .order(finished_at: :desc)
                               .page(params[:page])
+    reviewed_item_ids = @usage_logs.map(&:item_id)
+    rated_usage_logs = current_user.usage_logs.rated.where(item_id: reviewed_item_ids)
+    @average_ratings_by_item_id = rated_usage_logs.group(:item_id).average(:rating)
+    @rating_counts_by_item_id = rated_usage_logs.group(:item_id).count
   end
 
   def update

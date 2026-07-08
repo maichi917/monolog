@@ -40,9 +40,41 @@ class UsageLogsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "a.bg-emerald-600[href='#{reviews_usage_logs_path}']", text: "レビュー"
     assert_includes response.body, @item.name
+    assert_includes response.body, "今回の評価"
     assert_select "dd", text: /★★★★\s*☆/
     assert_includes response.body, "また使いたい"
     assert_select "a[href='#{edit_usage_log_path(@usage_log)}']", text: "編集"
+  end
+
+  test "reviews shows item average rating and rating count" do
+    @item.update!(stock_quantity: 2)
+    @usage_log.update!(rating: 4, review: "また使いたい")
+    @item.start_using!(@user, Time.zone.local(2026, 5, 20))
+    @item.finish_using!(Time.zone.local(2026, 5, 25), rating: 5)
+
+    get reviews_usage_logs_path
+
+    assert_response :success
+    assert_includes response.body, "平均"
+    assert_includes response.body, "4.5"
+    assert_includes response.body, "2件"
+  end
+
+  test "reviews average rating does not include other user's ratings" do
+    @usage_log.update!(rating: 4, review: "また使いたい")
+    other_user = users(:two)
+    other_item = other_user.items.create!(
+      name: @item.name,
+      stock_quantity: 1
+    )
+    other_item.start_using!(other_user, Time.zone.local(2026, 5, 10))
+    other_item.finish_using!(Time.zone.local(2026, 5, 12), rating: 1)
+
+    get reviews_usage_logs_path
+
+    assert_response :success
+    assert_includes response.body, "4.0（1件）"
+    refute_includes response.body, "2.5（"
   end
 
   test "reviews shows rated usage log without review as no review" do
