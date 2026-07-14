@@ -50,7 +50,6 @@ class UsageLog < ApplicationRecord
     joins(:item).where(items: { category_id: category_id })
   }
 
-  validates :started_at, presence: true
   validates :rating, inclusion: { in: 1..5 }, allow_nil: true
   validates :discontinued_reason, length: { maximum: 500 }, allow_blank: true
 

@@ -155,7 +155,7 @@ class ItemsController < ApplicationController
       return
     end
 
-    @item.start_using!(current_user, params[:started_at])
+    @item.start_using!(current_user, params[:started_at], started_at_unknown: params[:started_at_unknown].present?)
     redirect_to in_use_items_path, notice: "使用を開始しました"
   end
 

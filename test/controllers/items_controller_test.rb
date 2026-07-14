@@ -327,6 +327,17 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_equal 1, item.reload.stock_quantity
   end
 
+  test "start_using with started_at_unknown creates usage log without started_at" do
+    item = items(:one)
+
+    assert_difference -> { item.usage_logs.count }, 1 do
+      patch start_using_item_path(item), params: { started_at: "2026-05-12", started_at_unknown: "1" }
+    end
+
+    assert_redirected_to in_use_items_path
+    assert_nil item.reload.current_usage_log.started_at
+  end
+
   test "start_using does not create usage log when stock is empty" do
     item = items(:two)
 

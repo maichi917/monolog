@@ -3,15 +3,20 @@
 
   <div class="relative w-full max-w-sm rounded-lg bg-white p-5 shadow-xl">
     <div class="mb-4">
-      <p id="start-using-title-<%= item.id %>" class="brand-font text-lg font-bold text-slate-900">使い始め日を入力</p>
+      <p id="start-using-title-<%= item.id %>" class="brand-font text-lg font-bold text-slate-900">使用開始日を入力</p>
       <p class="mt-1 text-sm text-slate-500"><%= item.name %></p>
     </div>
 
     <%= form_with url: start_using_item_path(item), method: :patch, local: true, class: "space-y-4" do %>
       <div>
-        <%= label_tag :started_at, "使い始め日", class: "form-label" %>
-        <%= date_field_tag :started_at, Date.current, class: "form-input bg-white" %>
+        <%= label_tag :started_at, "使用開始日", class: "form-label" %>
+        <%= date_field_tag :started_at, Date.current, class: "form-input bg-white disabled:bg-slate-100 disabled:text-slate-400", data: { unknown_date_field: true } %>
       </div>
+
+      <label class="flex items-center gap-2 text-sm text-slate-700">
+        <%= check_box_tag :started_at_unknown, "1", false, data: { unknown_date_toggle: true } %>
+        使用開始日がわからない
+      </label>
 
       <div class="grid gap-2">
         <%= submit_tag "この日から使う", class: "btn-primary w-full cursor-pointer" %>

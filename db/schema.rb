@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_06_24_000000) do
+ActiveRecord::Schema[7.1].define(version: 2026_07_14_000000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
@@ -70,7 +70,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_06_24_000000) do
   end
 
   create_table "usage_logs", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.datetime "started_at", null: false
+    t.datetime "started_at"
     t.datetime "finished_at"
     t.integer "rating"
     t.text "review"

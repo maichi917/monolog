@@ -204,6 +204,15 @@ class UsageLogTest < ActiveSupport::TestCase
     assert usage_log.valid?
   end
 
+  test "usage log is valid without started_at" do
+    usage_log = @item.usage_logs.build(
+      user: @user,
+      started_at: nil
+    )
+
+    assert usage_log.valid?
+  end
+
   test "usage log accepts used up finish reason" do
     usage_log = @item.usage_logs.build(
       user: @user,

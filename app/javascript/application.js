@@ -24,6 +24,13 @@ document.addEventListener("change", (event) => {
   }
 })
 
+document.addEventListener("change", (event) => {
+  if (!event.target.matches("[data-unknown-date-toggle]")) return
+
+  const dateInput = event.target.closest("form")?.querySelector("[data-unknown-date-field]")
+  if (dateInput) dateInput.disabled = event.target.checked
+})
+
 document.addEventListener("submit", (event) => {
   const form = event.target
   const submitLoading = form.querySelector("[data-submit-loading]")
