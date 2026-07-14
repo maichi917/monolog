@@ -22,6 +22,7 @@ Rails 7.1 + PostgreSQL の在庫管理・レビューアプリ。認証は Devis
 - ビューは `app/views/`
 - マイグレーションは `db/migrate/`
 - テストは `test/`
+- 主キーは UUID を使う（`id: :uuid, default: -> { "gen_random_uuid()" }`）。新規テーブルもこの形式に合わせる
 
 ## 在庫管理方針
 - `items` はアイテム本体、`usage_logs` は使用履歴を表す
