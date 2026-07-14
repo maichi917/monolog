@@ -73,6 +73,7 @@ class Item < ApplicationRecord
 
   def predicted_finish_date
     return unless using?
+    return if current_usage_log.started_at.blank?
 
     average_days = average_usage_days
     return if average_days.blank?
@@ -80,11 +81,11 @@ class Item < ApplicationRecord
     current_usage_log.started_at.to_date + (average_days - 1).days
   end
 
-  def start_using!(user, started_at)
+  def start_using!(user, started_at, started_at_unknown: false)
     transaction do
       usage_logs.create!(
         user: user,
-        started_at: started_at.presence || Time.current
+        started_at: started_at_unknown ? nil : (started_at.presence || Time.current)
       )
 
       decrement!(:stock_quantity)

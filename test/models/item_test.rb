@@ -40,6 +40,14 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal users(:one), item.current_usage_log.user
   end
 
+  test "start_using! with started_at_unknown creates usage log without started_at" do
+    item = items(:one)
+
+    item.start_using!(users(:one), Time.zone.local(2026, 5, 12), started_at_unknown: true)
+
+    assert_nil item.current_usage_log.started_at
+  end
+
   test "finish_using! finishes current usage log" do
     item = items(:one)
     item.start_using!(users(:one), Time.zone.local(2026, 5, 10))
@@ -224,6 +232,16 @@ class ItemTest < ActiveSupport::TestCase
   test "predicted_finish_date returns nil when used-up history is missing" do
     item = items(:one)
     item.start_using!(users(:one), Time.zone.local(2026, 6, 1))
+
+    assert_nil item.predicted_finish_date
+  end
+
+  test "predicted_finish_date returns nil when current usage started_at is unknown" do
+    item = items(:one)
+    item.update!(stock_quantity: 2)
+    item.start_using!(users(:one), Time.zone.local(2026, 5, 1))
+    item.finish_using!(Time.zone.local(2026, 5, 10))
+    item.start_using!(users(:one), Time.zone.local(2026, 6, 1), started_at_unknown: true)
 
     assert_nil item.predicted_finish_date
   end
