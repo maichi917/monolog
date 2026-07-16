@@ -33,14 +33,14 @@
         <div class="rounded-lg bg-slate-50 p-3">
           <dt class="text-xs text-slate-500">使い始め日</dt>
           <dd class="mt-1 font-semibold text-slate-800">
-            <%= @usage_log.started_at&.strftime("%Y/%-m/%-d") || "-" %>
+            <%= format_date(@usage_log.started_at) %>
           </dd>
         </div>
 
         <div class="rounded-lg bg-slate-50 p-3">
           <dt class="text-xs text-slate-500"><%= @usage_log.discontinued? ? "使用中止日" : "終了日" %></dt>
           <dd class="mt-1 font-semibold text-slate-800">
-            <%= @usage_log.finished_at&.strftime("%Y/%-m/%-d") || "-" %>
+            <%= format_date(@usage_log.finished_at) %>
           </dd>
         </div>
 
