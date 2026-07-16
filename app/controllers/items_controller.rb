@@ -84,10 +84,10 @@ class ItemsController < ApplicationController
     @item = current_user.items.build(item_params)
 
     if assign_category(@item) && @item.save
-      redirect_to items_path, success: 'アイテムが作成されました。'
+      redirect_to items_path, notice: 'アイテムが作成されました。'
     else
       set_categories
-      flash.now[:danger] = 'アイテムの作成に失敗しました。'
+      flash.now[:alert] = 'アイテムの作成に失敗しました。'
       render :new, status: :unprocessable_content
     end
   end
@@ -113,7 +113,7 @@ class ItemsController < ApplicationController
 
   def destroy
     @item.destroy!
-    redirect_to items_path, success: 'アイテムが削除されました'
+    redirect_to items_path, notice: 'アイテムが削除されました'
   end
 
   def destroy_image
