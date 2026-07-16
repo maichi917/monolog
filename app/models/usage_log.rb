@@ -49,6 +49,11 @@ class UsageLog < ApplicationRecord
 
     joins(:item).where(items: { category_id: category_id })
   }
+  # アイテムごとに finished_at が最も新しい1件だけに絞り込む（PostgreSQLのDISTINCT ONを利用）
+  scope :latest_per_item, -> {
+    where(id: reorder(item_id: :asc, finished_at: :desc)
+                .select("DISTINCT ON (usage_logs.item_id) usage_logs.id"))
+  }
 
   validates :rating, inclusion: { in: 1..5 }, allow_nil: true
   validates :discontinued_reason, length: { maximum: 500 }, allow_blank: true
