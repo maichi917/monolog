@@ -83,7 +83,7 @@ class ItemsController < ApplicationController
   def create
     @item = current_user.items.build(item_params)
 
-    if assign_category(@item) && @item.save
+    if assign_category && @item.save
       redirect_to items_path, notice: 'アイテムが作成されました。'
     else
       set_categories
@@ -103,7 +103,7 @@ class ItemsController < ApplicationController
   def update
     @item.assign_attributes(item_params)
 
-    if assign_category(@item) && @item.save
+    if assign_category && @item.save
       redirect_to items_path, notice: 'アイテム情報を更新しました'
     else
       set_categories
@@ -228,30 +228,12 @@ class ItemsController < ApplicationController
     params.require(:item).permit(:name, :brand_name, :price, :stock_quantity, :favorite, :memo, :image)
   end
 
-  def assign_category(item)
-    category_name = params.dig(:item, :new_category_name).to_s.strip
-    category_id = params.dig(:item, :category_id)
-    remove_category = ActiveModel::Type::Boolean.new.cast(params.dig(:item, :remove_category))
-
-    item.new_category_name = category_name
-    item.remove_category = remove_category
-
-    if category_name.present?
-      category = current_user.categories.find_or_initialize_by(name: category_name)
-      unless category.save
-        category.errors[:name].each { |message| item.errors.add(:new_category_name, message) }
-        return false
-      end
-
-      item.category = category
-    elsif remove_category
-      item.category = nil
-    elsif category_id.present?
-      item.category = current_user.categories.find(category_id)
-    else
-      item.category = nil
-    end
-
-    true
+  def assign_category
+    @item.assign_category(
+      current_user,
+      category_id: params.dig(:item, :category_id),
+      new_category_name: params.dig(:item, :new_category_name),
+      remove_category: params.dig(:item, :remove_category)
+    )
   end
 end

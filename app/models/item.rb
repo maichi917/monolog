@@ -81,6 +81,31 @@ class Item < ApplicationRecord
     current_usage_log.started_at.to_date + (average_days - 1).days
   end
 
+  # カテゴリを割り当てる。新規カテゴリ名があれば作成して設定し、
+  # 作成に失敗した場合は errors に引き継いで false を返す
+  def assign_category(user, category_id:, new_category_name:, remove_category:)
+    self.new_category_name = new_category_name.to_s.strip
+    self.remove_category = ActiveModel::Type::Boolean.new.cast(remove_category)
+
+    if self.new_category_name.present?
+      new_category = user.categories.find_or_initialize_by(name: self.new_category_name)
+      unless new_category.save
+        new_category.errors[:name].each { |message| errors.add(:new_category_name, message) }
+        return false
+      end
+
+      self.category = new_category
+    elsif self.remove_category
+      self.category = nil
+    elsif category_id.present?
+      self.category = user.categories.find(category_id)
+    else
+      self.category = nil
+    end
+
+    true
+  end
+
   def start_using!(user, started_at, started_at_unknown: false)
     transaction do
       usage_logs.create!(
