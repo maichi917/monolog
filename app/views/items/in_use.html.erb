@@ -42,7 +42,7 @@
                 <div>
                   <dt class="text-xs text-slate-500">使い始め日</dt>
                   <dd class="mt-1 text-slate-700">
-                    <%= usage_log.started_at&.strftime("%Y/%-m/%-d") || "-" %>
+                    <%= format_date(usage_log.started_at) %>
                   </dd>
                 </div>
 

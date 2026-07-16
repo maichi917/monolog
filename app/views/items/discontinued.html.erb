@@ -65,7 +65,7 @@
                 <div class="inline-flex items-center gap-1.5 rounded-lg bg-slate-50 px-2.5 py-1 text-slate-700">
                   <dt class="text-xs font-medium text-slate-500">使用中止日</dt>
                   <dd>
-                    <%= usage_log.finished_at&.strftime("%Y/%-m/%-d") || "-" %>
+                    <%= format_date(usage_log.finished_at) %>
                   </dd>
                 </div>
                 <div class="inline-flex items-center gap-1.5 rounded-lg bg-slate-50 px-2.5 py-1 text-slate-700">
