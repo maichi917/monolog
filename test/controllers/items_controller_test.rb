@@ -1423,6 +1423,14 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_select "article", count: 1
   end
 
+  test "show does not allow accessing another user's item" do
+    other_user_item = users(:two).items.create!(name: "他人のアイテム", stock_quantity: 1)
+
+    get item_path(other_user_item)
+
+    assert_response :not_found
+  end
+
   test "show shows item category" do
     item = items(:one)
     item.update!(category: categories(:hair_care))
