@@ -49,8 +49,8 @@
                 <div>
                   <dt class="text-xs text-slate-500">使用日数</dt>
                   <dd class="mt-1 text-slate-700">
-                    <% if usage_log.started_at.present? %>
-                      <%= "#{(Date.current - usage_log.started_at.to_date).to_i + 1}日目" %>
+                    <% if usage_log.days_in_use %>
+                      <%= "#{usage_log.days_in_use}日目" %>
                     <% else %>
                       -
                     <% end %>

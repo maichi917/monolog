@@ -71,8 +71,8 @@
                 <div class="inline-flex items-center gap-1.5 rounded-lg bg-slate-50 px-2.5 py-1 text-slate-700">
                   <dt class="text-xs font-medium text-slate-500">使用期間</dt>
                   <dd>
-                    <% if usage_log.started_at.present? && usage_log.finished_at.present? %>
-                      <%= "#{(usage_log.finished_at.to_date - usage_log.started_at.to_date).to_i + 1}日" %>
+                    <% if usage_log.usage_days %>
+                      <%= "#{usage_log.usage_days}日" %>
                     <% else %>
                       -
                     <% end %>

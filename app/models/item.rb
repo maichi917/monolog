@@ -52,7 +52,7 @@ class Item < ApplicationRecord
                 .finished
                 .used_up_history
                 .where.not(started_at: nil)
-                .map { |log| (log.finished_at.to_date - log.started_at.to_date).to_i + 1 }
+                .map(&:usage_days)
                 .select(&:positive?)
 
     return if durations.blank?

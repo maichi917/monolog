@@ -204,6 +204,53 @@ class UsageLogTest < ActiveSupport::TestCase
     assert usage_log.valid?
   end
 
+  test "usage_days returns days including both start and finish dates" do
+    usage_log = @item.usage_logs.build(
+      user: @user,
+      started_at: Time.zone.local(2026, 5, 1),
+      finished_at: Time.zone.local(2026, 5, 10)
+    )
+
+    assert_equal 10, usage_log.usage_days
+  end
+
+  test "usage_days returns nil when started_at is missing" do
+    usage_log = @item.usage_logs.build(
+      user: @user,
+      started_at: nil,
+      finished_at: Time.zone.local(2026, 5, 10)
+    )
+
+    assert_nil usage_log.usage_days
+  end
+
+  test "usage_days returns nil when finished_at is missing" do
+    usage_log = @item.usage_logs.build(
+      user: @user,
+      started_at: Time.zone.local(2026, 5, 1)
+    )
+
+    assert_nil usage_log.usage_days
+  end
+
+  test "days_in_use returns elapsed days including the start date" do
+    usage_log = @item.usage_logs.build(
+      user: @user,
+      started_at: 2.days.ago
+    )
+
+    assert_equal 3, usage_log.days_in_use
+  end
+
+  test "days_in_use returns nil when started_at is missing" do
+    usage_log = @item.usage_logs.build(
+      user: @user,
+      started_at: nil
+    )
+
+    assert_nil usage_log.days_in_use
+  end
+
   test "usage log is valid without started_at" do
     usage_log = @item.usage_logs.build(
       user: @user,
