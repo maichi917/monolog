@@ -64,6 +64,20 @@ class UsageLog < ApplicationRecord
     finished_at.present?
   end
 
+  # 使用開始から終了までの日数（開始日・終了日を含む）。日付が欠けている場合は nil
+  def usage_days
+    return if started_at.blank? || finished_at.blank?
+
+    (finished_at.to_date - started_at.to_date).to_i + 1
+  end
+
+  # 使用開始から今日までの経過日数（使用中の「◯日目」表示用）。開始日不明の場合は nil
+  def days_in_use
+    return if started_at.blank?
+
+    (Date.current - started_at.to_date).to_i + 1
+  end
+
   private
 
   def finished_at_must_be_after_started_at
