@@ -1,17 +1,15 @@
 class ItemsController < ApplicationController
   before_action :authenticate_user!
   before_action :set_categories, only: %i[new create edit update]
+  before_action :set_filter_params, only: %i[index in_use used_up discontinued]
   before_action :set_item, only: %i[show edit update destroy destroy_image toggle_favorite
                                     start_using finish_using_form finish_using
                                     discontinue_using_form discontinue_using add_stock]
 
   def index
     @items = current_user.items.visible.includes(:category).order(created_at: :desc)
-    @search_query = params[:q].to_s.strip
-    @selected_category_id = params[:category_id].to_s
     @selected_status = params[:status].to_s
     @selected_favorite = params[:favorite].to_s
-    @categories = current_user.categories.order(:name)
     @items = @items.by_name(@search_query)
                    .by_category(@selected_category_id)
     @items = @items.where(favorite: true) if @selected_favorite == "1"
@@ -32,9 +30,6 @@ class ItemsController < ApplicationController
 
   def in_use
     @page_title = "使用中アイテム"
-    @search_query = params[:q].to_s.strip
-    @selected_category_id = params[:category_id].to_s
-    @categories = current_user.categories.order(:name)
     @usage_logs = current_user.usage_logs
                               .in_use
                               .by_item_name(@search_query)
@@ -46,12 +41,9 @@ class ItemsController < ApplicationController
 
   def used_up
     @page_title = "使い切り"
-    @search_query = params[:q].to_s.strip
-    @selected_category_id = params[:category_id].to_s
     @selected_rating = params[:rating].to_s
     @selected_rating_status = params[:rating_status].to_s
     @selected_review_status = params[:review_status].to_s
-    @categories = current_user.categories.order(:name)
     finished_usage_logs = current_user.usage_logs
                                       .finished
                                       .used_up_history
@@ -74,9 +66,6 @@ class ItemsController < ApplicationController
 
   def discontinued
     @page_title = "使用中止"
-    @search_query = params[:q].to_s.strip
-    @selected_category_id = params[:category_id].to_s
-    @categories = current_user.categories.order(:name)
     @usage_logs = current_user.usage_logs
                               .finished
                               .discontinued
@@ -237,10 +226,6 @@ class ItemsController < ApplicationController
 
   def item_params
     params.require(:item).permit(:name, :brand_name, :price, :stock_quantity, :favorite, :memo, :image)
-  end
-
-  def set_categories
-    @categories = current_user.categories.order(:name)
   end
 
   def assign_category(item)

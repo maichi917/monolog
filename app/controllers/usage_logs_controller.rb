@@ -2,6 +2,7 @@ class UsageLogsController < ApplicationController
   before_action :authenticate_user!
   before_action :set_usage_log, only: %i[show edit update]
   before_action :set_discontinued_usage_log, only: %i[edit_discontinued_reason update_discontinued_reason]
+  before_action :set_filter_params, only: %i[reviews]
 
   def show
   end
@@ -14,10 +15,7 @@ class UsageLogsController < ApplicationController
 
   def reviews
     @page_title = "レビュー"
-    @search_query = params[:q].to_s.strip
-    @selected_category_id = params[:category_id].to_s
     @selected_rating = params[:rating].to_s
-    @categories = current_user.categories.order(:name)
     @usage_logs = current_user.usage_logs
                               .finished
                               .rated
