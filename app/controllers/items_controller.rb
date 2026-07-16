@@ -1,6 +1,9 @@
 class ItemsController < ApplicationController
-  before_action :authenticate_user! # ユーザーがログインしていることを確認
+  before_action :authenticate_user!
   before_action :set_categories, only: %i[new create edit update]
+  before_action :set_item, only: %i[show edit update destroy destroy_image toggle_favorite
+                                    start_using finish_using_form finish_using
+                                    discontinue_using_form discontinue_using add_stock]
 
   def index
     @items = current_user.items.visible.includes(:category).order(created_at: :desc)
@@ -85,33 +88,30 @@ class ItemsController < ApplicationController
   end
 
   def new
-    @item = current_user.items.new # 新しいアイテムを作成
+    @item = current_user.items.new
   end
 
   def create
-    @item = current_user.items.build(item_params) # ログイン中のユーザーに紐づくアイテムを作成
+    @item = current_user.items.build(item_params)
 
     if assign_category(@item) && @item.save
       redirect_to items_path, success: 'アイテムが作成されました。'
     else
       set_categories
-      flash.now[:danger] = 'アイテムの作成に失敗しました。'  # ← flash.nowを使う！
+      flash.now[:danger] = 'アイテムの作成に失敗しました。'
       render :new, status: :unprocessable_content
     end
   end
 
   def show
-    @item = current_user.items.find(params[:id]) # ログイン中のユーザーのアイテムを取得
     @average_rating = @item.average_rating
     @rating_count = @item.rating_count
   end
 
   def edit
-    @item = current_user.items.find(params[:id]) # ログイン中のユーザーのアイテムを取得
   end
 
   def update
-    @item = current_user.items.find(params[:id])
     @item.assign_attributes(item_params)
 
     if assign_category(@item) && @item.save
@@ -123,28 +123,23 @@ class ItemsController < ApplicationController
   end
 
   def destroy
-    item = current_user.items.find(params[:id])
-    item.destroy!
+    @item.destroy!
     redirect_to items_path, success: 'アイテムが削除されました'
   end
 
   def destroy_image
-    item = current_user.items.find(params[:id])
-    item.image.purge
-    redirect_to edit_item_path(item), notice: "画像を削除しました"
+    @item.image.purge
+    redirect_to edit_item_path(@item), notice: "画像を削除しました"
   end
 
   def toggle_favorite
-    item = current_user.items.find(params[:id])
-    item.update!(favorite: !item.favorite?)
+    @item.update!(favorite: !@item.favorite?)
 
-    notice = item.favorite? ? "お気に入りに追加しました" : "お気に入りを解除しました"
-    redirect_back fallback_location: item_path(item), notice: notice
+    notice = @item.favorite? ? "お気に入りに追加しました" : "お気に入りを解除しました"
+    redirect_back fallback_location: item_path(@item), notice: notice
   end
 
   def start_using
-    @item = current_user.items.find(params[:id])
-
     if @item.using?
       redirect_to items_path, alert: "すでに使用中です"
       return
@@ -160,15 +155,12 @@ class ItemsController < ApplicationController
   end
 
   def finish_using_form
-    @item = current_user.items.find(params[:id])
-
     unless @item.using?
       redirect_to in_use_items_path, alert: "使用中のアイテムがありません"
     end
   end
 
   def finish_using
-    @item = current_user.items.find(params[:id])
     usage_log =
       if params[:usage_log_id].present?
         @item.usage_logs.in_use.find_by(id: params[:usage_log_id])
@@ -205,15 +197,12 @@ class ItemsController < ApplicationController
   end
 
   def discontinue_using_form
-    @item = current_user.items.find(params[:id])
-
     unless @item.using?
       redirect_to in_use_items_path, alert: "使用中のアイテムがありません"
     end
   end
 
   def discontinue_using
-    @item = current_user.items.find(params[:id])
     usage_log = @item.current_usage_log
 
     if usage_log.blank?
@@ -230,11 +219,10 @@ class ItemsController < ApplicationController
   end
 
   def add_stock
-    item = current_user.items.find(params[:id])
     quantity = params[:quantity].to_i
 
     if quantity.positive?
-      item.increment!(:stock_quantity, quantity)
+      @item.increment!(:stock_quantity, quantity)
       redirect_back fallback_location: items_path, notice: "在庫を追加しました"
     else
       redirect_back fallback_location: items_path, alert: "追加する個数を入力してください"
