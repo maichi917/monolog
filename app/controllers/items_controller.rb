@@ -44,19 +44,18 @@ class ItemsController < ApplicationController
     @selected_rating = params[:rating].to_s
     @selected_rating_status = params[:rating_status].to_s
     @selected_review_status = params[:review_status].to_s
-    finished_usage_logs = current_user.usage_logs
-                                      .finished
-                                      .used_up_history
-                                      .by_item_name(@search_query)
-                                      .by_item_category(@selected_category_id)
-                                      .by_rating(@selected_rating)
-                                      .by_rating_status(@selected_rating_status)
-                                      .by_review_status(@selected_review_status)
-                                      .includes(:item)
-                                      .order(finished_at: :desc)
-    @usage_logs = Kaminari.paginate_array(
-      finished_usage_logs.to_a.uniq(&:item_id)
-    ).page(params[:page])
+    @usage_logs = current_user.usage_logs
+                              .finished
+                              .used_up_history
+                              .by_item_name(@search_query)
+                              .by_item_category(@selected_category_id)
+                              .by_rating(@selected_rating)
+                              .by_rating_status(@selected_rating_status)
+                              .by_review_status(@selected_review_status)
+                              .latest_per_item
+                              .includes(:item)
+                              .order(finished_at: :desc)
+                              .page(params[:page])
     @used_up_counts_by_item_id = current_user.usage_logs
                                              .finished
                                              .used_up_history

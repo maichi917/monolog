@@ -204,6 +204,33 @@ class UsageLogTest < ActiveSupport::TestCase
     assert usage_log.valid?
   end
 
+  test "latest_per_item returns only the latest finished log per item" do
+    old_log = @item.usage_logs.create!(
+      user: @user,
+      started_at: Time.zone.local(2026, 5, 1),
+      finished_at: Time.zone.local(2026, 5, 10),
+      finish_reason: :used_up
+    )
+    new_log = @item.usage_logs.create!(
+      user: @user,
+      started_at: Time.zone.local(2026, 6, 1),
+      finished_at: Time.zone.local(2026, 6, 10),
+      finish_reason: :used_up
+    )
+    other_item_log = items(:two).usage_logs.create!(
+      user: @user,
+      started_at: Time.zone.local(2026, 5, 1),
+      finished_at: Time.zone.local(2026, 5, 5),
+      finish_reason: :used_up
+    )
+
+    result = UsageLog.finished.latest_per_item
+
+    assert_includes result, new_log
+    assert_includes result, other_item_log
+    assert_not_includes result, old_log
+  end
+
   test "usage_days returns days including both start and finish dates" do
     usage_log = @item.usage_logs.build(
       user: @user,
