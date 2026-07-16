@@ -1,0 +1,182 @@
+<%= form_with model: item, class: "ui-card space-y-6" do |f| %>
+
+  <!-- エラーメッセージ表示 -->
+  <% if item.errors.any? %>
+    <div class="alert-error">
+      <h2 class="mb-2 font-bold">
+        <%= item.errors.count %>件のエラーがあります
+      </h2>
+      <ul class="list-disc list-inside">
+        <% item.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="space-y-6">
+    <!-- アイテム名 -->
+    <div>
+      <%= f.label :name, class: "form-label" %>
+      <%= f.text_field :name, class: "form-input" %>
+    </div>
+
+    <!-- ブランド名 -->
+    <div>
+      <%= f.label :brand_name, "ブランド名", class: "form-label" %>
+      <%= f.text_field :brand_name, class: "form-input", placeholder: "例: ものログ製薬", maxlength: 100 %>
+      <p class="form-help">メーカー名やブランド名を残しておくと、あとから見返しやすくなります。</p>
+    </div>
+
+    <!-- カテゴリ -->
+    <div class="space-y-3">
+      <% if item.persisted? && item.category.present? %>
+        <div class="rounded-lg border border-emerald-100 bg-emerald-50 p-3">
+          <p class="text-xs text-emerald-700">現在のカテゴリ</p>
+          <div class="mt-2 flex flex-wrap items-center justify-between gap-3">
+            <span class="rounded-full bg-white px-3 py-1 text-sm font-medium text-emerald-800">
+              <%= item.category.name %>
+            </span>
+            <label class="flex items-center text-sm text-slate-700">
+              <%= f.check_box :remove_category, class: "h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500" %>
+              <span class="ml-2">このカテゴリを外す</span>
+            </label>
+          </div>
+        </div>
+      <% end %>
+
+      <div>
+        <%= f.label :category_id, "カテゴリ", class: "form-label" %>
+        <%= f.collection_select :category_id,
+                                categories,
+                                :id,
+                                :name,
+                                { include_blank: "カテゴリを選択してください" },
+                                { class: "form-input" } %>
+        <% if item.persisted? %>
+          <p class="form-help">別のカテゴリを選ぶとカテゴリを変更できます。</p>
+        <% end %>
+      </div>
+
+      <div>
+        <%= f.label :new_category_name, "カテゴリが見つからない場合", class: "form-label" %>
+        <%= f.text_field :new_category_name, class: "form-input", placeholder: "例: ヘアケア", maxlength: 20 %>
+        <p class="form-help">入力すると、新しいカテゴリを追加してこのアイテムに設定します。</p>
+      </div>
+    </div>
+
+    <!-- 画像プレビュー -->
+    <div>
+      <label class="form-label">画像</label>
+      <% if item.persisted? %>
+        <div data-image-preview-placeholder>
+          <%= render "image",
+                     item: item,
+                     size_class: "w-64 h-64",
+                     image_class: "w-64 h-64 rounded-lg object-cover mx-auto",
+                     placeholder_icon_class: "w-16 h-16",
+                     variant_name: :preview %>
+        </div>
+        <img class="hidden w-64 h-64 rounded-lg object-cover mx-auto" data-image-preview>
+        <% if item.image.attached? %>
+          <div class="mt-3 text-center">
+            <%= link_to "画像を削除",
+                        image_item_path(item),
+                        data: { turbo_method: :delete, turbo_confirm: "画像を削除しますか?" },
+                        class: "font-medium text-red-600 transition duration-150 hover:text-red-800" %>
+          </div>
+        <% end %>
+      <% else %>
+        <div class="mx-auto flex h-64 w-64 items-center justify-center rounded-lg border border-slate-200 bg-slate-100">
+          <span class="text-sm text-slate-500" data-image-preview-placeholder>画像プレビュー</span>
+          <img class="hidden w-64 h-64 rounded-lg object-cover" data-image-preview>
+        </div>
+      <% end %>
+      <div class="mt-4 grid gap-3 md:block">
+        <%= f.file_field :image,
+                         accept: "image/jpeg,image/png",
+                         capture: "environment",
+                         id: "item_image_camera",
+                         class: "sr-only md:hidden" %>
+        <label for="item_image_camera" class="btn-primary block cursor-pointer text-center md:hidden">
+          カメラを起動
+        </label>
+
+        <%= f.file_field :image,
+                         accept: "image/jpeg,image/png",
+                         id: "item_image_file",
+                         class: "sr-only md:not-sr-only md:block md:w-full md:text-sm md:text-slate-700" %>
+        <label for="item_image_file" class="btn-secondary block cursor-pointer text-center md:hidden">
+          フォルダからアップロード
+        </label>
+      </div>
+      <p class="form-help md:hidden">JPEG / PNG、10MB以下。撮影またはフォルダからアップロードできます。</p>
+      <p class="form-help hidden md:block">JPEG / PNG、10MB以下の画像を選択してください</p>
+      <div class="alert-success hidden" data-upload-progress></div>
+    </div>
+
+    <!-- 価格・在庫数 -->
+    <% if item.persisted? %>
+      <div class="grid gap-4 sm:grid-cols-2">
+        <div class="flex-1">
+          <%= f.label :price, class: "form-label" %>
+          <%= f.text_field :price, class: "form-input h-12", placeholder: "例: 1000" %>
+        </div>
+
+        <div>
+          <%= f.label :stock_quantity, "在庫数", class: "form-label" %>
+          <div class="grid grid-cols-[3rem_minmax(0,1fr)_3rem] overflow-hidden rounded-lg border border-slate-300 bg-white focus-within:border-emerald-500 focus-within:ring-2 focus-within:ring-emerald-100" data-stock-stepper>
+            <button type="button" class="flex h-12 items-center justify-center border-r border-slate-200 text-xl font-semibold text-slate-600 transition hover:bg-slate-50" data-stock-stepper-action="decrement" aria-label="在庫数を1減らす">
+              -
+            </button>
+            <%= f.number_field :stock_quantity,
+                               min: 0,
+                               step: 1,
+                               class: "h-12 w-full border-0 bg-white text-center text-base font-semibold text-slate-900 focus:ring-0",
+                               data: { stock_stepper_input: true } %>
+            <button type="button" class="flex h-12 items-center justify-center border-l border-slate-200 text-xl font-semibold text-emerald-700 transition hover:bg-emerald-50" data-stock-stepper-action="increment" aria-label="在庫数を1増やす">
+              +
+            </button>
+          </div>
+          <p class="form-help">手元の数に合わせて調整できます。</p>
+        </div>
+      </div>
+    <% else %>
+      <!-- 価格 -->
+      <div class="flex gap-4">
+        <div class="flex-1">
+          <%= f.label :price, class: "form-label" %>
+          <%= f.text_field :price, class: "form-input", placeholder: "例: 1000" %>
+        </div>
+      </div>
+
+      <!-- 在庫数 -->
+      <div>
+        <%= f.label :stock_quantity, "在庫数", class: "form-label" %>
+        <%= f.number_field :stock_quantity, min: 0, value: item.stock_quantity || 1, class: "form-input" %>
+      </div>
+    <% end %>
+
+    <!-- メモ -->
+    <div>
+      <%= f.label :memo, class: "form-label" %>
+      <%= f.text_area :memo, rows: "5", class: "form-input" %>
+    </div>
+
+    <!-- ボタン群 -->
+    <div class="alert-info hidden text-center" data-submit-loading>
+      <%= item.persisted? ? "アイテム情報を更新しています..." : "アイテムを登録しています..." %>
+    </div>
+
+    <% if item.persisted? %>
+      <div class="grid gap-3 sm:grid-cols-2">
+        <%= link_to 'キャンセル', item_path(item), class: "btn-secondary" %>
+        <%= f.submit '更新する', class: "btn-primary cursor-pointer" %>
+      </div>
+    <% else %>
+      <div>
+        <%= f.submit nil, class: "btn-primary w-full cursor-pointer" %>
+      </div>
+    <% end %>
+  </div>
+<% end %>
