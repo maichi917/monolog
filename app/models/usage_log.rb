@@ -61,6 +61,10 @@ class UsageLog < ApplicationRecord
   validate :finished_at_must_be_after_started_at
   validate :review_requires_rating
 
+  # 使用履歴が変わったら、アイテムの使い切り予測日キャッシュを再計算する
+  after_save :refresh_item_prediction
+  after_destroy :refresh_item_prediction
+
   def in_use?
     finished_at.nil?
   end
@@ -84,6 +88,10 @@ class UsageLog < ApplicationRecord
   end
 
   private
+
+  def refresh_item_prediction
+    item.refresh_predicted_finish_on!
+  end
 
   def finished_at_must_be_after_started_at
     return if started_at.blank? || finished_at.blank?

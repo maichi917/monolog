@@ -74,30 +74,27 @@ class Item < ApplicationRecord
   # 「もうすぐ無くなりそう」とみなす予測日までの日数
   FINISH_PREDICTED_SOON_DAYS = 7
 
+  # 使い切り予測日（キャッシュされたカラムを返す）
   def predicted_finish_date
-    return unless using?
-    return if current_usage_log.started_at.blank?
+    predicted_finish_on
+  end
 
-    average_days = average_usage_days
-    return if average_days.blank?
-
-    current_usage_log.started_at.to_date + (average_days - 1).days
+  # 使い切り予測日を再計算してカラムに保存する。使用履歴の変更時に呼ばれる
+  def refresh_predicted_finish_on!
+    update_column(:predicted_finish_on, calculate_predicted_finish_on)
   end
 
   # 使い切り予測日が近い（7日以内。予測日を過ぎている場合も含む）かどうか
   def finish_predicted_soon?
-    predicted_finish_date.present? &&
-      predicted_finish_date <= Date.current + FINISH_PREDICTED_SOON_DAYS.days
+    predicted_finish_on.present? &&
+      predicted_finish_on <= Date.current + FINISH_PREDICTED_SOON_DAYS.days
   end
 
-  # 使用中のアイテムのうち、予測日が近いものを予測日の早い順で返す。
-  # 予測日はRubyで計算するため、対象を使用中のアイテムに絞ってから読み込む
+  # 予測日が近いアイテムを予測日の早い順で返す
   def self.finish_predicted_soon
-    joins(:usage_logs)
-      .merge(UsageLog.in_use)
-      .distinct
-      .select(&:finish_predicted_soon?)
-      .sort_by(&:predicted_finish_date)
+    where.not(predicted_finish_on: nil)
+         .where(predicted_finish_on: ..(Date.current + FINISH_PREDICTED_SOON_DAYS.days))
+         .order(:predicted_finish_on)
   end
 
   # カテゴリを割り当てる。新規カテゴリ名があれば作成して設定し、
@@ -176,6 +173,17 @@ class Item < ApplicationRecord
   end
 
   private
+
+  # 使用履歴から使い切り予測日を計算する。予測できない場合は nil
+  def calculate_predicted_finish_on
+    return unless using?
+    return if current_usage_log.started_at.blank?
+
+    average_days = average_usage_days
+    return if average_days.blank?
+
+    current_usage_log.started_at.to_date + (average_days - 1).days
+  end
 
   def image_content_type
     return unless image.attached?

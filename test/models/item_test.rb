@@ -367,6 +367,40 @@ class ItemTest < ActiveSupport::TestCase
     assert_not_includes result, far_item
   end
 
+  test "predicted_finish_on is saved to the column when usage starts" do
+    item = items(:one)
+    item.update!(stock_quantity: 2)
+    item.start_using!(users(:one), Time.zone.local(2026, 5, 1))
+    item.finish_using!(Time.zone.local(2026, 5, 10))
+    item.start_using!(users(:one), Time.zone.local(2026, 6, 1))
+
+    assert_equal Date.new(2026, 6, 10), item.reload.predicted_finish_on
+  end
+
+  test "predicted_finish_on is cleared when usage finishes" do
+    item = items(:one)
+    item.update!(stock_quantity: 2)
+    item.start_using!(users(:one), Time.zone.local(2026, 5, 1))
+    item.finish_using!(Time.zone.local(2026, 5, 10))
+    item.start_using!(users(:one), Time.zone.local(2026, 6, 1))
+    item.finish_using!(Time.zone.local(2026, 6, 5))
+
+    assert_nil item.reload.predicted_finish_on
+  end
+
+  test "predicted_finish_on is recalculated when a usage log is destroyed" do
+    item = items(:one)
+    item.update!(stock_quantity: 2)
+    item.start_using!(users(:one), Time.zone.local(2026, 5, 1))
+    item.finish_using!(Time.zone.local(2026, 5, 10))
+    item.start_using!(users(:one), Time.zone.local(2026, 6, 1))
+
+    item.usage_logs.finished.first.destroy!
+
+    # 使い切り履歴が消えて平均が計算できなくなるため、予測日もクリアされる
+    assert_nil item.reload.predicted_finish_on
+  end
+
   test "item can be saved without image" do
     item = items(:one)
 
