@@ -128,6 +128,24 @@
         </section>
   <% end %>
 
+  <% if @finish_predicted_soon_items.present? %>
+    <section class="mb-4 rounded-lg border border-amber-200 bg-amber-50 p-4" aria-label="もうすぐ無くなりそうなアイテム">
+      <h2 class="brand-font text-sm font-bold text-amber-800">もうすぐ無くなりそう</h2>
+      <ul class="mt-2 space-y-1">
+        <% @finish_predicted_soon_items.each do |item| %>
+          <li>
+            <%= link_to item_path(item), class: "flex items-center justify-between gap-2 rounded-lg px-2 py-1.5 text-sm transition hover:bg-amber-100" do %>
+              <span class="truncate font-semibold text-slate-800"><%= item.name %></span>
+              <span class="shrink-0 text-xs font-semibold text-amber-800">
+                <%= item.predicted_finish_date.strftime("%-m/%-d") %>ごろ
+              </span>
+            <% end %>
+          </li>
+        <% end %>
+      </ul>
+    </section>
+  <% end %>
+
   <% if @items.any? %>
     <div class="grid gap-3">
       <% @items.each do |item| %>
@@ -172,7 +190,7 @@
                   <% if item.using? %>
                     <div class="flex min-w-0 items-center gap-1">
                       <dt class="shrink-0 font-medium text-slate-500">使い切り予測</dt>
-                      <dd class="min-w-0 truncate text-emerald-700">
+                      <dd class="min-w-0 truncate <%= item.finish_predicted_soon? ? "font-semibold text-red-600" : "text-emerald-700" %>">
                         <% if item.predicted_finish_date.present? %>
                           <%= item.predicted_finish_date.strftime("%-m/%-d") %>ごろ
                         <% else %>

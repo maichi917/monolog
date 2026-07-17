@@ -21,6 +21,41 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_no_match other_user_item.name, response.body
   end
 
+  test "index shows finish predicted soon section" do
+    item = items(:one)
+    item.update!(stock_quantity: 2)
+    item.start_using!(@user, 10.days.ago)
+    item.finish_using!(3.days.ago)
+    item.start_using!(@user, Time.current)
+
+    get items_path
+
+    assert_response :success
+    assert_select "section[aria-label='もうすぐ無くなりそうなアイテム']" do
+      assert_select "span", text: item.name
+    end
+  end
+
+  test "index does not show finish predicted soon section when filtering" do
+    item = items(:one)
+    item.update!(stock_quantity: 2)
+    item.start_using!(@user, 10.days.ago)
+    item.finish_using!(3.days.ago)
+    item.start_using!(@user, Time.current)
+
+    get items_path, params: { q: item.name }
+
+    assert_response :success
+    assert_select "section[aria-label='もうすぐ無くなりそうなアイテム']", count: 0
+  end
+
+  test "index does not show finish predicted soon section without matching items" do
+    get items_path
+
+    assert_response :success
+    assert_select "section[aria-label='もうすぐ無くなりそうなアイテム']", count: 0
+  end
+
   test "index keeps search query and shows reset link" do
     get items_path, params: { q: "化粧" }
 
