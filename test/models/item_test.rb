@@ -307,6 +307,66 @@ class ItemTest < ActiveSupport::TestCase
     assert_nil item.predicted_finish_date
   end
 
+  test "finish_predicted_soon? returns true when predicted date is within 7 days" do
+    item = items(:one)
+    item.update!(stock_quantity: 2)
+    item.start_using!(users(:one), 10.days.ago)
+    item.finish_using!(3.days.ago)
+    item.start_using!(users(:one), Time.current)
+
+    # 平均使用日数8日 → 予測日は7日後
+    assert item.finish_predicted_soon?
+  end
+
+  test "finish_predicted_soon? returns true when predicted date has passed" do
+    item = items(:one)
+    item.update!(stock_quantity: 2)
+    item.start_using!(users(:one), 30.days.ago)
+    item.finish_using!(26.days.ago)
+    item.start_using!(users(:one), 20.days.ago)
+
+    # 平均使用日数5日 → 予測日は16日前（過ぎている）
+    assert item.finish_predicted_soon?
+  end
+
+  test "finish_predicted_soon? returns false when predicted date is far" do
+    item = items(:one)
+    item.update!(stock_quantity: 2)
+    item.start_using!(users(:one), 60.days.ago)
+    item.finish_using!(1.day.ago)
+    item.start_using!(users(:one), Time.current)
+
+    # 平均使用日数60日 → 予測日は59日後
+    assert_not item.finish_predicted_soon?
+  end
+
+  test "finish_predicted_soon? returns false without prediction" do
+    item = items(:one)
+    item.start_using!(users(:one), Time.current)
+
+    # 使い切り履歴がなく予測日が計算できない
+    assert_not item.finish_predicted_soon?
+  end
+
+  test "finish_predicted_soon returns matching items ordered by predicted date" do
+    near_item = items(:one)
+    near_item.update!(stock_quantity: 2)
+    near_item.start_using!(users(:one), 10.days.ago)
+    near_item.finish_using!(3.days.ago)
+    near_item.start_using!(users(:one), Time.current)
+
+    far_item = items(:two)
+    far_item.update!(stock_quantity: 2)
+    far_item.start_using!(users(:one), 60.days.ago)
+    far_item.finish_using!(1.day.ago)
+    far_item.start_using!(users(:one), Time.current)
+
+    result = users(:one).items.finish_predicted_soon
+
+    assert_includes result, near_item
+    assert_not_includes result, far_item
+  end
+
   test "item can be saved without image" do
     item = items(:one)
 

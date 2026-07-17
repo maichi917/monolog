@@ -71,6 +71,9 @@ class Item < ApplicationRecord
     usage_logs.rated.count
   end
 
+  # 「もうすぐ無くなりそう」とみなす予測日までの日数
+  FINISH_PREDICTED_SOON_DAYS = 7
+
   def predicted_finish_date
     return unless using?
     return if current_usage_log.started_at.blank?
@@ -79,6 +82,22 @@ class Item < ApplicationRecord
     return if average_days.blank?
 
     current_usage_log.started_at.to_date + (average_days - 1).days
+  end
+
+  # 使い切り予測日が近い（7日以内。予測日を過ぎている場合も含む）かどうか
+  def finish_predicted_soon?
+    predicted_finish_date.present? &&
+      predicted_finish_date <= Date.current + FINISH_PREDICTED_SOON_DAYS.days
+  end
+
+  # 使用中のアイテムのうち、予測日が近いものを予測日の早い順で返す。
+  # 予測日はRubyで計算するため、対象を使用中のアイテムに絞ってから読み込む
+  def self.finish_predicted_soon
+    joins(:usage_logs)
+      .merge(UsageLog.in_use)
+      .distinct
+      .select(&:finish_predicted_soon?)
+      .sort_by(&:predicted_finish_date)
   end
 
   # カテゴリを割り当てる。新規カテゴリ名があれば作成して設定し、
