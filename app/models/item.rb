@@ -74,14 +74,39 @@ class Item < ApplicationRecord
   # 「もうすぐ無くなりそう」とみなす予測日までの日数
   FINISH_PREDICTED_SOON_DAYS = 7
 
+  # 購入リマインダーの通知タイミング（予測日までの残り日数）
+  REMINDER_FIRST_DAYS = 7
+  REMINDER_SECOND_DAYS = 3
+
+  # 1回目のリマインダー対象（予測日まで7日以内・未送信）
+  scope :reminder_first_due, -> {
+    where.not(predicted_finish_on: nil)
+         .where(predicted_finish_on: ..(Date.current + REMINDER_FIRST_DAYS.days))
+         .where(reminder_first_sent_at: nil)
+  }
+  # 2回目のリマインダー対象（予測日まで3日以内・未送信）
+  scope :reminder_second_due, -> {
+    where.not(predicted_finish_on: nil)
+         .where(predicted_finish_on: ..(Date.current + REMINDER_SECOND_DAYS.days))
+         .where(reminder_second_sent_at: nil)
+  }
+
   # 使い切り予測日（キャッシュされたカラムを返す）
   def predicted_finish_date
     predicted_finish_on
   end
 
-  # 使い切り予測日を再計算してカラムに保存する。使用履歴の変更時に呼ばれる
+  # 使い切り予測日を再計算してカラムに保存する。使用履歴の変更時に呼ばれる。
+  # 予測日が変わったら、新しいサイクルとしてリマインダーの送信記録もリセットする
   def refresh_predicted_finish_on!
-    update_column(:predicted_finish_on, calculate_predicted_finish_on)
+    new_prediction = calculate_predicted_finish_on
+    return if new_prediction == predicted_finish_on
+
+    update_columns(
+      predicted_finish_on: new_prediction,
+      reminder_first_sent_at: nil,
+      reminder_second_sent_at: nil
+    )
   end
 
   # 使い切り予測日が近い（7日以内。予測日を過ぎている場合も含む）かどうか

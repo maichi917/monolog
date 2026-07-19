@@ -401,6 +401,57 @@ class ItemTest < ActiveSupport::TestCase
     assert_nil item.reload.predicted_finish_on
   end
 
+  test "reminder_first_due returns items within 7 days of predicted finish" do
+    item = items(:one)
+    item.update!(predicted_finish_on: Date.current + 7.days)
+
+    assert_includes Item.reminder_first_due, item
+  end
+
+  test "reminder_first_due excludes items already notified" do
+    item = items(:one)
+    item.update!(predicted_finish_on: Date.current + 7.days, reminder_first_sent_at: Time.current)
+
+    assert_not_includes Item.reminder_first_due, item
+  end
+
+  test "reminder_first_due excludes items with far or no prediction" do
+    far_item = items(:one)
+    far_item.update!(predicted_finish_on: Date.current + 8.days)
+    no_prediction_item = items(:two)
+    no_prediction_item.update!(predicted_finish_on: nil)
+
+    assert_not_includes Item.reminder_first_due, far_item
+    assert_not_includes Item.reminder_first_due, no_prediction_item
+  end
+
+  test "reminder_second_due returns unnotified items within 3 days" do
+    due_item = items(:one)
+    due_item.update!(predicted_finish_on: Date.current + 3.days)
+    early_item = items(:two)
+    early_item.update!(predicted_finish_on: Date.current + 4.days)
+
+    assert_includes Item.reminder_second_due, due_item
+    assert_not_includes Item.reminder_second_due, early_item
+  end
+
+  test "reminder sent timestamps are reset when prediction changes" do
+    item = items(:one)
+    item.update!(
+      stock_quantity: 2,
+      reminder_first_sent_at: Time.current,
+      reminder_second_sent_at: Time.current
+    )
+    item.start_using!(users(:one), Time.zone.local(2026, 5, 1))
+    item.finish_using!(Time.zone.local(2026, 5, 10))
+    item.start_using!(users(:one), Time.zone.local(2026, 6, 1))
+
+    item.reload
+    assert_equal Date.new(2026, 6, 10), item.predicted_finish_on
+    assert_nil item.reminder_first_sent_at
+    assert_nil item.reminder_second_sent_at
+  end
+
   test "item can be saved without image" do
     item = items(:one)
 
