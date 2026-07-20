@@ -1,6 +1,9 @@
 // Configure your import map in config/importmap.rb. Read more: https://github.com/rails/importmap-rails
 import "@hotwired/turbo-rails"
 
+const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png"]
+const MAX_IMAGE_SIZE_BYTES = 10 * 1024 * 1024
+
 document.addEventListener("change", (event) => {
   if (event.target.type !== "file") return
 
@@ -10,12 +13,35 @@ document.addEventListener("change", (event) => {
   const imagePreviewPlaceholder = form.querySelector("[data-image-preview-placeholder]")
   const file = event.target.files[0]
 
-  if (uploadProgress) {
-    uploadProgress.textContent = "画像が選択されました"
-    uploadProgress.classList.remove("hidden")
+  if (!file) return
+
+  if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+    event.target.value = ""
+    if (uploadProgress) {
+      uploadProgress.textContent = "JPEGまたはPNG形式の画像を選択してください"
+      uploadProgress.classList.remove("hidden", "alert-success")
+      uploadProgress.classList.add("alert-error")
+    }
+    return
   }
 
-  if (imagePreview && file) {
+  if (file.size > MAX_IMAGE_SIZE_BYTES) {
+    event.target.value = ""
+    if (uploadProgress) {
+      uploadProgress.textContent = "画像は10MB以下にしてください"
+      uploadProgress.classList.remove("hidden", "alert-success")
+      uploadProgress.classList.add("alert-error")
+    }
+    return
+  }
+
+  if (uploadProgress) {
+    uploadProgress.textContent = "画像が選択されました"
+    uploadProgress.classList.remove("hidden", "alert-error")
+    uploadProgress.classList.add("alert-success")
+  }
+
+  if (imagePreview) {
     imagePreview.src = URL.createObjectURL(file)
     imagePreview.classList.remove("hidden")
     if (imagePreviewPlaceholder) {
