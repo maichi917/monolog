@@ -30,39 +30,7 @@
 
     <!-- カテゴリ -->
     <div class="space-y-3">
-      <% if item.persisted? && item.category.present? %>
-        <div class="rounded-lg border border-emerald-100 bg-emerald-50 p-3">
-          <p class="text-xs text-emerald-700">現在のカテゴリ</p>
-          <div class="mt-2 flex flex-wrap items-center justify-between gap-3">
-            <span class="rounded-full bg-white px-3 py-1 text-sm font-medium text-emerald-800">
-              <%= item.category.name %>
-            </span>
-            <label class="flex items-center text-sm text-slate-700">
-              <%= f.check_box :remove_category, class: "h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500" %>
-              <span class="ml-2">このカテゴリを外す</span>
-            </label>
-          </div>
-        </div>
-      <% end %>
-
-      <div>
-        <%= f.label :category_id, "カテゴリ", class: "form-label" %>
-        <%= f.collection_select :category_id,
-                                categories,
-                                :id,
-                                :name,
-                                { include_blank: "カテゴリを選択してください" },
-                                { class: "form-input" } %>
-        <% if item.persisted? %>
-          <p class="form-help">別のカテゴリを選ぶとカテゴリを変更できます。</p>
-        <% end %>
-      </div>
-
-      <div>
-        <%= f.label :new_category_name, "カテゴリが見つからない場合", class: "form-label" %>
-        <%= f.text_field :new_category_name, class: "form-input", placeholder: "例: ヘアケア", maxlength: 20 %>
-        <p class="form-help">入力すると、新しいカテゴリを追加してこのアイテムに設定します。</p>
-      </div>
+      <%= render "category_combobox", form: f, item: item, categories: categories %>
     </div>
 
     <!-- 画像プレビュー -->
