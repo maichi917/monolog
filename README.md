@@ -155,6 +155,19 @@ https://monolog-note.com/
 | テスト | Minitest |
 | CI | GitHub Actions |
 
+## デプロイ
+
+- アプリ: Render / DB: Neon
+- `main` へのマージ時は GitHub Actions の CI（テスト・Rubocop）のみ実行され、自動デプロイはされない
+- デプロイは GitHub Actions の `Deploy to Render` ワークフロー（`.github/workflows/deploy.yml`）を手動実行（`workflow_dispatch`）することで行う。実行するとテスト・Rubocopが通った場合のみ Render の Deploy Hook を叩く
+- マイグレーションは Render 上のコンテナ起動時（`bin/docker-entrypoint`）に `bin/rails db:prepare` として自動実行される
+
+### 必要な GitHub repository secrets
+
+| 名前 | 内容 |
+| --- | --- |
+| `RENDER_DEPLOY_HOOK_URL` | Render のサービス設定にある Deploy Hook のURL |
+
 ## 使用技術の選定理由
 
 ### Ruby on Rails
