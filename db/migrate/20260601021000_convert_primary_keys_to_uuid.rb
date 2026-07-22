@@ -172,21 +172,21 @@ class ConvertPrimaryKeysToUuid < ActiveRecord::Migration[7.1]
     change_column_null :active_storage_variant_records, :blob_id, false
 
     add_index :items, :user_id
-    add_index :usage_logs, [:item_id, :finished_at]
+    add_index :usage_logs, [ :item_id, :finished_at ]
     add_index :usage_logs, :item_id
     add_index :usage_logs, :item_id,
               unique: true,
               where: "finished_at IS NULL",
               name: :index_usage_logs_on_item_id_where_in_use
-    add_index :usage_logs, [:user_id, :finished_at]
+    add_index :usage_logs, [ :user_id, :finished_at ]
     add_index :usage_logs, :user_id
     add_index :active_storage_attachments, :blob_id
     add_index :active_storage_attachments,
-              [:record_type, :record_id, :name, :blob_id],
+              [ :record_type, :record_id, :name, :blob_id ],
               name: :index_active_storage_attachments_uniqueness,
               unique: true
     add_index :active_storage_variant_records,
-              [:blob_id, :variation_digest],
+              [ :blob_id, :variation_digest ],
               name: :index_active_storage_variant_records_uniqueness,
               unique: true
 

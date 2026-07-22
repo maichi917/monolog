@@ -16,7 +16,7 @@ class UsageLogTest < ActiveSupport::TestCase
       started_at: Time.zone.local(2026, 5, 11)
     )
 
-    assert_equal [matching_log], UsageLog.by_item_name("化粧").to_a
+    assert_equal [ matching_log ], UsageLog.by_item_name("化粧").to_a
     assert_not_includes UsageLog.by_item_name("化粧"), other_log
   end
 
@@ -41,7 +41,7 @@ class UsageLogTest < ActiveSupport::TestCase
       started_at: Time.zone.local(2026, 5, 11)
     )
 
-    assert_equal [matching_log],
+    assert_equal [ matching_log ],
                  UsageLog.by_item_category(categories(:hair_care).id.to_s).to_a
   end
 
@@ -56,7 +56,7 @@ class UsageLogTest < ActiveSupport::TestCase
       started_at: Time.zone.local(2026, 5, 11)
     )
 
-    assert_equal [uncategorized_log],
+    assert_equal [ uncategorized_log ],
                  UsageLog.by_item_category("uncategorized").to_a
   end
 

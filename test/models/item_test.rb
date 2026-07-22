@@ -4,7 +4,7 @@ class ItemTest < ActiveSupport::TestCase
   include ActionDispatch::TestProcess::FixtureFile
 
   test "by_name returns items whose names partially match" do
-    assert_equal [items(:one)], Item.by_name("化粧").to_a
+    assert_equal [ items(:one) ], Item.by_name("化粧").to_a
   end
 
   test "by_name returns all items when query is blank" do
@@ -15,13 +15,13 @@ class ItemTest < ActiveSupport::TestCase
     item = items(:one)
     item.update!(category: categories(:hair_care))
 
-    assert_equal [item], Item.by_category(categories(:hair_care).id.to_s).to_a
+    assert_equal [ item ], Item.by_category(categories(:hair_care).id.to_s).to_a
   end
 
   test "by_category returns uncategorized items" do
     items(:one).update!(category: categories(:hair_care))
 
-    assert_equal [items(:two)], Item.by_category("uncategorized").to_a
+    assert_equal [ items(:two) ], Item.by_category("uncategorized").to_a
   end
 
   test "by_category returns all items when category is blank" do
@@ -485,9 +485,9 @@ class ItemTest < ActiveSupport::TestCase
   test "item image has display variants" do
     variants = Item.reflect_on_attachment(:image).named_variants
 
-    assert_equal [160, 160], variants[:thumbnail].transformations[:resize_to_fill]
+    assert_equal [ 160, 160 ], variants[:thumbnail].transformations[:resize_to_fill]
     assert_equal :webp, variants[:thumbnail].transformations[:format]
-    assert_equal [512, 512], variants[:preview].transformations[:resize_to_fill]
+    assert_equal [ 512, 512 ], variants[:preview].transformations[:resize_to_fill]
     assert_equal :webp, variants[:preview].transformations[:format]
   end
 
@@ -516,5 +516,4 @@ class ItemTest < ActiveSupport::TestCase
     assert_not item.valid?
     assert_includes item.errors[:image], "は10MB以下にしてください"
   end
-
 end

@@ -11,8 +11,8 @@ class CreateUsageLogs < ActiveRecord::Migration[7.1]
       t.timestamps
     end
 
-    add_index :usage_logs, [:item_id, :finished_at]
-    add_index :usage_logs, [:user_id, :finished_at]
+    add_index :usage_logs, [ :item_id, :finished_at ]
+    add_index :usage_logs, [ :user_id, :finished_at ]
     add_index :usage_logs, :item_id,
               unique: true,
               where: "finished_at IS NULL",

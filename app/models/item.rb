@@ -12,8 +12,8 @@ class Item < ApplicationRecord
   belongs_to :category, optional: true
   has_many :usage_logs, dependent: :destroy
   has_one_attached :image do |attachable|
-    attachable.variant :thumbnail, resize_to_fill: [160, 160], format: :webp, saver: { quality: 80 }
-    attachable.variant :preview, resize_to_fill: [512, 512], format: :webp, saver: { quality: 82 }
+    attachable.variant :thumbnail, resize_to_fill: [ 160, 160 ], format: :webp, saver: { quality: 80 }
+    attachable.variant :preview, resize_to_fill: [ 512, 512 ], format: :webp, saver: { quality: 82 }
   end
 
   # スコープ
