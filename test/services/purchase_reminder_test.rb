@@ -10,7 +10,7 @@ class PurchaseReminderTest < ActiveSupport::TestCase
     end
 
     def deliver(user, entries)
-      @deliveries << [user, entries]
+      @deliveries << [ user, entries ]
     end
   end
 
@@ -27,7 +27,7 @@ class PurchaseReminderTest < ActiveSupport::TestCase
     assert_equal 1, count
     user, entries = @notifier.deliveries.first
     assert_equal item.user, user
-    assert_equal [{ item: item, stage: :first }], entries
+    assert_equal [ { item: item, stage: :first } ], entries
     item.reload
     assert item.reminder_first_sent_at.present?
     assert_nil item.reminder_second_sent_at
