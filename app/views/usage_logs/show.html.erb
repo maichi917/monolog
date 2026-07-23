@@ -86,7 +86,7 @@
         <h2 class="form-label">評価・レビュー</h2>
         <div class="rounded-lg bg-slate-50 p-3 text-sm">
           <p class="font-semibold text-yellow-500">
-            <%= "★" * @usage_log.rating %><span class="text-slate-300"><%= "☆" * (5 - @usage_log.rating) %></span>
+            <%= star_rating(@usage_log.rating) %>
           </p>
           <p class="mt-2 whitespace-pre-wrap text-slate-700"><%= @usage_log.review.presence || "レビューなし" %></p>
         </div>

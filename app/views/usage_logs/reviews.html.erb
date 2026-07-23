@@ -98,14 +98,14 @@
                 <div class="inline-flex items-center gap-1.5 rounded-lg bg-slate-50 px-2.5 py-1">
                   <dt class="text-xs font-medium text-slate-500">今回の評価</dt>
                   <dd class="font-semibold text-yellow-500">
-                    <%= "★" * usage_log.rating %><span class="text-slate-300"><%= "☆" * (5 - usage_log.rating) %></span>
+                    <%= star_rating(usage_log.rating) %>
                   </dd>
                 </div>
                 <div class="inline-flex items-center gap-1.5 rounded-lg bg-slate-50 px-2.5 py-1 text-slate-700">
                   <dt class="text-xs font-medium text-slate-500">平均</dt>
                   <dd>
                     <% if average_rating.present? %>
-                      <span class="text-yellow-500"><%= "★" * average_rating.round %><span class="text-slate-300"><%= "☆" * (5 - average_rating.round) %></span></span>
+                      <span class="text-yellow-500"><%= star_rating(average_rating) %></span>
                       <span class="ml-1"><%= average_rating %>（<%= rating_count %>件）</span>
                     <% else %>
                       <span class="text-slate-400">未評価</span>

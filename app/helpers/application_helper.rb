@@ -20,6 +20,13 @@ module ApplicationHelper
     date&.strftime("%Y/%-m/%-d") || "-"
   end
 
+  # 星評価を★☆で表示する（小数の場合は四捨五入する）
+  def star_rating(rating)
+    filled = "★" * rating.round
+    empty = content_tag(:span, "☆" * (5 - rating.round), class: "text-slate-300")
+    safe_join([ filled, empty ])
+  end
+
   def category_filter_class(selected_category_id, category_id)
     if selected_category_id.to_s == category_id.to_s
       "rounded-full bg-emerald-600 px-3 py-1.5 text-sm font-semibold text-white"
