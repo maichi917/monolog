@@ -4,7 +4,8 @@ module ApplicationHelper
   DEFAULT_OG_IMAGE = "ogp.png".freeze
 
   def meta_title
-    content_for?(:title) ? "#{content_for(:title)} | #{DEFAULT_META_TITLE}" : DEFAULT_META_TITLE
+    title = content_for(:title).presence || @page_title.presence
+    title.present? ? "#{title} | #{DEFAULT_META_TITLE}" : DEFAULT_META_TITLE
   end
 
   def meta_description

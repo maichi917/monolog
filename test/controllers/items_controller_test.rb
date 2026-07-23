@@ -572,6 +572,14 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to in_use_items_path
   end
 
+  test "in_use page sets meta title from page title" do
+    get in_use_items_path
+
+    assert_response :success
+    assert_select "title", text: "使用中アイテム | ものログ"
+    assert_select "meta[property='og:title'][content='使用中アイテム | ものログ']"
+  end
+
   test "in_use page shows finish using modal in item card" do
     item = items(:one)
     item.start_using!(@user, Time.zone.local(2026, 5, 10))
