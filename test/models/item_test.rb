@@ -248,6 +248,31 @@ class ItemTest < ActiveSupport::TestCase
     assert_nil item.average_usage_days
   end
 
+  test "cost_per_day divides price by average usage days" do
+    item = items(:one)
+    item.update!(price: 1000)
+    item.start_using!(users(:one), Time.zone.local(2026, 5, 1))
+    item.finish_using!(Time.zone.local(2026, 5, 10))
+
+    assert_equal 100, item.cost_per_day
+  end
+
+  test "cost_per_day returns nil when price is blank" do
+    item = items(:one)
+    item.update!(price: nil)
+    item.start_using!(users(:one), Time.zone.local(2026, 5, 1))
+    item.finish_using!(Time.zone.local(2026, 5, 10))
+
+    assert_nil item.cost_per_day
+  end
+
+  test "cost_per_day returns nil when average usage days is unavailable" do
+    item = items(:one)
+    item.update!(price: 1000)
+
+    assert_nil item.cost_per_day
+  end
+
   test "average_rating uses only usage logs with rating" do
     item = items(:one)
     item.start_using!(users(:one), Time.zone.local(2026, 5, 1))
