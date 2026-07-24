@@ -24,6 +24,7 @@ Rails.application.routes.draw do
       get :used_up
       get :discontinued
       get :in_use
+      get :autocomplete
     end
   end
 
