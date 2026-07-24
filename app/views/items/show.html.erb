@@ -41,10 +41,20 @@
         </div>
 
         <div class="rounded-lg bg-slate-50 p-3">
-          <dt class="text-xs text-slate-500">1日あたりコスト</dt>
-          <dd class="mt-1 font-semibold text-slate-800">
-            <%= @item.cost_per_day.present? ? "#{number_with_delimiter(@item.cost_per_day)}円/日" : "データなし" %>
-          </dd>
+          <% if @item.cost_per_use.present? %>
+            <dt class="text-xs text-slate-500">1回あたりコスト</dt>
+            <dd class="mt-1 font-semibold text-slate-800"><%= number_with_delimiter(@item.cost_per_use) %>円/回</dd>
+          <% else %>
+            <dt class="text-xs text-slate-500">1日あたりコスト</dt>
+            <dd class="mt-1 font-semibold text-slate-800">
+              <%= @item.cost_per_day.present? ? "#{number_with_delimiter(@item.cost_per_day)}円/日" : "データなし" %>
+            </dd>
+          <% end %>
+        </div>
+
+        <div class="rounded-lg bg-slate-50 p-3">
+          <dt class="text-xs text-slate-500">使用頻度</dt>
+          <dd class="mt-1 font-semibold text-slate-800"><%= @item.usage_frequency.presence || "未設定" %></dd>
         </div>
 
         <div class="rounded-lg bg-slate-50 p-3">

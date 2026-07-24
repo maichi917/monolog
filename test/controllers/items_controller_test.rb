@@ -1394,6 +1394,43 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_equal category, item.reload.category
   end
 
+  test "update changes usage frequency" do
+    item = items(:one)
+
+    patch item_path(item), params: {
+      item: {
+        name: item.name,
+        price: item.price,
+        stock_quantity: item.stock_quantity,
+        usage_frequency: "毎日"
+      }
+    }
+
+    assert_redirected_to items_path
+    assert_equal "毎日", item.reload.usage_frequency
+  end
+
+  test "show displays usage frequency" do
+    item = items(:one)
+    item.update!(usage_frequency: "朝晩")
+
+    get item_path(item)
+
+    assert_response :success
+    assert_select "dt", text: "使用頻度"
+    assert_includes response.body, "朝晩"
+  end
+
+  test "show displays unset message when usage frequency is blank" do
+    item = items(:one)
+
+    get item_path(item)
+
+    assert_response :success
+    assert_select "dt", text: "使用頻度"
+    assert_select "dd", text: "未設定"
+  end
+
   test "update changes brand name" do
     item = items(:one)
 
