@@ -14,11 +14,16 @@
         </svg>
       </span>
 
-      <div class="flex-1">
+      <div class="relative flex-1" data-autocomplete-container>
         <%= search_field_tag :q,
                              query,
                              placeholder: "アイテム名で検索",
-                             class: "form-input h-10" %>
+                             class: "form-input h-10",
+                             autocomplete: "off",
+                             data: { autocomplete_input: true } %>
+        <ul class="absolute z-10 mt-1 hidden max-h-60 w-full overflow-auto rounded-lg border border-slate-200 bg-white py-1 shadow-lg"
+            role="listbox"
+            data-autocomplete-list></ul>
       </div>
     </div>
 

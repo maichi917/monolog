@@ -76,6 +76,19 @@ class ItemsController < ApplicationController
                               .page(params[:page])
   end
 
+  # 検索欄のオートコンプリート候補（アイテム名）をJSONで返す
+  def autocomplete
+    query = params[:q].to_s.strip
+    names =
+      if query.length >= 2
+        current_user.items.by_name(query).order(:name).distinct.limit(10).pluck(:name)
+      else
+        []
+      end
+
+    render json: names
+  end
+
   def new
     @item = current_user.items.new
   end

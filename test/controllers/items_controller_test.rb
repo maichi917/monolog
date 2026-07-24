@@ -90,6 +90,47 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test "autocomplete returns matching item names for current user" do
+    @user.items.create!(name: "化粧水A", stock_quantity: 1)
+    @user.items.create!(name: "化粧水B", stock_quantity: 1)
+    @user.items.create!(name: "歯ブラシ", stock_quantity: 1)
+
+    get autocomplete_items_path, params: { q: "化粧" }
+
+    assert_response :success
+    names = JSON.parse(response.body)
+    assert_includes names, "化粧水A"
+    assert_includes names, "化粧水B"
+    assert_not_includes names, "歯ブラシ"
+  end
+
+  test "autocomplete excludes other user's items" do
+    users(:two).items.create!(name: "化粧水X", stock_quantity: 1)
+
+    get autocomplete_items_path, params: { q: "化粧" }
+
+    assert_response :success
+    assert_not_includes JSON.parse(response.body), "化粧水X"
+  end
+
+  test "autocomplete limits results to 10" do
+    12.times { |i| @user.items.create!(name: "検索アイテム#{i}", stock_quantity: 1) }
+
+    get autocomplete_items_path, params: { q: "検索アイテム" }
+
+    assert_response :success
+    assert_equal 10, JSON.parse(response.body).size
+  end
+
+  test "autocomplete returns empty array for query shorter than 2 characters" do
+    @user.items.create!(name: "化粧水", stock_quantity: 1)
+
+    get autocomplete_items_path, params: { q: "化" }
+
+    assert_response :success
+    assert_equal [], JSON.parse(response.body)
+  end
+
   test "index shows a message when search has no results" do
     get items_path, params: { q: "存在しないアイテム" }
 
