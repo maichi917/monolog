@@ -60,6 +60,16 @@ class Item < ApplicationRecord
     (durations.sum.to_f / durations.size).round
   end
 
+  # 1日あたりのコスト（価格 ÷ 平均使用日数）。価格または平均使用日数が無ければ nil
+  def cost_per_day
+    return if price.blank?
+
+    average_days = average_usage_days
+    return if average_days.blank?
+
+    (price.to_f / average_days).round
+  end
+
   def average_rating
     ratings = usage_logs.rated.pluck(:rating)
     return if ratings.blank?

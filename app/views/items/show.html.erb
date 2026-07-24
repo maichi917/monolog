@@ -41,6 +41,13 @@
         </div>
 
         <div class="rounded-lg bg-slate-50 p-3">
+          <dt class="text-xs text-slate-500">1日あたりコスト</dt>
+          <dd class="mt-1 font-semibold text-slate-800">
+            <%= @item.cost_per_day.present? ? "#{number_with_delimiter(@item.cost_per_day)}円/日" : "データなし" %>
+          </dd>
+        </div>
+
+        <div class="rounded-lg bg-slate-50 p-3">
           <dt class="text-xs text-slate-500">在庫数</dt>
           <dd class="mt-1 font-semibold <%= @item.out_of_stock? ? "text-red-700" : "text-slate-800" %>">
             <%= @item.stock_quantity %>
@@ -62,16 +69,11 @@
           <dd class="mt-1 font-semibold text-slate-800">
             <% if @average_rating.present? %>
               <span class="text-yellow-500"><%= star_rating(@average_rating) %></span>
-              <span class="ml-1"><%= @average_rating %></span>
+              <span class="ml-1"><%= @average_rating %>（<%= @rating_count %>件）</span>
             <% else %>
               未評価
             <% end %>
           </dd>
-        </div>
-
-        <div class="rounded-lg bg-slate-50 p-3">
-          <dt class="text-xs text-slate-500">評価件数</dt>
-          <dd class="mt-1 font-semibold text-slate-800"><%= "#{@rating_count}件" %></dd>
         </div>
       </dl>
     </div>

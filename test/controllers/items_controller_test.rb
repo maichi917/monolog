@@ -1599,9 +1599,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_includes response.body, "平均評価"
-    assert_includes response.body, "4.0"
-    assert_includes response.body, "評価件数"
-    assert_includes response.body, "2件"
+    assert_includes response.body, "4.0（2件）"
   end
 
   test "show displays unrated message when item has no ratings" do
@@ -1612,7 +1610,6 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_includes response.body, "平均評価"
     assert_includes response.body, "未評価"
-    assert_includes response.body, "0件"
   end
 
   test "show uses consistent finish using button label for in-use item" do
