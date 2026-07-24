@@ -273,6 +273,51 @@ class ItemTest < ActiveSupport::TestCase
     assert_nil item.cost_per_day
   end
 
+  test "cost_per_use divides price by expected weekly uses" do
+    item = items(:one)
+    item.update!(price: 2000, usage_frequency: "毎日")
+    item.start_using!(users(:one), Time.zone.local(2026, 5, 1))
+    item.finish_using!(Time.zone.local(2026, 5, 20))
+
+    # 平均使用日数20日、毎日=週7回 → 想定使用回数20回 → 2000÷20
+    assert_equal 100, item.cost_per_use
+  end
+
+  test "cost_per_use gives the same result regardless of frequency for the same real cost per use" do
+    # 毎日(週7回)で7日使い切り = 実質7回使用。たまに(週1回)で49日使い切り = 同じく実質7回使用。
+    # 使う回数が同じなら、頻度が違っても1回あたりコストは同じになるはず
+    daily_item = items(:one)
+    daily_item.update!(price: 700, usage_frequency: "毎日")
+    daily_item.start_using!(users(:one), Time.zone.local(2026, 5, 1))
+    daily_item.finish_using!(Time.zone.local(2026, 5, 7))
+
+    occasional_item = items(:two)
+    occasional_item.update!(price: 700, usage_frequency: "たまに")
+    occasional_item.start_using!(users(:one), Time.zone.local(2026, 5, 1))
+    occasional_item.finish_using!(Time.zone.local(2026, 6, 18))
+
+    assert_equal 100, daily_item.cost_per_use
+    assert_equal daily_item.cost_per_use, occasional_item.cost_per_use
+  end
+
+  test "cost_per_use returns nil when usage_frequency is その他" do
+    item = items(:one)
+    item.update!(price: 2000, usage_frequency: "その他")
+    item.start_using!(users(:one), Time.zone.local(2026, 5, 1))
+    item.finish_using!(Time.zone.local(2026, 5, 20))
+
+    assert_nil item.cost_per_use
+  end
+
+  test "cost_per_use returns nil when usage_frequency is blank" do
+    item = items(:one)
+    item.update!(price: 2000)
+    item.start_using!(users(:one), Time.zone.local(2026, 5, 1))
+    item.finish_using!(Time.zone.local(2026, 5, 20))
+
+    assert_nil item.cost_per_use
+  end
+
   test "average_rating uses only usage logs with rating" do
     item = items(:one)
     item.start_using!(users(:one), Time.zone.local(2026, 5, 1))

@@ -28,6 +28,15 @@
       <p class="form-help">メーカー名やブランド名を残しておくと、あとから見返しやすくなります。</p>
     </div>
 
+    <!-- 使用頻度 -->
+    <div>
+      <%= f.label :usage_frequency, "使用頻度", class: "form-label" %>
+      <%= f.select :usage_frequency,
+                   Item::USAGE_FREQUENCIES,
+                   { include_blank: "選択してください" },
+                   { class: "form-input" } %>
+    </div>
+
     <!-- カテゴリ -->
     <div class="space-y-3">
       <%= render "category_combobox", form: f, item: item, categories: categories %>

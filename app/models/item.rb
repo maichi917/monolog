@@ -1,10 +1,24 @@
 class Item < ApplicationRecord
   attr_accessor :new_category_name, :remove_category
 
+  # 使用頻度の選択肢。ユーザーには選択肢のまま見せ、厳密な回数入力は求めない
+  USAGE_FREQUENCIES = %w[毎日 朝晩 週に数回 たまに その他].freeze
+
+  # コスパ計算用の「週あたり想定使用回数」の目安（ユーザーには非表示）。
+  # 選択式のまま計算に使えるようにするための内部マッピング。
+  # 「その他」は回数を仮定できないため意図的に含めず、1日あたりコストにフォールバックする
+  USAGE_FREQUENCY_WEEKLY_COUNTS = {
+    "毎日" => 7,
+    "朝晩" => 14,
+    "週に数回" => 3,
+    "たまに" => 1
+  }.freeze
+
   validates :name, presence: true, length: { maximum: 100 }
   validates :brand_name, length: { maximum: 100 }
   validates :price, numericality: { only_integer: true, allow_blank: true, greater_than_or_equal_to: 0 }
   validates :stock_quantity, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
+  validates :usage_frequency, inclusion: { in: USAGE_FREQUENCIES }, allow_blank: true
   validate :image_content_type
   validate :image_size
 
@@ -68,6 +82,23 @@ class Item < ApplicationRecord
     return if average_days.blank?
 
     (price.to_f / average_days).round
+  end
+
+  # 1回あたりのコスト。使用頻度が「その他」・未設定、または平均使用日数が
+  # 不明な場合は nil（呼び出し側は cost_per_day にフォールバックする）
+  def cost_per_use
+    return if price.blank?
+
+    weekly_count = USAGE_FREQUENCY_WEEKLY_COUNTS[usage_frequency]
+    return if weekly_count.blank?
+
+    average_days = average_usage_days
+    return if average_days.blank?
+
+    expected_uses = average_days.to_f / 7 * weekly_count
+    return if expected_uses.zero?
+
+    (price.to_f / expected_uses).round
   end
 
   def average_rating
